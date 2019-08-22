@@ -17,6 +17,19 @@
     ],
     "main": "./out/extension",
     "contributes": {
+        "languages": [
+            {
+                "id": "urscript",
+                "aliases": [
+                    "URScript",
+                    "script"
+                ],
+                "extensions": [
+                    ".script"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
         "grammars": [
             {
                 "language": "urscript",
