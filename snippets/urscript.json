@@ -1,0 +1,38 @@
+{
+    "def": {
+        "prefix": "def",
+        "body" : [
+            "def ${1:function}(${2:para}):",
+            "  $3",
+            "end"
+        ],
+        "description": "declare a new method"
+    },
+    "if": {
+        "prefix": "if",
+        "body": [
+            "if (${1:expression}):",
+            "  $2",
+            "end"
+        ],
+        "description": "if-statement"
+    },
+    "while": {
+        "prefix": "while",
+        "body": [
+            "while ${1:i} ${2|<,>,<=,>=,==|} ${3:value}:",
+            "  $4",
+            "end"
+        ],
+        "description": "while-loops"
+    },
+    "thread": {
+        "prefix": "thread",
+        "body": [
+            "thread ${1:thread_name}():",
+            "  $2",
+            "end"
+        ],
+        "description": "declare a new thread"
+    }
+}

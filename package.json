@@ -30,6 +30,12 @@
                 "configuration": "./language-configuration.json"
             }
         ],
+        "snippets": [
+            {
+                "language": "urscript",
+                "path": "./snippets/urscript.json"
+            }
+        ],
         "grammars": [
             {
                 "language": "urscript",
