@@ -13,7 +13,7 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:extension.sayHello"
+        "onLanguage:urscript"
     ],
     "main": "./out/extension",
     "contributes": {
