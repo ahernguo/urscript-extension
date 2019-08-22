@@ -1,0 +1,998 @@
+[
+  {
+    "Name": "conveyor_pulse_decode",
+    "Return": "",
+    "Deprecated": "This function is replaced by `encoder_enable_pulse_decode` and it should therefore not be used moving forward.",
+    "Comment": "Tells the robot controller to treat digital inputs number A and B as pulses for a conveyor encoder. Only digital input 0, 1, 2 or 3 can be used.",
+    "Parameters": [
+      {
+        "Label": "type",
+        "Comment": "An integer determining how to treat the inputs on A and B.\r\n`0` is no encoder, pulse decoding is disabled.\r\n`1` is quadrature encoder, input A and B must be square waves with 90 degree offset. Direction of the conveyor can be determined.\r\n`2` is rising and falling edge on single input (A).\r\n`3` is rising edge on single input (A).\r\n`4` is falling edge on single input (A).\r\nThe controller can decode inputs at up to 40kHz"
+      },
+      {
+        "Label": "A",
+        "Comment": "Encoder input A pin. Must be 0-3."
+      },
+      {
+        "Label": "B",
+        "Comment": "Encoder input B pin. Must be 0-3."
+      }
+    ]
+  },
+  {
+    "Name": "encoder_enable_pulse_decode",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Sets up an encoder hooked up to the pulse decoder of the controller.",
+    "Parameters": [
+      {
+        "Label": "encoder_index",
+        "Comment": "Index of the encoder to define. Must be either 0 or 1."
+      },
+      {
+        "Label": "decoder_type",
+        "Comment": "An integer determining how to treat the inputs on A and B.\r\n`0` is no encoder, pulse decoding is disabled.\r\n`1` is quadrature encoder, input A and B must be square waves with 90 degree offset. Direction of the conveyor can be determined.\r\n`2` is rising and falling edge on single input (A).\r\n`3` is rising edge on single input (A).\r\n`4` is falling edge on single input (A).\r\nThe controller can decode inputs at up to 40kHz"
+      },
+      {
+        "Label": "A",
+        "Comment": "Encoder input A pin. Must be 0-3."
+      },
+      {
+        "Label": "B",
+        "Comment": "Encoder input B pin. Must be 0-3."
+      }
+    ]
+  },
+  {
+    "Name": "encoder_enable_set_tick_count",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Sets up an encoder expecting to be updated with tick counts via the\r\nfunction `encoder_set_tick_count`",
+    "Parameters": [
+      {
+        "Label": "encoder_index",
+        "Comment": "Index of the encoder to define. Must be either 0 or 1."
+      },
+      {
+        "Label": "range_id",
+        "Comment": "decoder_index: Range of the encoder (integer). Needed to handle wrapping nicely.\r\n`0` is a 32 bit signed encoder, range [-2147483648 ; 2147483647]\r\n`1` is a 8 bit unsigned encoder, range [0 ; 255]\r\n`2` is a 16 bit unsigned encoder, range [0 ; 65535]\r\n`3` is a 24 bit unsigned encoder, range [0 ; 16777215]\r\n`4` is a 32 bit unsigned encoder, range [0 ; 4294967295]"
+      }
+    ]
+  },
+  {
+    "Name": "encoder_get_tick_count",
+    "Return": "The conveyor encoder tick count (float)",
+    "Deprecated": "",
+    "Comment": "Returns the tick count of the designated encoder.",
+    "Parameters": [
+      {
+        "Label": "encoder_index",
+        "Comment": "Index of the encoder to query. Must be either 0 or 1."
+      }
+    ]
+  },
+  {
+    "Name": "encoder_set_tick_count",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Tells the robot controller the tick count of the encoder. This function is\r\nuseful for absolute encoders (e.g. MODBUS).",
+    "Parameters": [
+      {
+        "Label": "encoder_index",
+        "Comment": "Index of the encoder to define. Must be either 0 or 1."
+      },
+      {
+        "Label": "count",
+        "Comment": "The tick count to set. Must be within the range of the encoder."
+      }
+    ]
+  },
+  {
+    "Name": "end_force_mode",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Resets the robot mode from force mode to normal operation.\r\nThis is also done when a program stops.",
+    "Parameters": []
+  },
+  {
+    "Name": "end_freedrive_mode",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Set robot back in normal position control mode after freedrive mode.",
+    "Parameters": []
+  },
+  {
+    "Name": "end_teach_mode",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Set robot back in normal position control mode after freedrive mode.",
+    "Parameters": []
+  },
+  {
+    "Name": "force_mode",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Set robot to be controlled in force mode",
+    "Parameters": [
+      {
+        "Label": "task_frame",
+        "Comment": "A pose vector that defines the force frame relative to the base frame."
+      },
+      {
+        "Label": "selection_vector",
+        "Comment": "A 6d vector of 0s and 1s. 1 means that the robot will be compliant in the corresponding axis of the task frame."
+      },
+      {
+        "Label": "wrench",
+        "Comment": "The forces/torques the robot will apply to its environment. The robot adjusts its position along/about compliant axis in order to achieve the specified force/torque. Values have no effect for non-compliant axes.\r\n\r\nActual wrench applied may be lower than requested due to joint safety limits. Actual forces and torques can be read using `get_tcp_force` function in a separate thread."
+      },
+      {
+        "Label": "type",
+        "Comment": "An integer [1;3] specifying how the robot interprets the force frame.\r\n`1` The force frame is transformed in a way such that its y-axis is aligned with a vector pointing from the robot tcp towards the origin of the force frame.\r\n`2` The force frame is not transformed.\r\n`3` The force frame is transformed in a way such that its x-axis is the projection of the robot tcp velocity vector onto the x-y plane of the force frame."
+      },
+      {
+        "Label": "limits",
+        "Comment": "(Float) 6d vector. For compliant axes, these values are the maximum allowed tcp speed along/about the axis. For non-compliant axes, these values are the maximum allowed deviation along/about an axis between the actual tcp position and the one set by the program."
+      }
+    ]
+  },
+  {
+    "Name": "force_mode_set_damping",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Sets the damping parameter in force mode.",
+    "Parameters": [
+      {
+        "Label": "damping",
+        "Comment": "Between 0 and 1, default value is 0.\r\n\r\nA value of 1 is full damping, so the robot will decellerate quickly if no force is present. A value of 0 is no damping, here the robot will maintain the speed.\r\n\r\nThe value is stored until this function is called again. Add this to the beginning of your program to ensure it is called before force mode is entered (otherwise default value will be used)."
+      }
+    ]
+  },
+  {
+    "Name": "freedrive_mode",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Set robot in freedrive mode. In this mode the robot can be moved around by hand in the same way as by pressing the \"freedrive\" button. The robot will not be able to follow a trajectory (eg. a `movej`) in this mode.",
+    "Parameters": []
+  },
+  {
+    "Name": "get_conveyor_tick_count",
+    "Return": "The conveyor encoder tick count",
+    "Deprecated": "This function is replaced by `encoder_get_tick_count` and it should therefore not be used moving forward.",
+    "Comment": "Tells the tick count of the encoder, note that the controller interpolates tick counts to get more accurate movements with low resolution encoders",
+    "Parameters": []
+  },
+  {
+    "Name": "movec",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Move Circular: Move to position (circular in tool-space)\r\n\r\nTCP moves on the circular arc segment from current pose, through pose_via to pose_to. Accelerates to and moves with constant tool speed v. Use the mode parameter to define the orientation interpolation.",
+    "Parameters": [
+      {
+        "Label": "pose_via",
+        "Comment": "path point (note: only position is used). Pose_via can also be specified as joint positions, then forward kinematics is used to calculate the corresponding pose."
+      },
+      {
+        "Label": "pose_to",
+        "Comment": "target pose (note: only position is used in Fixed orientation mode). Pose_to can also be specified as joint positions, then forward kinematics is used to calculate the corresponding pose."
+      },
+      {
+        "Label": "a",
+        "Comment": "tool acceleration [m/s^2]"
+      },
+      {
+        "Label": "v",
+        "Comment": "tool speed [m/s]"
+      },
+      {
+        "Label": "r",
+        "Comment": "blend radius (of target pose) [m]"
+      },
+      {
+        "Label": "mode",
+        "Comment": "`0` Unconstrained mode. Interpolate orientation from current pose to target pose (pose_to)\r\n`1` Fixed mode. Keep orientation constant relative to the tangent of the circular arc (starting from current pose)"
+      }
+    ]
+  },
+  {
+    "Name": "movej",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Move to position (linear in joint-space)\r\n\r\nWhen using this command, the robot must be at a standstill or come from a movej or movel with a blend. The speed and acceleration parameters control the trapezoid speed profile of the move. Alternatively, the t parameter can be used to set the time for this move. Time setting has priority over speed and acceleration settings.",
+    "Parameters": [
+      {
+        "Label": "q",
+        "Comment": "joint positions (q can also be specified as a pose, then inverse kinematics is used to calculate the corresponding joint positions)"
+      },
+      {
+        "Label": "a",
+        "Comment": "joint acceleration of leading axis [rad/s^2]"
+      },
+      {
+        "Label": "v",
+        "Comment": "joint speed of leading axis [rad/s]"
+      },
+      {
+        "Label": "t",
+        "Comment": "time [S]"
+      },
+      {
+        "Label": "r",
+        "Comment": "blend radius [m]\r\n\r\nIf a blend radius is set, the robot arm trajectory will be modified to avoid the robot stopping at the point.\r\n\r\nHowever, if the blend region of this move overlaps with the blend radius of previous or following waypoints, this move will be skipped, and an **Overlapping Blends** warning message will be generated."
+      }
+    ]
+  },
+  {
+    "Name": "movel",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Move to position (linear in tool-space)",
+    "Parameters": [
+      {
+        "Label": "pose",
+        "Comment": "target pose (pose can also be specified as joint positions, then forward kinematics is used to calculate the corresponding pose)"
+      },
+      {
+        "Label": "a",
+        "Comment": "tool acceleration [m/s^2]"
+      },
+      {
+        "Label": "v",
+        "Comment": "tool speed [m/s]"
+      },
+      {
+        "Label": "t",
+        "Comment": "time [S]"
+      },
+      {
+        "Label": "r",
+        "Comment": "blend radius [m]"
+      }
+    ]
+  },
+  {
+    "Name": "movep",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Move Process\r\n\r\nBlend circular (in tool-space) and move linear (in tool-space) to position. Accelerates to and moves with constant tool speed v.",
+    "Parameters": [
+      {
+        "Label": "pose",
+        "Comment": "target pose (pose can also be specified as joint positions, then forward kinematics is used to calculate the corresponding pose)"
+      },
+      {
+        "Label": "a",
+        "Comment": "tool acceleration [m/s^2]"
+      },
+      {
+        "Label": "v",
+        "Comment": "tool speed [m/s]"
+      },
+      {
+        "Label": "r",
+        "Comment": "blend radius [m]"
+      }
+    ]
+  },
+  {
+    "Name": "position_deviation_warning",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "When enabled, this function generates warning messages to the log when the robot deviates from the target position. This function can be called at any point in the execution of a program. It has no return value.",
+    "Parameters": [
+      {
+        "Label": "enabled",
+        "Comment": "(Boolean) Enable or disable position deviation log messages."
+      },
+      {
+        "Label": "threshold",
+        "Comment": "(Float) Optional value in the range [0;1], where 0 is no position deviation and 1 is the maximum position deviation (equivalent to the amount of position deviation that causes a protective stop of the robot). If no threshold is specified by the user, a default value of 0.8 is used."
+      }
+    ]
+  },
+  {
+    "Name": "reset_revolution_counter",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Reset the revolution counter, if no offset is specified. This is applied on joints which safety limits are set to \"Unlimited\" and are only applied when new safety settings are applied with limitted joint angles.",
+    "Parameters": [
+      {
+        "Label": "qNear",
+        "Comment": "Optional parameter, reset the revolution counter to one close to the given qNear joint vector. If not defined, the joint’s actual number of revolutions are used."
+      }
+    ]
+  },
+  {
+    "Name": "servoc",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Servo Circular\r\nServo to position (circular in tool-space). Accelerates to and moves with constant tool speed v.",
+    "Parameters": [
+      {
+        "Label": "pose",
+        "Comment": "target pose (pose can also be specified as joint positions, then forward kinematics is used to calculate the corresponding pose)"
+      },
+      {
+        "Label": "a",
+        "Comment": "tool acceleration [m/s^2]"
+      },
+      {
+        "Label": "v",
+        "Comment": "tool speed [m/s]"
+      },
+      {
+        "Label": "r",
+        "Comment": "blend radius (of target pose) [m]"
+      }
+    ]
+  },
+  {
+    "Name": "servoj",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Servo to position (linear in joint-space)\r\n\r\nServo function used for online control of the robot. The lookahead time and the gain can be used to smoothen or sharpen the trajectory.\r\n\r\nNote: A high gain or a short lookahead time may cause instability. Prefered use is to call this function with a new setpoint (q) in each time step (thus the default t=0.008)",
+    "Parameters": [
+      {
+        "Label": "q",
+        "Comment": "joint positions [rad]"
+      },
+      {
+        "Label": "a",
+        "Comment": "NOT used in current version"
+      },
+      {
+        "Label": "v",
+        "Comment": "NOT used in current version"
+      },
+      {
+        "Label": "t",
+        "Comment": "time where the command is controlling the robot. The function is blocking for time t [S]"
+      },
+      {
+        "Label": "lookahead_time",
+        "Comment": "time [S], range [0.03,0.2] smoothens the trajectory with this lookahead time"
+      },
+      {
+        "Label": "gain",
+        "Comment": "proportional gain for following target position, range [100,2000]"
+      }
+    ]
+  },
+  {
+    "Name": "set_conveyor_tick_count",
+    "Return": "",
+    "Deprecated": "This function is replaced by `encoder_set_tick_count` and it should therefore not be used moving forward.",
+    "Comment": "Tells the robot controller the tick count of the encoder. This function is useful for absolute encoders, use `conveyor_pulse_decode()` for setting up an incremental encoder. For circular conveyors, the value must be between 0 and the number of ticks per revolution.",
+    "Parameters": [
+      {
+        "Label": "tick_count",
+        "Comment": "Tick count of the conveyor (Integer)"
+      },
+      {
+        "Label": "absolute_encoder_resolution",
+        "Comment": "Resolution of the encoder, needed to handle wrapping nicely. (Integer)\r\n`0` is a 32 bit signed encoder, range [-2147483648 ; 2147483647] (default)\r\n`1` is a 8 bit unsigned encoder, range [0 ; 255]\r\n`2` is a 16 bit unsigned encoder, range [0 ; 65535]\r\n`3` is a 24 bit unsigned encoder, range [0 ; 16777215]\r\n`4` is a 32 bit unsigned encoder, range [0 ; 4294967295]"
+      }
+    ]
+  },
+  {
+    "Name": "set_pos",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Set joint positions of simulated robot",
+    "Parameters": [
+      {
+        "Label": "q",
+        "Comment": "joint positions"
+      }
+    ]
+  },
+  {
+    "Name": "set_safety_mode_transition_hardness",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Sets the transition hardness between normal mode, reduced mode and safeguard stop.",
+    "Parameters": [
+      {
+        "Label": "type",
+        "Comment": "An integer specifying transition hardness.\r\n`0` is hard transition between modes using maximum torque, similar to emergency stop.\r\n`1` is soft transition between modes."
+      }
+    ]
+  },
+  {
+    "Name": "speedj",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Joint speed\r\n\r\nAccelerate linearly in joint space and continue with constant joint speed. The time t is optional; if provided the function will return after time t, regardless of the target speed has been reached. If the time t is not provided, the function will return when the target speed is reached.",
+    "Parameters": [
+      {
+        "Label": "qd",
+        "Comment": "joint speeds [rad/s]"
+      },
+      {
+        "Label": "a",
+        "Comment": "joint acceleration [rad/s^2] (of leading axis)"
+      },
+      {
+        "Label": "t",
+        "Comment": "time [s] before the function returns (optional)"
+      }
+    ]
+  },
+  {
+    "Name": "speedl",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Tool speed\r\n\r\nAccelerate linearly in Cartesian space and continue with constant tool speed. The time t is optional; if provided the function will return after time t, regardless of the target speed has been reached. If the time t is not provided, the function will return when the target speed is reached.",
+    "Parameters": [
+      {
+        "Label": "xd",
+        "Comment": "tool speed [m/s] (spatial vector)"
+      },
+      {
+        "Label": "a",
+        "Comment": "tool position acceleration [m/s^2]"
+      },
+      {
+        "Label": "t",
+        "Comment": "time [s] before function returns (optional)"
+      },
+      {
+        "Label": "aRot",
+        "Comment": "tool acceleration [rad/s^2] (optional), if not defined a, position acceleration, is used"
+      }
+    ]
+  },
+  {
+    "Name": "stop_conveyor_tracking",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Stop tracking the conveyor, started by track_conveyor_linear() or track_conveyor_circular(), and decelerate all joint speeds to zero.",
+    "Parameters": [
+      {
+        "Label": "a",
+        "Comment": "joint acceleration [rad/s^2] (optional)"
+      }
+    ]
+  },
+  {
+    "Name": "stopj",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Stop (linear in joint space)\r\n\r\nDecelerate joint speeds to zero",
+    "Parameters": [
+      {
+        "Label": "a",
+        "Comment": "joint acceleration [rad/s^2] (of leading axis)"
+      }
+    ]
+  },
+  {
+    "Name": "stopl",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Stop (linear in tool space)\r\n\r\nDecelerate tool speed to zero",
+    "Parameters": [
+      {
+        "Label": "a",
+        "Comment": "tool accleration [m/s^2]"
+      },
+      {
+        "Label": "aRot",
+        "Comment": "tool acceleration [rad/s^2] (optional), if not defined a, position acceleration, is used"
+      }
+    ]
+  },
+  {
+    "Name": "teach_mode",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Set robot in freedrive mode. In this mode the robot can be moved around by hand in the same way as by pressing the \"freedrive\" button. The robot will not be able to follow a trajectory (eg. a `movej`) in this mode.",
+    "Parameters": []
+  },
+  {
+    "Name": "track_conveyor_circular",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Makes robot movement (movej() etc.) track a circular conveyor.",
+    "Parameters": [
+      {
+        "Label": "center",
+        "Comment": "Pose vector that determines center of the conveyor in the base coordinate system of the robot."
+      },
+      {
+        "Label": "ticks_per_revolution",
+        "Comment": "How many ticks the encoder sees when the conveyor moves one revolution."
+      },
+      {
+        "Label": "rotate_tool",
+        "Comment": "Should the tool rotate with the coneyor or stay in the orientation specified by the trajectory (movel() etc.)"
+      },
+      {
+        "Label": "encoder_index",
+        "Comment": "The index of the encoder to associate with the conveyor tracking. Must be either 0 or 1. This is an optional argument, and please note the default of 0. The ability to omit this argument will allow existing programs to keep working. Also, in use cases where there is just one conveyor to track consider leaving this argument out."
+      }
+    ]
+  },
+  {
+    "Name": "track_conveyor_linear",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Makes robot movement (movej() etc.) track a linear conveyor.",
+    "Parameters": [
+      {
+        "Label": "direction",
+        "Comment": "Pose vector that determines the direction of the conveyor in the base coordinate system of the robot"
+      },
+      {
+        "Label": "ticks_per_meter",
+        "Comment": "How many ticks the encoder sees when the conveyor moves one meter"
+      },
+      {
+        "Label": "encoder_index",
+        "Comment": "The index of the encoder to associate with the conveyor tracking. Must be either 0 or 1. This is an optional argument, and please note the default of 0. The ability to omit this argument will allow existing programs to keep working. Also, in use cases where there is just one conveyor to track consider leaving this argument out."
+      }
+    ]
+  },
+  {
+    "Name": "force",
+    "Return": "The force in Newtons (float)",
+    "Deprecated": "",
+    "Comment": "Returns the force exerted at the TCP\r\n\r\nReturn the current externally exerted force at the TCP. The force is the norm of Fx, Fy, and Fz calculated using `get_tcp_force()`.",
+    "Parameters": []
+  },
+  {
+    "Name": "get_actual_joint_positions",
+    "Return": "The current actual joint angular position vector in rad : [Base, Shoulder, Elbow, Wrist1, Wrist2, Wrist3]",
+    "Deprecated": "",
+    "Comment": "Returns the actual angular positions of all joints\r\n\r\nThe angular actual positions are expressed in radians and returned as a vector of length 6. Note that the output might differ from the output of `get_target_joint_positions()`, especially during acceleration and heavy loads",
+    "Parameters": []
+  },
+  {
+    "Name": "get_actual_joint_speeds",
+    "Return": "The current actual joint angular velocity vector in rad/s: [Base, Shoulder, Elbow, Wrist1, Wrist2, Wrist3]",
+    "Deprecated": "",
+    "Comment": "Returns the actual angular velocities of all joints\r\n\r\nThe angular actual velocities are expressed in radians pr. second and returned as a vector of length 6. Note that the output might differ from the output of `get_target_joint_speeds()`, especially during acceleration and heavy loads",
+    "Parameters": []
+  },
+  {
+    "Name": "get_actual_tcp_pose",
+    "Return": "The current actual TCP vector [X, Y, Z, Rx, Ry, Rz]",
+    "Deprecated": "",
+    "Comment": "Returns the current measured tool pose\r\n\r\nReturns the 6d pose representing the tool position and orientation specified in the base frame. The calculation of this pose is based on the actual robot encoder readings.",
+    "Parameters": []
+  },
+  {
+    "Name": "get_actual_tcp_speed",
+    "Return": "The current actual TCP velocity vector [X, Y, Z, Rx, Ry, Rz]",
+    "Deprecated": "",
+    "Comment": "Returns the current measured TCP speed\r\n\r\nThe speed of the TCP retuned in a pose structure. The first three values are the cartesian speeds along x,y,z, and the last three define the current rotation axis, rx,ry,rz, and the length |rz,ry,rz| defines the angular velocity in radians/s.",
+    "Parameters": []
+  },
+  {
+    "Name": "get_actual_tool_flange_pose",
+    "Return": "The current actual tool flange vector: [X, Y, Z, Rx, Ry, Rz]",
+    "Deprecated": "",
+    "Comment": "Returns the current measured tool flange pose\r\n\r\nReturns the 6d pose representing the tool flange position and orientation specified in the base frame, without the Tool Center Point offset. The calculation of this pose is based on the actual robot encoder readings.",
+    "Parameters": []
+  },
+  {
+    "Name": "get_controller_temp",
+    "Return": "A temperature in degrees Celcius (float)",
+    "Deprecated": "",
+    "Comment": "Returns the temperature of the control box\r\n\r\nThe temperature of the robot control box in degrees Celcius",
+    "Parameters": []
+  },
+  {
+    "Name": "get_forward_kin",
+    "Return": "tool pose",
+    "Deprecated": "",
+    "Comment": "Calculate the forward kinematic transformation (joint space -> tool space) using the calibrated robot kinematics. If no joint position vector is provided the current joint angles of the robot arm will be used. If no tcp is provided the currently active tcp of the controller will be used.",
+    "Parameters": [
+      {
+        "Label": "q",
+        "Comment": "joint position vector (Optional)"
+      },
+      {
+        "Label": "tcp",
+        "Comment": "tcp offset pose (Optional)"
+      }
+    ]
+  },
+  {
+    "Name": "get_inverse_kin",
+    "Return": "joint positions",
+    "Deprecated": "",
+    "Comment": "Calculate the inverse kinematic transformation (tool space -> joint space). If qnear is defined, the solution closest to qnear is returned. Otherwise, the solution closest to the current joint positions is returned. If no tcp is provided the currently active tcp of the controller will be used.",
+    "Parameters": [
+      {
+        "Label": "x",
+        "Comment": "tool pose"
+      },
+      {
+        "Label": "qnear",
+        "Comment": "list of joint positions (Optional)"
+      },
+      {
+        "Label": "maxPositionError",
+        "Comment": "the maximum allowed position error (Optional)"
+      },
+      {
+        "Label": "maxOrientationError",
+        "Comment": "the maximum allowed orientation error (Optional)"
+      },
+      {
+        "Label": "tcp",
+        "Comment": "tcp offset pose (Optional)"
+      }
+    ]
+  },
+  {
+    "Name": "get_joint_temp",
+    "Return": "A temperature in degrees Celcius (float)",
+    "Deprecated": "",
+    "Comment": "Returns the temperature of joint j\r\n\r\nThe temperature of the joint house of joint j, counting from zero. j=0 is the base joint, and j=5 is the last joint before the tool flange.",
+    "Parameters": [
+      {
+        "Label": "j",
+        "Comment": "The joint number (int)"
+      }
+    ]
+  },
+  {
+    "Name": "get_joint_torques",
+    "Return": "The joint torque vector in Nm: [Base, Shoulder, Elbow, Wrist1, Wrist2, Wrist3]",
+    "Deprecated": "",
+    "Comment": "Returns the torques of all joints\r\n\r\nThe torque on the joints, corrected by the torque needed to move the robot itself (gravity, friction, etc.), returned as a vector of length 6.",
+    "Parameters": []
+  },
+  {
+    "Name": "get_steptime",
+    "Return": "duration of the robot step in seconds",
+    "Deprecated": "",
+    "Comment": "Returns the duration of the robot time step in seconds.\r\n\r\nIn every time step, the robot controller will receive measured joint positions and velocities from the robot, and send desired joint positions and velocities back to the robot. This happens with a predetermined frequency, in regular intervals. This interval length is the robot time step.",
+    "Parameters": []
+  },
+  {
+    "Name": "get_target_joint_positions",
+    "Return": "The current target joint angular position vector in rad: [Base, Shoulder, Elbow, Wrist1, Wrist2, Wrist3]",
+    "Deprecated": "",
+    "Comment": "Returns the desired angular position of all joints\r\n\r\nThe angular target positions are expressed in radians and returned as a vector of length 6. Note that the output might differ from the output of `get_actual_joint_positions()`, especially during acceleration and heavy loads.",
+    "Parameters": []
+  },
+  {
+    "Name": "get_target_joint_speeds",
+    "Return": "The current target joint angular velocity vector in rad/s: [Base, Shoulder, Elbow, Wrist1, Wrist2, Wrist3]",
+    "Deprecated": "",
+    "Comment": "Returns the desired angular velocities of all joints\r\n\r\nThe angular target velocities are expressed in radians pr. second and returned as a vector of length 6. Note that the output might differ from the output of `get_actual_joint_speeds()`, especially during acceleration and heavy loads.",
+    "Parameters": []
+  },
+  {
+    "Name": "get_target_payload",
+    "Return": "The weight of the current payload in kilograms",
+    "Deprecated": "",
+    "Comment": "Returns the weight of the active payload",
+    "Parameters": []
+  },
+  {
+    "Name": "get_target_payload_cog",
+    "Return": "The 3d coordinates of the COG [CoGx, CoGy, CoGz] in meters",
+    "Deprecated": "",
+    "Comment": "Retrieve the Center Of Gravity (COG) coordinates of the active payload.\r\n\r\nThis scripts returns the COG coordinates of the active payload, with respect to the tool flange",
+    "Parameters": []
+  },
+  {
+    "Name": "get_target_tcp_pose",
+    "Return": "The current target TCP vector [X, Y, Z, Rx, Ry, Rz]",
+    "Deprecated": "",
+    "Comment": "Returns the current target tool pose\r\n\r\nReturns the 6d pose representing the tool position and orientation specified in the base frame. The calculation of this pose is based on the current target joint positions.",
+    "Parameters": []
+  },
+  {
+    "Name": "get_target_tcp_speed",
+    "Return": "The TCP speed (pose)",
+    "Deprecated": "",
+    "Comment": "Returns the current target TCP speed\r\n\r\nThe desired speed of the TCP returned in a pose structure. The first three values are the cartesian speeds along x,y,z, and the last three define the current rotation axis, rx,ry,rz, and the length |rz,ry,rz| defines the angular velocity in radians/s.",
+    "Parameters": []
+  },
+  {
+    "Name": "get_tcp_force",
+    "Return": "The wrench (pose)",
+    "Deprecated": "",
+    "Comment": "Returns the wrench (Force/Torque vector) at the TCP\r\n\r\nThe external wrench is computed based on the error between the joint torques required to stay on the trajectory and the expected joint torques. The function returns p[Fx (N), Fy(N), Fz(N), TRx (Nm), TRy (Nm), TRz (Nm)] where Fx, Fy, and Fz are the forces in the axes of the robot base coordinate system measured in Newtons, and TRx, TRy, and TRz are the torques around these axes measured in Newton times Meters.\r\n\r\nThe maximum force exerted along each axis is 300 Newtons.",
+    "Parameters": []
+  },
+  {
+    "Name": "get_tcp_offset",
+    "Return": "tcp offset pose",
+    "Deprecated": "",
+    "Comment": "Gets the active tcp offset, i.e. the transformation from the output flange coordinate system to the TCP as a pose.",
+    "Parameters": []
+  },
+  {
+    "Name": "get_tool_accelerometer_reading",
+    "Return": "X, Y, and Z composant of the measured acceleration in SI-units (m/s^2)",
+    "Deprecated": "",
+    "Comment": "Returns the current reading of the tool accelerometer as a three-dimensional vector.\r\n\r\nThe accelerometer axes are aligned with the tool coordinates, and pointing an axis upwards results in a positive reading",
+    "Parameters": []
+  },
+  {
+    "Name": "get_tool_current",
+    "Return": "The tool current in ampere.",
+    "Deprecated": "",
+    "Comment": "Returns the tool current\r\n\r\nThe tool current consumption measured in ampere.",
+    "Parameters": []
+  },
+  {
+    "Name": "is_steady",
+    "Return": "True when the robot is fully at rest. Returns False otherwise (bool)",
+    "Deprecated": "",
+    "Comment": "Checks if robot is fully at rest.\r\n\r\nTrue when the robot is fully at rest, and ready to accept higher external forces and torques, such as from industrial screwdrivers. It is useful in combination with the GUI’s wait node, before starting the screwdriver or other actuators influencing the position of the robot.",
+    "Parameters": []
+  },
+  {
+    "Name": "is_within_safety_limits",
+    "Return": "True if within limits, false otherwise (bool)",
+    "Deprecated": "",
+    "Comment": "Checks if the given pose is reachable and within the current safety limits of the robot.\r\n\r\nThis check considers joint limits (if the target pose is specified as joint positions), safety planes limits, TCP orientation deviation limits and range of the robot. If a solution is found when applying the inverse kinematics to the given target TCP pose, this pose is considered reachable.",
+    "Parameters": [
+      {
+        "Label": "pose",
+        "Comment": "Target pose (which can also be specified as joint positions)"
+      }
+    ]
+  },
+  {
+    "Name": "popup",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Display message in popup window on GUI.",
+    "Parameters": [
+      {
+        "Label": "s",
+        "Comment": "message string"
+      },
+      {
+        "Label": "title",
+        "Comment": "title string"
+      },
+      {
+        "Label": "warning",
+        "Comment": "(boolean) warning message?"
+      },
+      {
+        "Label": "error",
+        "Comment": "(boolean) error message?"
+      },
+      {
+        "Label": "blocking",
+        "Comment": "if True, program will be suspended until \"continue\" is pressed"
+      }
+    ]
+  },
+  {
+    "Name": "powerdown",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Shutdown the robot, and power off the robot and controller.",
+    "Parameters": []
+  },
+  {
+    "Name": "set_gravity",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Set the direction of the acceleration experienced by the robot. When the robot mounting is fixed, this corresponds to an accleration of g away from the earth’s centre.",
+    "Parameters": [
+      {
+        "Label": "d",
+        "Comment": "3D vector, describing the direction of the gravity, relative to the base of the robot."
+      }
+    ]
+  },
+  {
+    "Name": "set_payload",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Set payload mass and center of gravity\r\n\r\nSets the mass and center of gravity (abbr. CoG) of the payload.\r\n\r\nThis function must be called, when the payload weight or weight distribution changes - i.e when the robot picks up or puts down a heavy workpiece",
+    "Parameters": [
+      {
+        "Label": "m",
+        "Comment": "mass in kilograms"
+      },
+      {
+        "Label": "cog",
+        "Comment": "Center of Gravity, a vector [CoGx, CoGy, CoGz] specifying the displacement (in meters) from the toolmount."
+      }
+    ]
+  },
+  {
+    "Name": "set_payload_cog",
+    "Return": "",
+    "Deprecated": "This function is deprecated. It is recommended to set always the CoG with the mass (see set_payload).",
+    "Comment": "Set the Center of Gravity (CoG)",
+    "Parameters": [
+      {
+        "Label": "cog",
+        "Comment": "Center of Gravity, a vector [CoGx, CoGy, CoGz] specifying the displacement (in meters) from the toolmount."
+      }
+    ]
+  },
+  {
+    "Name": "set_payload_mass",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Set payload mass\r\n\r\nSets the mass of the payload and leaves the center of gravity (CoG)\r\nunchanged.",
+    "Parameters": [
+      {
+        "Label": "m",
+        "Comment": "mass in kilograms"
+      }
+    ]
+  },
+  {
+    "Name": "set_tcp",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Sets the active tcp offset, i.e. the transformation from the output flange coordinate system to the TCP as a pose.",
+    "Parameters": [
+      {
+        "Label": "pose",
+        "Comment": "A pose describing the transformation"
+      }
+    ]
+  },
+  {
+    "Name": "sleep",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Sleep for an amount of time",
+    "Parameters": [
+      {
+        "Label": "t",
+        "Comment": "time [s]"
+      }
+    ]
+  },
+  {
+    "Name": "str_at",
+    "Return": "String containing the byte at position `index` in the source string. An exception is raised if the index is not valid.",
+    "Deprecated": "",
+    "Comment": "Provides direct access to the bytes of a string.\r\n\r\nThis script returns a string containing the byte in the source string at the position corresponding to the specified index. It may not correspond to an actual character in case of strings with special encoded character (i.e. multi-byte or variable-length encoding)\r\n\r\nThe string is zero-indexed.",
+    "Parameters": [
+      {
+        "Label": "src",
+        "Comment": "source string."
+      },
+      {
+        "Label": "index",
+        "Comment": "integer specifying the position inside the source string"
+      }
+    ]
+  },
+  {
+    "Name": "str_cat",
+    "Return": "String concatenation of op1 and op2",
+    "Deprecated": "",
+    "Comment": "String concatenation\r\n\r\nThis script returns a string that is the concatenation of the two operands given as input. Both operands can be one of the following types: String, Boolean, Integer, Float, Pose, List of Boolean / Integer / Float / Pose. Any other type will raise an exception.\r\n\r\nThe resulting string cannot exceed 1023 characters, an exception is thrown otherwise.\r\n\r\nFloat numbers will be formatted with 6 decimals, and trailing zeros will be removed.\r\n\r\nThe function can be nested to create complex strings (see last example)",
+    "Parameters": [
+      {
+        "Label": "op1",
+        "Comment": "first operand"
+      },
+      {
+        "Label": "op2",
+        "Comment": "second operand"
+      }
+    ]
+  },
+  {
+    "Name": "str_empty",
+    "Return": "True if the string is empty, false otherwise",
+    "Deprecated": "",
+    "Comment": "Returns true when `str` is empty, false otherwise.",
+    "Parameters": [
+      {
+        "Label": "str",
+        "Comment": "source string"
+      }
+    ]
+  },
+  {
+    "Name": "str_find",
+    "Return": "The index of the first occurrence of target in `src`, -1 if `target` is not found in `src`.",
+    "Deprecated": "",
+    "Comment": "Finds the first occurrence of the substring target in src.\r\n\r\nThis script returns the index (i.e. byte) of the the first occurrence of substring `target` in `str`, starting from the given (optional) position.\r\n\r\nThe result may not correspond to the actual position of the first character of target in case `src` contains multi-byte or variable-length encoded characters.\r\n\r\nThe string is zero-indexed.",
+    "Parameters": [
+      {
+        "Label": "src",
+        "Comment": "source string"
+      },
+      {
+        "Label": "target",
+        "Comment": "substring to search"
+      },
+      {
+        "Label": "start_from",
+        "Comment": "optional starting position (default 0)"
+      }
+    ]
+  },
+  {
+    "Name": "str_len",
+    "Return": "The number of bytes in the input string.",
+    "Deprecated": "",
+    "Comment": "Returns the number of bytes in a string.\r\n\r\nPlease not that the value returned may not correspond to the actual number of characters in sequences of multi-byte or variable-length encoded characters.\r\n\r\nThe string is zero-indexed.",
+    "Parameters": [
+      {
+        "Label": "str",
+        "Comment": "source string."
+      }
+    ]
+  },
+  {
+    "Name": "str_sub",
+    "Return": "the portion of src that starts at byte index and spans len characters",
+    "Deprecated": "",
+    "Comment": "Returns a substring of `src`.\r\n\r\nThe result is the substring of `src` that starts at the byte specified by index with length of at most `len` bytes. If the requested substring extends past the end of the original string (i.e. `index + len > src length`), the length of the resulting substring is limited to the size of `src`.\r\n\r\nAn exception is thrown in case `index` and/or `len` are out of bounds. The string is zero-indexed",
+    "Parameters": [
+      {
+        "Label": "src",
+        "Comment": "source string"
+      },
+      {
+        "Label": "index",
+        "Comment": "integer value specifying the initial byte in the range [0, src length]"
+      },
+      {
+        "Label": "len",
+        "Comment": "(optional) length of the substring in the range [0, MAX_INT]. If len is not specified, the string in the range [index, src length]"
+      }
+    ]
+  },
+  {
+    "Name": "sync",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Uses up the remaining \"physical\" time a thread has in the current frame.",
+    "Parameters": []
+  },
+  {
+    "Name": "textmsg",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Send text message to log\r\n\r\nSend message with s1 and s2 concatenated to be shown on the GUI log-tab",
+    "Parameters": [
+      {
+        "Label": "s1",
+        "Comment": "message string, variables of other types (int, bool poses etc.) can also be sent"
+      },
+      {
+        "Label": "s2",
+        "Comment": "message string, variables of other types (int, bool poses etc.) can also be sent"
+      }
+    ]
+  },
+  {
+    "Name": "to_num",
+    "Return": "Integer or float number according to the input string",
+    "Deprecated": "",
+    "Comment": "Converts a string to a number.\r\n\r\n`to_num` returns an integer or a float depending on the presence of a decimal point in the input string. Only ’.’ is recognized as decimal point independent of locale settings.\r\n\r\nValid strings can contains optional leading white space(s) followed by an optional plus (’+’) or minus sign (’-’) and then one of the following:\r\n\r\n- A decimal number consisting of a sequence of decimal digits (e.g. 10, -5), an optional ’.’ to indicate a float number (e.g. 1.5234, -2.0, .36) and a optional decimal exponent that indicates multiplication by a power of 10 (e.g. 10e3, 2.5E-5, -5e-4)\r\n- A hexadecimal number consisting of \"0x\" or \"0X\" followed by a nonempty sequence of hexadecimal digits (e.g. \"0X3A\", \"0xb5\").\r\n- An infinity (either \"INF\" or \"INFINITY\", case insensitive)\r\n- A Not-a-Number (\"NAN\", case insensitive)\r\n\r\nRuntime exceptions are raised if the source string doesn’t contain a valid number or the result is out of range for the resulting type.",
+    "Parameters": [
+      {
+        "Label": "str",
+        "Comment": "string to convert"
+      }
+    ]
+  },
+  {
+    "Name": "to_str",
+    "Return": "The string representation of the given value",
+    "Deprecated": "",
+    "Comment": "Gets string representation of a value.\r\n\r\nThis script converts a value of type Boolean, Integer, Float, Pose (or a list of those types) to a string.\r\n\r\nThe resulting string cannot exceed 1023 characters.\r\n\r\nFloat numbers will be formatted with 6 decimals, and trailing zeros will be removed.",
+    "Parameters": [
+      {
+        "Label": "val",
+        "Comment": "value to convert"
+      }
+    ]
+  }
+]
