@@ -1,0 +1,124 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "URScript",
+    "scopeName": "source.urscript",
+    "patterns": [
+        { "include": "#numerics" },
+        { "include": "#strings" },
+        { "include": "#comments" },
+        { "include": "#keywords" },
+        { "include": "#constants" },
+        { "include": "#methods" }
+    ],
+    "repository": {
+        "numerics": {
+            "patterns": [
+                {
+                    "name": "constant.numeric.float.urscript",
+                    "match": "[+-]?\\b(\\d+(\\.\\d+)?)\\b"
+				},
+				{
+					"name": "constant.numeric.integer.urscript",
+					"match": "[+-]?\\b(\\d+)\\b"
+				}
+            ]
+        },
+        "strings": {
+            "patterns": [
+                {
+                    "name": "string.quoted.double.urscript",
+                    "begin": "\"",
+                    "end": "\"",
+                    "patterns": [
+                        {
+                            "name": "constant.character.escape.urscript",
+                            "match": "\\\\."
+                        }
+                    ]
+                },
+                {
+                    "name": "string.quoted.single.urscript",
+                    "begin": "'",
+                    "end": "'"
+                }
+            ]
+        },
+        "comments": {
+            "patterns": [
+                {
+                    "name": "comment.line.number-sign.urscript",
+                    "match": "#.*$"
+                },
+                {
+                    "name": "entity.name.label.urscript",
+                    "match": "\\$.*$"
+                }
+            ]
+        },
+        "methods": {
+            "patterns": [
+                {
+                    "begin": "\\b(def|thread)\\b",
+                    "end": "\\(.*\\):$",
+                    "beginCaptures": {
+                        "0": { "name": "keyword.control.urscript" }
+                    },
+                    "contentName":"storage.type.urscript",
+                    "comment": "Function definition"
+                },
+                {
+                    "match": "(\\w+)(\\().*(\\))(?!:)",
+                    "captures": {
+                        "1" : {"name": "variable.function.urscript"}
+                    }
+                },
+                {
+                    "match": "(\\w+)\\(.*\\):",
+                    "captures": {
+                        "1" :{"name": "entity.name.function.urscript"}
+                    }
+                }
+            ]
+        },
+        "keywords": {
+            "patterns": [
+                {
+                    "name": "keyword.control.urscript",
+                    "match": "(while|for|return|end|kill|halt|run|join|enter_critical|exit_critical)"
+                },
+                {
+                    "name" : "keyword.control.conditional.urscript",
+                    "match" : "(if|elif|else)"
+                },
+                {
+                    "name" : "storage.modifier.urscript",
+                    "match" : "(global|local)"
+                },
+                {
+                    "name" : "keyword.operator.logical.urscript",
+                    "match" : "(<=|>=|!=|==|<|>)"
+                },
+                {
+                    "name" : "keyword.operator.assignment.urscript", 
+                    "match" : "="
+                },
+                {
+                    "name" : "keyword.operator.arithmetic.urscript",
+                    "match" : "(\\+|-|\\*|/)"
+                }, 
+                {
+                    "name" : "keyword.other.urscript",
+                    "match" : "(and|or|xor|not)"
+                }
+            ]
+        },
+        "constants": {
+            "patterns": [
+                {
+					"name": "constant.language.urscript",
+					"match": "(True|False)"
+				}
+            ]
+        }
+    }
+}

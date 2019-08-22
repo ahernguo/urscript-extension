@@ -8,6 +8,8 @@
         "vscode": "^1.37.0"
     },
     "categories": [
+        "Programming Languages",
+        "Snippets",
         "Other"
     ],
     "activationEvents": [
@@ -15,10 +17,11 @@
     ],
     "main": "./out/extension",
     "contributes": {
-        "commands": [
+        "grammars": [
             {
-                "command": "extension.sayHello",
-                "title": "Hello World"
+                "language": "urscript",
+                "scopeName": "source.urscript",
+                "path": "./syntaxes/urscript.tmLanguage.json"
             }
         ]
     },
