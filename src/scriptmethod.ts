@@ -71,11 +71,11 @@ export class ScriptMethod {
         //先用 docStr 來組合 Return 與 Deprecated
         let docStr = "";
         if ((this.Return !== "") && (this.Deprecated !== "")) {
-            docStr = `\r\n\r\n**Return**\r\n> ${this.Return}\r\n**Deprecated**\r\n> ${this.Deprecated}`;
+            docStr = `\n\n**Return**\n> ${this.Return}\n\n**Deprecated**\n> ${this.Deprecated}`;
         } else if (this.Return !== "") {
-            docStr = `\r\n\r\n**Return**\r\n> ${this.Return}`;
+            docStr = `\n\n**Return**\n> ${this.Return}`;
         } else if (this.Deprecated !== "") {
-            docStr = `\r\n\r\n**Deprecated**\r\n> ${this.Deprecated}`;
+            docStr = `\n\n**Deprecated**\n> ${this.Deprecated}`;
         }
         //如果 docStr 有東西，則 Documentation = Comment + docStr
         if (docStr !== "") {
