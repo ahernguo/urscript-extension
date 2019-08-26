@@ -5,6 +5,7 @@ import * as vscode from 'vscode';
 import { createFunctions } from './scriptmethod';
 import URScriptCompletionItemProvider from './features/completionItemProvider';
 import URScriptHoverProvider from './features/hoverProvider';
+import URScriptSignatureHelpProvider, { URScriptSignatureHelpProviderMetadata } from './features/signatureHelpProvider';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -26,8 +27,15 @@ export function activate(context: vscode.ExtensionContext) {
         new URScriptHoverProvider(funcs)
     );
 
+    /* 簽章提示 */
+    const sigPvd = vscode.languages.registerSignatureHelpProvider(
+        'urscript',
+        new URScriptSignatureHelpProvider(funcs),
+        new URScriptSignatureHelpProviderMetadata()
+    );
+
     /* 加入上下文的訂閱器中 */
-    context.subscriptions.push(cmpPvd, hovPvd);
+    context.subscriptions.push(cmpPvd, hovPvd, sigPvd);
 }
 
 // this method is called when your extension is deactivated
