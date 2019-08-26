@@ -1,3 +1,5 @@
+//用於 Documentation 的 Markdown 字串
+import { MarkdownString } from 'vscode';
 //使用 TypeScript 的 JSON 解析功能來載入檔案
 import funcs from './functions.json';
 
@@ -40,6 +42,8 @@ export class ScriptMethod {
     Comment: string;
     /** 簽章集合 */
     Parameters: MethodParameter[];
+    /** 已根據 Return、Deprecated 與 Comment 所調整而成，可用於文件內容的 Markdown 字串 */
+    Documentation: MarkdownString;
 
     /**
      * 建構 URScript 方法
@@ -55,11 +59,29 @@ export class ScriptMethod {
             "Comment": string
         }[]
     }) {
+        /* 賦值  */
         this.Name = jsMthd.Name;
         this.Return = jsMthd.Return;
         this.Deprecated = jsMthd.Deprecated;
         this.Comment = jsMthd.Comment;
         this.Parameters = jsMthd.Parameters.map(jsPara => new MethodParameter(jsPara));
+        /* 組裝 Documentation */
+        //先用 docStr 來組合 Return 與 Deprecated
+        let docStr = "";
+        if ((this.Return !== "") && (this.Deprecated !== "")) {
+            docStr = `\r\n\r\n**Return**\r\n> ${this.Return}\r\n**Deprecated**\r\n> ${this.Deprecated}`;
+        } else if (this.Return !== "") {
+            docStr = `\r\n\r\n**Return**\r\n> ${this.Return}`;
+        } else if (this.Deprecated !== "") {
+            docStr = `\r\n\r\n**Deprecated**\r\n> ${this.Deprecated}`;
+        }
+        //如果 docStr 有東西，則 Documentation = Comment + docStr
+        if (docStr !== "") {
+            this.Documentation = new MarkdownString(this.Comment.concat(docStr));
+        } else {
+            //docStr 沒東西，則直接 Documentation = Comment
+            this.Documentation = new MarkdownString(this.Comment);
+        }
     }
 }
 
