@@ -3,9 +3,9 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { createFunctions } from './scriptmethod';
-import URScriptCompletionItemProvider from './features/completionItemProvider';
-import URScriptHoverProvider from './features/hoverProvider';
-import URScriptSignatureHelpProvider, { URScriptSignatureHelpProviderMetadata } from './features/signatureHelpProvider';
+import { URScriptCompletionItemProvider } from './features/completionItemProvider';
+import { URScriptHoverProvider } from './features/hoverProvider';
+import { URScriptSignatureHelpProvider, URScriptSignatureHelpProviderMetadata } from './features/signatureHelpProvider';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
