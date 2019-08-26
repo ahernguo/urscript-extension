@@ -6,6 +6,7 @@ import { createFunctions } from './scriptmethod';
 import { URScriptCompletionItemProvider } from './features/completionItemProvider';
 import { URScriptHoverProvider } from './features/hoverProvider';
 import { URScriptSignatureHelpProvider, URScriptSignatureHelpProviderMetadata } from './features/signatureHelpProvider';
+import { URScriptFormattingProvider, URScriptOnTypeFormattingProvider } from './features/formattingEditProvider';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -34,8 +35,21 @@ export function activate(context: vscode.ExtensionContext) {
         new URScriptSignatureHelpProviderMetadata()
     );
 
+    /* 文件範圍排版 */
+    const fmtPvd = vscode.languages.registerDocumentRangeFormattingEditProvider(
+        'urscript',
+        new URScriptFormattingProvider()
+    );
+
+    /* 輸入時的自動排版 */
+    const typPvd = vscode.languages.registerOnTypeFormattingEditProvider(
+        'urscript',
+        new URScriptOnTypeFormattingProvider(),
+        '\n', ':'
+    );
+
     /* 加入上下文的訂閱器中 */
-    context.subscriptions.push(cmpPvd, hovPvd, sigPvd);
+    context.subscriptions.push(cmpPvd, hovPvd, sigPvd, fmtPvd, typPvd);
 }
 
 // this method is called when your extension is deactivated
