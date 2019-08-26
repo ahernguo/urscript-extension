@@ -44,6 +44,8 @@ export class ScriptMethod {
     Parameters: MethodParameter[];
     /** 已根據 Return、Deprecated 與 Comment 所調整而成，可用於文件內容的 Markdown 字串 */
     Documentation: MarkdownString;
+    /** 包含簽章、回傳值的標籤 */
+    Label: string;
 
     /**
      * 建構 URScript 方法
@@ -82,6 +84,11 @@ export class ScriptMethod {
             //docStr 沒東西，則直接 Documentation = Comment
             this.Documentation = new MarkdownString(this.Comment);
         }
+        /* 組裝 Label */
+        //將簽章內的標籤用逗號組裝起來
+        let paraStr = this.Parameters.map(para => para.Label).join(", ");
+        //標籤 = 名稱(簽章)
+        this.Label = `${this.Name}(${paraStr})`;
     }
 }
 
