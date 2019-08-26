@@ -12,6 +12,8 @@ export class MethodParameter {
     Label: string;
     /** 參數的使用說明 */
     Comment: string;
+    /** 已根據 Label 與 Comment 所調整而成，可用於文件內容的 Markdown 字串 */
+    Documentation: MarkdownString;
 
     /**
      * 建構簽章參數
@@ -21,8 +23,12 @@ export class MethodParameter {
         "Label": string,
         "Comment": string
     }) {
+        /* 賦值 */
         this.Label = jsPara.Label;
         this.Comment = jsPara.Comment;
+        /* 組裝 Documentation */
+        const docStr = `**${this.Label}**\n> ${this.Comment}`;
+        this.Documentation = new MarkdownString(docStr);
     }
 
 }
@@ -61,7 +67,7 @@ export class ScriptMethod {
             "Comment": string
         }[]
     }) {
-        /* 賦值  */
+        /* 賦值 */
         this.Name = jsMthd.Name;
         this.Return = jsMthd.Return;
         this.Deprecated = jsMthd.Deprecated;
