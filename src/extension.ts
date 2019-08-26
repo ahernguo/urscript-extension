@@ -4,6 +4,7 @@
 import * as vscode from 'vscode';
 import { createFunctions } from './scriptmethod';
 import URScriptCompletionItemProvider from './features/completionItemProvider';
+import URScriptHoverProvider from './features/hoverProvider';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -19,8 +20,14 @@ export function activate(context: vscode.ExtensionContext) {
         new URScriptCompletionItemProvider(funcs)
     );
 
+    /* 滑鼠停留提示 */
+    const hovPvd = vscode.languages.registerHoverProvider(
+        'urscript',
+        new URScriptHoverProvider(funcs)
+    );
+
     /* 加入上下文的訂閱器中 */
-    context.subscriptions.push(cmpPvd);
+    context.subscriptions.push(cmpPvd, hovPvd);
 }
 
 // this method is called when your extension is deactivated
