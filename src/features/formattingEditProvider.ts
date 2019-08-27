@@ -193,6 +193,8 @@ export class URScriptFormattingProvider implements DocumentRangeFormattingEditPr
             if (index > -1) {
                 /* 如果前後已經有空白，不用補、直接離開即可 */
                 if ((line.text.charAt(index - 1) === " ") && (line.text.charAt(index + 1) === " ")) {
+                    /* 重設 searchIndex，從 end 之後繼續搜尋 */
+                    searchIndex = index + 1;
                     continue;
                 } else {
                     /* 樣板位置與 Pattern，先以當前不考慮前後的情況下預設數值 */
