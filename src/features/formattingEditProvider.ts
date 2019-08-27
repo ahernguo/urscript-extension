@@ -1,5 +1,5 @@
 //用於 vscode 的名稱解析
-import { DocumentRangeFormattingEditProvider, TextDocument, FormattingOptions, CancellationToken, TextEdit, Range, Position, OnTypeFormattingEditProvider, TextLine } from "vscode";
+import { DocumentRangeFormattingEditProvider, TextDocument, FormattingOptions, CancellationToken, TextEdit, Range, Position, TextLine } from "vscode";
 
 /**
  * 額外的符號考慮位置
