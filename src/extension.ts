@@ -12,6 +12,20 @@ import { URScriptFormattingProvider } from './features/formattingEditProvider';
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
+    /* 更改 VSCode 環境 */
+    if (vscode.window.activeTextEditor) {
+        /* 啟用空白縮排、2 個空格 */
+        vscode.window.activeTextEditor.options = {
+            cursorStyle: vscode.window.activeTextEditor.options.cursorStyle,
+            insertSpaces: true,
+            tabSize: 2
+        };
+        /* 將結尾符號改成 LF */
+        vscode.window.activeTextEditor.edit(
+            builder => builder.setEndOfLine(vscode.EndOfLine.LF)
+        );
+    }
+
     /* 載入 functions.json */
     const funcs = createFunctions();
     console.log("got %d script methods", funcs.length);
