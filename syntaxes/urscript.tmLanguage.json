@@ -84,15 +84,15 @@
             "patterns": [
                 {
                     "name": "keyword.control.urscript",
-                    "match": "(while|for|return|end|kill|halt|run|join|enter_critical|exit_critical)"
+                    "match": "\\b(while|for|return|end|kill|halt|run|join|enter_critical|exit_critical)\\b"
                 },
                 {
                     "name" : "keyword.control.conditional.urscript",
-                    "match" : "(if|elif|else)"
+                    "match" : "\\b(if|elif|else)\\b"
                 },
                 {
                     "name" : "storage.modifier.urscript",
-                    "match" : "(global|local)"
+                    "match" : "\\b(global|local)\\b"
                 },
                 {
                     "name" : "keyword.operator.logical.urscript",
@@ -108,7 +108,7 @@
                 }, 
                 {
                     "name" : "keyword.other.urscript",
-                    "match" : "(and|or|xor|not)"
+                    "match" : "\\b(and|or|xor|not)\\b"
                 }
             ]
         },
@@ -116,7 +116,7 @@
             "patterns": [
                 {
 					"name": "constant.language.urscript",
-					"match": "(True|False)"
+					"match": "\\b(True|False)\\b"
 				}
             ]
         }
