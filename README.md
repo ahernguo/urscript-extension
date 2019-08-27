@@ -1,65 +1,33 @@
-# urscript README
+## urscript-extension
 
-This is the README for your extension "urscript". After writing up a brief description, we recommend including the following sections.
+此專案是為了 [Universal Robots](https://www.universal-robots.com/)™ Script 語言所建的 Visual Studio Code 套件
 
-## Features
+因 UR 官方僅有 Ubuntu 虛擬機之離線編譯環境，並未提供 Windows 的離線編譯工具，故建立此 VSCode 套件來提供額外的程式撰寫環境
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
 
-For example if there is an image subfolder under your extension project workspace:
+## 提醒
 
-\!\[feature X\]\(images/feature-x.png\)
+- 此套件 **不包含** 編譯、語法檢查，程式撰寫完畢後仍需傳入控制器或虛擬機進行檢查！
+- 於啟用 URScript 語言後，會自動更改以下的 VSCode 編輯器參數
+  - `editor.tabSize: 2`
+  - `editor.insertSpaces: true`
+  - `files.eol: '\n'`
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+## 功能說明
 
-## Requirements
+- 自動完成項目
+  - 以官方 scriptManual.pdf 所產生對應的方法說明
+  ![completion](resources/figures/completion.png)
+	
+- 滑鼠停留時的方法提示
+  - 目前僅能提供 UR Script 方法的提示，自訂的方法( `def` )尚不能顯示提示
+  ![hover](resources/figures/hover_tip.png)
+  
+- 程式碼區塊
+  - 提供如 def、if、while 等語法可以快速建立，持續新增中
+  ![snippet](resources/figures/snippets.png)
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+## 版本紀錄
 
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+### 0.0.0 (dev)
+  - CompletionItems、SignatureHelp、Hover、Snippets
