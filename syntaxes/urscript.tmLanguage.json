@@ -47,11 +47,7 @@
             "patterns": [
                 {
                     "name": "comment.line.number-sign.urscript",
-                    "match": "#.*$"
-                },
-                {
-                    "name": "entity.name.label.urscript",
-                    "match": "\\$.*$"
+                    "match": "(#|\\$).*$"
                 }
             ]
         },
@@ -63,7 +59,7 @@
                     "beginCaptures": {
                         "0": { "name": "keyword.control.urscript" }
                     },
-                    "contentName":"storage.type.urscript",
+                    "contentName": "entity.name.function.urscript",
                     "comment": "Function definition"
                 },
                 {
