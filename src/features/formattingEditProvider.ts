@@ -137,7 +137,7 @@ export class URScriptFormattingProvider implements DocumentRangeFormattingEditPr
      * @param line 當前的文字行
      * @param pattern 欲搜尋並處理的樣板
      */
-    private FormatBracket(editColl: TextEdit[], line: TextLine, pattern: { Start: string, End: string }) {
+    private formatBracket(editColl: TextEdit[], line: TextLine, pattern: { Start: string, End: string }) {
         /* 從第一個字開始搜尋 */
         let searchIndex = 0;
         /* 開始搜尋，直至找不到括號離開 */
@@ -182,7 +182,7 @@ export class URScriptFormattingProvider implements DocumentRangeFormattingEditPr
      * @param line 當前的文字行
      * @param pattern 欲搜尋並處理的樣板
      */
-    private FormatSign(editColl: TextEdit[], line: TextLine, pattern: SignPattern) {
+    private formatSign(editColl: TextEdit[], line: TextLine, pattern: SignPattern) {
         /* 從第一個字開始搜尋 */
         let searchIndex = 0;
         /* 開始搜尋，找不到符號時再離開 */
@@ -317,7 +317,7 @@ export class URScriptFormattingProvider implements DocumentRangeFormattingEditPr
      * 取得當前的縮排空白數量
      * @param line 欲計算空白數量的行
      */
-    private GetIndent(line: TextLine): number {
+    private getIndent(line: TextLine): number {
         const match = line.text.match(/^\s*/);
         return match ? match[0].length : 0;
     }
@@ -328,7 +328,7 @@ export class URScriptFormattingProvider implements DocumentRangeFormattingEditPr
      * @param line 當前的文字行
      * @param count 正確的縮排空白數量
      */
-    private SetIndent(editColl: TextEdit[], line: TextLine, count: number) {
+    private setIndent(editColl: TextEdit[], line: TextLine, count: number) {
         const newText = `${' '.repeat(count)}${line.text.trim()}`;
         editColl.push(
             new TextEdit(
@@ -342,7 +342,7 @@ export class URScriptFormattingProvider implements DocumentRangeFormattingEditPr
      * 檢查當前行是否需要增加縮排數量 (從下一行起)
      * @param line 欲檢查的文字行
      */
-    private NeedIncreaseIndent(line: TextLine): boolean {
+    private needIncreaseIndent(line: TextLine): boolean {
         const match = line.text.match(/\b(def|thread|while|for|if|elif|else).*:/);
         return match ? match.length > 0 : false;
     }
@@ -351,7 +351,7 @@ export class URScriptFormattingProvider implements DocumentRangeFormattingEditPr
      * 檢查當前行是否需要減少縮排數量 (從下一行起)
      * @param line 欲檢查的文字行
      */
-    private NeedDecreaseIndent(line: TextLine): boolean {
+    private needDecreaseIndent(line: TextLine): boolean {
         const match = line.text.match(/\b(end)\b/);
         return match ? match.length > 0 : false;
     }
@@ -361,7 +361,7 @@ export class URScriptFormattingProvider implements DocumentRangeFormattingEditPr
      * @param editColl 欲儲存所有文字變更的集合
      * @param line 當前的文字行
      */
-    private Trim(editColl: TextEdit[], line: TextLine) {
+    private trimRight(editColl: TextEdit[], line: TextLine) {
         if (line.text.endsWith(' ')) {
             editColl.push(
                 new TextEdit(
@@ -395,25 +395,25 @@ export class URScriptFormattingProvider implements DocumentRangeFormattingEditPr
                 }
                 /* 輪詢括弧樣板 */
                 URScriptFormattingProvider.BracketPatterns.forEach(
-                    pat => this.FormatBracket(txtEdit, line, pat)
+                    pat => this.formatBracket(txtEdit, line, pat)
                 );
                 /* 輪詢符號樣板 */
                 URScriptFormattingProvider.SignPatterns.forEach(
-                    pat => this.FormatSign(txtEdit, line, pat)
+                    pat => this.formatSign(txtEdit, line, pat)
                 );
                 /* 優先檢查是否是 end，因 end 也要往前減少縮排 */
-                if (this.NeedDecreaseIndent(line)) {
+                if (this.needDecreaseIndent(line)) {
                     indent = (indent >= 2) ? indent - 2 : 0;
                 }
                 /* 檢查當前縮排是否正確 */
-                if (this.GetIndent(line) !== indent) {
-                    this.SetIndent(txtEdit, line, indent);
+                if (this.getIndent(line) !== indent) {
+                    this.setIndent(txtEdit, line, indent);
                 } else {
                     /* 因 setIndent 已會進行去頭去尾，故若左側縮排正確，再額外檢查右側多餘空白即可 */
-                    this.Trim(txtEdit, line);
+                    this.trimRight(txtEdit, line);
                 }
                 /* 如果此行是方法或區塊，將 indent + 2 */
-                if (this.NeedIncreaseIndent(line)) {
+                if (this.needIncreaseIndent(line)) {
                     indent += 2;
                 }
             }
@@ -444,14 +444,14 @@ export class URScriptFormattingProvider implements DocumentRangeFormattingEditPr
             }
             /* 輪詢括弧樣板 */
             URScriptFormattingProvider.BracketPatterns.forEach(
-                pat => this.FormatBracket(edits, line, pat)
+                pat => this.formatBracket(edits, line, pat)
             );
             /* 輪詢符號樣板 */
             URScriptFormattingProvider.SignPatterns.forEach(
-                pat => this.FormatSign(edits, line, pat)
+                pat => this.formatSign(edits, line, pat)
             );
             /* 檢查右側是否有多餘的空白並刪除之 */
-            this.Trim(edits, line);
+            this.trimRight(edits, line);
             /* 回傳 */
             return edits;
         } catch (error) {
