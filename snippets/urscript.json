@@ -3,7 +3,7 @@
         "prefix": "def",
         "body" : [
             "def ${1:function}(${2:para}):",
-            "  $3",
+            "  $0",
             "end"
         ],
         "description": "declare a new method"
@@ -12,7 +12,7 @@
         "prefix": "if",
         "body": [
             "if (${1:expression}):",
-            "  $2",
+            "  $0",
             "end"
         ],
         "description": "if-statement"
@@ -21,7 +21,7 @@
         "prefix": "while",
         "body": [
             "while ${1:i} ${2|<,>,<=,>=,==|} ${3:value}:",
-            "  $4",
+            "  $0",
             "end"
         ],
         "description": "while-loops"
@@ -30,7 +30,7 @@
         "prefix": "thread",
         "body": [
             "thread ${1:thread_name}():",
-            "  $2",
+            "  $0",
             "end"
         ],
         "description": "declare a new thread"
