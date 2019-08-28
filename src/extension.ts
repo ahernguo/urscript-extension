@@ -1,15 +1,21 @@
 'use strict';
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
+// VSCode extensibility API
 import * as vscode from 'vscode';
+// Script 方法載入
 import { createFunctions } from './scriptmethod';
+// 自動完成項目
 import { URScriptCompletionItemProvider } from './features/completionItemProvider';
+// 滑鼠停留提示
 import { URScriptHoverProvider } from './features/hoverProvider';
+// 簽章提示
 import { URScriptSignatureHelpProvider, URScriptSignatureHelpProviderMetadata } from './features/signatureHelpProvider';
+// 排版功能
 import { URScriptFormattingProvider } from './features/formattingEditProvider';
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
+/**
+ * 此套件的啟用方法。於切換至 URScript 語言時回呼此至此，由 package.json 內的 `activationEvents` 進行設定
+ * @param context 欲處理的上下文
+ */
 export function activate(context: vscode.ExtensionContext) {
 
     /* 更改 VSCode 環境 */
@@ -66,6 +72,8 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(cmpPvd, hovPvd, sigPvd, fmtPvd, typPvd);
 }
 
-// this method is called when your extension is deactivated
+/**
+ * 此套件的關閉方法。會於離開或手動禁用時回呼至此
+ */
 export function deactivate() {
 }
