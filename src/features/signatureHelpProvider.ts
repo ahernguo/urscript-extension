@@ -6,19 +6,56 @@ import { ScriptMethod } from '../scriptmethod';
 import { isNullOrUndefined } from 'util';
 
 /**
+ * 儲存 ScriptMethod 對應的 Hover 項目
+ */
+class ScriptSignature {
+
+    /** 方法名稱 */
+    Name: string;
+    /** 方法對應的提示項目 */
+    Item: SignatureHelp;
+
+    /**
+     * 建構方法對應項目
+     * @param mthd 欲處理的 Script 方法
+     */
+    constructor(mthd: ScriptMethod) {
+        /* 宣告簽章資訊 */
+        const sigInfo = new SignatureInformation(mthd.Label);
+        /* 建立 parameters */
+        const sigPara = mthd.Parameters.map(
+            para => {
+                let paraInfo = new ParameterInformation(para.Label);
+                paraInfo.documentation = para.Documentation;
+                return paraInfo;
+            }
+        );
+        sigInfo.parameters = sigPara;
+        /* 建立簽章提示 */
+        const sigHelp = new SignatureHelp();
+        sigHelp.activeParameter = 0;
+        sigHelp.activeSignature = 0;
+        sigHelp.signatures = [ sigInfo ];
+        /* 賦值 */
+        this.Item = sigHelp;
+        this.Name = mthd.Name;
+    }
+}
+
+/**
  * 適用於 URScript 的簽章提示供應器
  */
 export class URScriptSignatureHelpProvider implements SignatureHelpProvider {
 
-    /** 儲存外部已經載入的 ScriptMethod 集合 */
-    private mMthds: ScriptMethod[];
+    /** 儲存已解析完的官方 API 簽章項目 */
+    private scriptSignatures: ScriptSignature[];
 
     /**
      * 建構簽章提示供應器
      * @param funcs 已載入的 URScript 方法集合
      */
     public constructor(funcs: ScriptMethod[]) {
-        this.mMthds = funcs;
+        this.scriptSignatures = funcs.map(mthd => new ScriptSignature(mthd));
     }
     
     /**
@@ -60,27 +97,14 @@ export class URScriptSignatureHelpProvider implements SignatureHelpProvider {
                 /* 取得 '(' 左側的字詞 */
                 const word = document.getText(wordRange);
                 /* 尋找是否有符合的方法 */
-                const matched = this.mMthds.find(mthd => mthd.Name === word);
-                /* 如果有找到對應的方法，建立 SignatureHelp */
-                if (!isNullOrUndefined(matched)) {
-                    /* 宣告要回傳的簽章資訊 */
-                    const sigInfo = new SignatureInformation(matched.Label);
-                    /* 建立 parameters */
-                    const sigPara = matched.Parameters.map(
-                        para => {
-                            let paraInfo = new ParameterInformation(para.Label);
-                            paraInfo.documentation = para.Documentation;
-                            return paraInfo;
-                        }
-                    );
-                    sigInfo.parameters = sigPara;
-                    /* 建立簽章提示 */
-                    const sigHelp = new SignatureHelp();
-                    sigHelp.activeParameter = 0;
-                    sigHelp.activeSignature = 0;
-                    sigHelp.signatures = [ sigInfo ];
+                const matched = this.scriptSignatures.find(sig => sig.Name === word);
+                /* 有找到東西，重設起始參數 */
+                if (matched) {
+                    /* 從 0 開始顯示 */
+                    matched.Item.activeParameter = 0;
+                    matched.Item.activeSignature = 0;
                     /* 回傳 */
-                    return sigHelp;
+                    return matched.Item;
                 }
             }
         } catch (error) {
