@@ -314,6 +314,65 @@ export class URScriptFormattingProvider implements DocumentRangeFormattingEditPr
     }
 
     /**
+     * 取得當前的縮排空白數量
+     * @param line 欲計算空白數量的行
+     */
+    private GetIndent(line: TextLine): number {
+        const match = line.text.match(/^\s*/);
+        return match ? match[0].length : 0;
+    }
+
+    /**
+     * 修正當前的縮排空白數量 
+     * @param editColl 欲儲存所有文字變更的集合
+     * @param line 當前的文字行
+     * @param count 正確的縮排空白數量
+     */
+    private SetIndent(editColl: TextEdit[], line: TextLine, count: number) {
+        const newText = `${' '.repeat(count)}${line.text.trim()}`;
+        editColl.push(
+            new TextEdit(
+                line.range,
+                newText
+            )
+        );
+    }
+
+    /**
+     * 檢查當前行是否需要增加縮排數量 (從下一行起)
+     * @param line 欲檢查的文字行
+     */
+    private NeedIncreaseIndent(line: TextLine): boolean {
+        const match = line.text.match(/\b(def|thread|while|for|if|elif|else).*:/);
+        return match ? match.length > 0 : false;
+    }
+
+    /**
+     * 檢查當前行是否需要減少縮排數量 (從下一行起)
+     * @param line 欲檢查的文字行
+     */
+    private NeedDecreaseIndent(line: TextLine): boolean {
+        const match = line.text.match(/\b(end)\b/);
+        return match ? match.length > 0 : false;
+    }
+
+    /**
+     * 檢查右側是否有多餘空白，如有則進行刪除
+     * @param editColl 欲儲存所有文字變更的集合
+     * @param line 當前的文字行
+     */
+    private Trim(editColl: TextEdit[], line: TextLine) {
+        if (line.text.endsWith(' ')) {
+            editColl.push(
+                new TextEdit(
+                    line.range,
+                    line.text.trimRight()
+                )
+            );
+        }
+    }
+
+    /**
      * 取得文件排版範圍的編輯項目
      * @param document vscode 當前的文字編輯器
      * @param range 欲排版的範圍
@@ -324,6 +383,8 @@ export class URScriptFormattingProvider implements DocumentRangeFormattingEditPr
         try {
             /* 宣告回傳使用的 TextEdit 集合 */
             const txtEdit: TextEdit[] = [];
+            /* 縮排紀錄 */
+            let indent = 0;
             /* 輪詢範圍內的每一行，若有符合的條件則調整之 */
             for (let lineNo = range.start.line; lineNo <= range.end.line; lineNo++) {
                 /* 取得該行的資訊 */
@@ -340,6 +401,21 @@ export class URScriptFormattingProvider implements DocumentRangeFormattingEditPr
                 URScriptFormattingProvider.SignPatterns.forEach(
                     pat => this.FormatSign(txtEdit, line, pat)
                 );
+                /* 優先檢查是否是 end，因 end 也要往前減少縮排 */
+                if (this.NeedDecreaseIndent(line)) {
+                    indent = (indent >= 2) ? indent - 2 : 0;
+                }
+                /* 檢查當前縮排是否正確 */
+                if (this.GetIndent(line) !== indent) {
+                    this.SetIndent(txtEdit, line, indent);
+                } else {
+                    /* 因 setIndent 已會進行去頭去尾，故若左側縮排正確，再額外檢查右側多餘空白即可 */
+                    this.Trim(txtEdit, line);
+                }
+                /* 如果此行是方法或區塊，將 indent + 2 */
+                if (this.NeedIncreaseIndent(line)) {
+                    indent += 2;
+                }
             }
             /* 回傳 */
             return txtEdit;
@@ -374,6 +450,8 @@ export class URScriptFormattingProvider implements DocumentRangeFormattingEditPr
             URScriptFormattingProvider.SignPatterns.forEach(
                 pat => this.FormatSign(edits, line, pat)
             );
+            /* 檢查右側是否有多餘的空白並刪除之 */
+            this.Trim(edits, line);
             /* 回傳 */
             return edits;
         } catch (error) {
