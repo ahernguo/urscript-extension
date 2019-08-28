@@ -1,31 +1,37 @@
 {
+    // 註解
     "comments": {
-        // symbol used for single line comment. Remove this entry if your language does not support line comments
-        "lineComment": "#"
+        "lineComment": "#"  // 單行註解
     },
-    // symbols used as brackets
+    // 括弧的符號
     "brackets": [
         ["[", "]"],
         ["(", ")"]
     ],
-    // symbols that are auto closed when typing
+    // 自動填寫結束符號的括弧
     "autoClosingPairs": [
         ["[", "]"],
         ["(", ")"],
         ["\"", "\""],
         ["'", "'"]
     ],
-    // symbols that that can be used to surround a selection
+    // 點擊或 (ctrl + shift + ←/→) 要自動選取的文字範圍
     "surroundingPairs": [
         ["[", "]"],
         ["(", ")"],
         ["\"", "\""],
         ["'", "'"]
     ],
+    // 可折疊的程式碼區塊
     "folding": {
         "markers": {
-            "start": "^def\\b",
-            "end": "^end\\b"
+            "start": "\\b(def|thread|while|for|if|elif|else)\\b",
+            "end": "\\b(end)\\b"
         }
+    },
+    // 自動添加 tab 縮排的規則
+    "indentationRules": {
+        "increaseIndentPattern": "\\b(def|thread|while|for|if|elif|else).*:",
+        "decreaseIndentPattern": "\\b(end)\\b"
     }
 }
