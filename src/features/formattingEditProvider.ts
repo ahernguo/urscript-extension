@@ -34,9 +34,28 @@ enum FormatAction {
 }
 
 /**
+ * 需要一同考慮的符號前後文或比對
+ */
+interface ISignInclude {
+
+    /**
+     * 欲考慮比對的位置
+     */
+    readonly Position: IncludePosition;
+    /**
+     * 搜尋模板
+     */
+    readonly Pattern: string | RegExp;
+    /**
+     * 符合條件時要進行的排版動作
+     */
+    readonly Action: FormatAction;
+}
+
+/**
  * 需要一同考慮的符號前後文字
  */
-class SignInclude {
+class SignIncludeString implements ISignInclude {
 
     /** 欲考慮的位置。由於使用 `indexOf` 搜尋符號，故請以符號位置為基準，設定 Pattern 屬於前、後或都有 */
     readonly Position: IncludePosition;
@@ -62,6 +81,31 @@ class SignInclude {
 }
 
 /**
+ * 需要一同考慮的符號前後匹配
+ */
+class SignIncludeRegex implements ISignInclude {
+
+    /** 欲考慮的位置。由於使用 `indexOf` 搜尋符號，故請以符號位置為基準，設定 Pattern 屬於前、後或都有 */
+    readonly Position: IncludePosition;
+    /** 欲考慮的搜尋模板 */
+    readonly Pattern: RegExp;
+    /** 符合條件時要進行的排版動作 */
+    readonly Action: FormatAction;
+
+    /**
+     * 建構考慮內容
+     * @param pos 考慮的位置
+     * @param pat 搜尋樣板
+     * @param act 排版動作
+     */
+    constructor(pos: IncludePosition, pat: RegExp, act: FormatAction = FormatAction.AddSpace) {
+        this.Position = pos;
+        this.Pattern = pat;
+        this.Action = act;
+    }
+}
+
+/**
  * 符號的排版樣板
  */
 class SignPattern {
@@ -69,7 +113,7 @@ class SignPattern {
     /** 符號 */
     Sign: string;
     /** 欲包含的樣板集合 */
-    Includes: SignInclude[];
+    Includes: ISignInclude[];
     /** `Sign` 的長度 */
     Length: number;
 
@@ -78,10 +122,35 @@ class SignPattern {
      * @param sign 符號
      * @param ex 包含的樣板集合
      */
-    constructor(sign: string, ex: SignInclude[]) {
+    constructor(sign: string, ex: ISignInclude[]) {
         this.Sign = sign;
         this.Includes = ex;
         this.Length = sign.length;
+    }
+}
+
+/**
+ * 處理考慮後的結果
+ */
+class IncludeResult {
+
+    /** 匹配的起始索引 */
+    Start: number;
+    /** 匹配的終止索引 */
+    End: number;
+    /** 匹配的字串 */
+    Word: string;
+
+    /**
+     * 建構考慮後的結果
+     * @param s 匹配的起始索引
+     * @param e 匹配的終止索引
+     * @param word 匹配的字串
+     */
+    constructor(s: number, e: number, word: string) {
+        this.Start = s;
+        this.End = e;
+        this.Word = word;
     }
 }
 
@@ -100,32 +169,37 @@ export class URScriptFormattingProvider implements DocumentRangeFormattingEditPr
         new SignPattern(
             '=',
             [
-                new SignInclude(IncludePosition.Both, '='), // ==
-                new SignInclude(IncludePosition.Both, '>'), // >=, =>
-                new SignInclude(IncludePosition.Both, '<')  // <=, =<
+                new SignIncludeString(IncludePosition.Both, '='), // ==
+                new SignIncludeString(IncludePosition.Both, '>'), // >=, =>
+                new SignIncludeString(IncludePosition.Both, '<')  // <=, =<
             ]
         ),
         new SignPattern(
             '>',
             [
-                new SignInclude(IncludePosition.Both, '>'), // >>
-                new SignInclude(IncludePosition.Both, '=')  // >=, =>
+                new SignIncludeString(IncludePosition.Both, '>'), // >>
+                new SignIncludeString(IncludePosition.Both, '=')  // >=, =>
             ]
         ),
         new SignPattern(
             '<',
             [
-                new SignInclude(IncludePosition.Both, '<'), // <<
-                new SignInclude(IncludePosition.Both, '=')  // <=, =<
+                new SignIncludeString(IncludePosition.Both, '<'), // <<
+                new SignIncludeString(IncludePosition.Both, '=')  // <=, =<
             ]
         ),
         new SignPattern(
             '+',
-            [new SignInclude(IncludePosition.Both, '+', FormatAction.Ignore)]    //++
+            [
+                new SignIncludeString(IncludePosition.Both, '+', FormatAction.Ignore)      //++
+            ]
         ),
         new SignPattern(
             '-',
-            [new SignInclude(IncludePosition.Both, '-', FormatAction.Ignore)]    //--
+            [
+                new SignIncludeString(IncludePosition.Both, '-', FormatAction.Ignore),     //--
+                new SignIncludeRegex(IncludePosition.After, /-\d+/, FormatAction.Ignore)   //-123
+            ]
         ),
         new SignPattern('*', []),
         new SignPattern('/', []),
@@ -198,66 +272,35 @@ export class URScriptFormattingProvider implements DocumentRangeFormattingEditPr
                     continue;
                 } else {
                     /* 樣板位置與 Pattern，先以當前不考慮前後的情況下預設數值 */
-                    let sign = pattern.Sign;
-                    let start = index;
-                    let end = index + pattern.Length;
+                    let match = new IncludeResult(
+                        index,
+                        index + pattern.Length,
+                        pattern.Sign
+                    );
+                    let procMatch: IncludeResult | undefined;
                     let act = FormatAction.AddSpace;
-                    let found = false;
                     /* 輪詢每一個要考慮的內容，如果有符合的就儲存到 sign */
                     pattern.Includes.forEach(
                         ex => {
-                            if (!found) {
+                            if (!procMatch) {
+                                /* 依照匹配類型進行處理 */
                                 switch (ex.Position) {
                                     case IncludePosition.After:
-                                        //取得在符號後的文字
-                                        const aftWord = line.text.substr(index + 1, ex.Length);
-                                        //回傳符號後方的文字是否為要排除的內容
-                                        if (aftWord === ex.Pattern) {
-                                            start = index;
-                                            end = index + ex.Length + pattern.Length;
-                                            sign = pattern.Sign.concat(ex.Pattern);
-                                            act = ex.Action;
-                                            found = true;
-                                        }
+                                        procMatch = this.processAfter(line.text, index, pattern, ex);
                                         break;
-                                    
                                     case IncludePosition.Before:
-                                        //取得在符號前的文字
-                                        const befWord = line.text.substring(index - ex.Length, index);
-                                        //回傳符號前面的文字是否為要排除的內容
-                                        if (befWord === ex.Pattern) {
-                                            start = index - ex.Length;
-                                            end = index + pattern.Length;
-                                            sign = ex.Pattern.concat(pattern.Sign);
-                                            act = ex.Action;
-                                            found = true;
-                                        }
+                                        procMatch = this.processBefore(line.text, index, pattern, ex);
                                         break;
-    
                                     default:
-                                        //取得在符號後的文字
-                                        const bothAftWord = line.text.substr(index + 1, ex.Length);
-                                        //檢查符號後方的文字是否為要排除的內容
-                                        if (bothAftWord === ex.Pattern) {
-                                            start = index;
-                                            end = index + ex.Length + pattern.Length;
-                                            sign = pattern.Sign.concat(ex.Pattern);
-                                            act = ex.Action;
-                                            found = true;
-                                            break;
-                                        }
-                                        //取得在符號前的文字
-                                        const bothBefWord = line.text.substring(index - ex.Length, index);
-                                        //檢查符號後方的文字是否為要排除的內容
-                                        if (bothBefWord === ex.Pattern) {
-                                            start = index - ex.Length;
-                                            end = index + pattern.Length;
-                                            sign = ex.Pattern.concat(pattern.Sign);
-                                            act = ex.Action;
-                                            found = true;
-                                            break;
-                                        }
+                                        procMatch = this.processBoth(line.text, index, pattern, ex);
                                         break;
+                                }
+                                /* 如果有找到東西，儲存動作 */
+                                if (procMatch) {
+                                    match.Start = procMatch.Start;
+                                    match.End = procMatch.End;
+                                    match.Word = procMatch.Word;
+                                    act = ex.Action;
                                 }
                             }
                         }
@@ -265,46 +308,46 @@ export class URScriptFormattingProvider implements DocumentRangeFormattingEditPr
                     /* 如果符合的條件是忽略，則直接往下搜尋 */
                     if ((act as FormatAction) === FormatAction.Ignore) {
                         /* 重設 searchIndex，從 end 之後繼續搜尋 */
-                        searchIndex = end;
+                        searchIndex = match.End;
                         continue;
                     }
                     /* 如果前後都不是空白，直接補上雙空白 */
-                    if (((line.text.charAt(start - 1) !== " ") && (line.text.charAt(end) !== " "))) {
+                    if (((line.text.charAt(match.Start - 1) !== " ") && (line.text.charAt(match.End) !== " "))) {
                         editColl.push(
                             new TextEdit(
                                 new Range(
-                                    line.lineNumber, start,
-                                    line.lineNumber, end
+                                    line.lineNumber, match.Start,
+                                    line.lineNumber, match.End
                                 ),
-                                ` ${sign} `
+                                ` ${match.Word} `
                             )
                         );
-                    } else if (line.text.charAt(start - 1) !== " ") {
+                    } else if (line.text.charAt(match.Start - 1) !== " ") {
                         /* 如果前面不是空白、後面是，則補上前面即可 */
                         editColl.push(
                             new TextEdit(
                                 new Range(
-                                    line.lineNumber, start,
-                                    line.lineNumber, end
+                                    line.lineNumber, match.Start,
+                                    line.lineNumber, match.End
                                 ),
-                                ` ${sign}`
+                                ` ${match.Word}`
                             )
                         );
-                    } else if (line.text.charAt(end) !== " ") {
+                    } else if (line.text.charAt(match.End) !== " ") {
                         /* 如果前面是空白、後面不是，則補上後面即可 */
                         editColl.push(
                             new TextEdit(
                                 new Range(
-                                    line.lineNumber, start,
-                                    line.lineNumber, end
+                                    line.lineNumber, match.Start,
+                                    line.lineNumber, match.End
                                 ),
-                                `${sign} `
+                                `${match.Word} `
                             )
                         );
                     } // else 表示前後都是空白，直接跳過
 
                     /* 重設 searchIndex，從 end 之後繼續搜尋 */
-                    searchIndex = end;
+                    searchIndex = match.End;
                 }
             } else {
                 /* 已經沒有對應的符號，離開吧~ */
@@ -314,11 +357,101 @@ export class URScriptFormattingProvider implements DocumentRangeFormattingEditPr
     }
 
     /**
+     * 處理於符號後方的匹配檢查
+     * @param text 欲檢查的文字
+     * @param pattern 欲檢查的樣板
+     * @param inc 欲考慮物件
+     * @param index 欲開始檢查的索引
+     */
+    private processAfter(text: string, index: number, pattern: SignPattern, inc: ISignInclude): IncludeResult | undefined {
+        if (inc instanceof SignIncludeString) {
+            //取得在符號後的文字
+            const aftWord = text.substr(index + 1, inc.Length);
+            //如果有成功找到，回傳結果
+            if (aftWord === inc.Pattern) {
+                return new IncludeResult(
+                    index,
+                    index + inc.Length + pattern.Length,
+                    pattern.Sign.concat(inc.Pattern)
+                );
+            }
+        } else if (inc instanceof SignIncludeRegex) {
+            //取得在符號後的文字
+            const aftString = text.substring(index);
+            //Regex 比對
+            const match = inc.Pattern.exec(aftString);
+            //如果有成功找到，回傳結果
+            if (match) {
+                return new IncludeResult(
+                    index,
+                    index + match[0].length,
+                    match[0]
+                );
+            }
+        }
+    }
+
+    /**
+     * 處理於符號前方的匹配檢查
+     * @param text 欲檢查的文字
+     * @param pattern 欲檢查的樣板
+     * @param inc 欲考慮物件
+     * @param index 欲開始檢查的索引
+     */
+    private processBefore(text: string, index: number, pattern: SignPattern, inc: ISignInclude): IncludeResult | undefined {
+        if (inc instanceof SignIncludeString) {
+            //取得在符號前的文字
+            const befWord = text.substring(index - inc.Length, index);
+            //如果有成功找到，回傳結果
+            if (befWord === inc.Pattern) {
+                return new IncludeResult(
+                    index - inc.Length,
+                    index + pattern.Length,
+                    inc.Pattern.concat(pattern.Sign)
+                );
+            }
+        } else if (inc instanceof SignIncludeRegex) {
+            //取得在符號後的文字
+            const befString = text.substring(0, index + pattern.Length);
+            //Regex 比對
+            const match = inc.Pattern.exec(befString);
+            //如果有成功找到，回傳結果
+            if (match) {
+                return new IncludeResult(
+                    index - match[match.length - 1].length + 1,
+                    index + pattern.Length,
+                    match[match.length - 1]
+                );
+            }
+        }
+    }
+
+    /**
+     * 處理於符號前面與後方的匹配檢查
+     * @param text 欲檢查的文字
+     * @param pattern 欲檢查的樣板
+     * @param inc 欲考慮物件
+     * @param index 欲開始檢查的索引
+     */
+    private processBoth(text: string, index: number, pattern: SignPattern, inc: ISignInclude): IncludeResult | undefined {
+        /* 先看後面，比較常用 */
+        const aftMatch = this.processAfter(text, index, pattern, inc);
+        if (aftMatch) {
+            return aftMatch;
+        }
+        /* 再看前面 */
+        const befMatch = this.processBefore(text, index, pattern, inc);
+        if (befMatch) {
+            return befMatch;
+        }
+    }
+
+    /**
      * 取得當前的縮排空白數量
      * @param line 欲計算空白數量的行
      */
     private getIndent(line: TextLine): number {
-        const match = line.text.match(/^\s*/);
+        const match = line.text.match(/^\s*/g);
         return match ? match[0].length : 0;
     }
 
@@ -343,7 +476,7 @@ export class URScriptFormattingProvider implements DocumentRangeFormattingEditPr
      * @param line 欲檢查的文字行
      */
     private needIncreaseIndent(line: TextLine): boolean {
-        const match = line.text.match(/\b(def|thread|while|for|if|elif|else).*:/);
+        const match = line.text.match(/\b(def|thread|while|for|if|elif|else).*:/g);
         return match ? match.length > 0 : false;
     }
 
@@ -352,7 +485,7 @@ export class URScriptFormattingProvider implements DocumentRangeFormattingEditPr
      * @param line 欲檢查的文字行
      */
     private needDecreaseIndent(line: TextLine): boolean {
-        const match = line.text.match(/\b(end)\b/);
+        const match = line.text.match(/\b(end)|(elif.*:)|(else:)/g);
         return match ? match.length > 0 : false;
     }
 
@@ -385,12 +518,14 @@ export class URScriptFormattingProvider implements DocumentRangeFormattingEditPr
             const txtEdit: TextEdit[] = [];
             /* 縮排紀錄 */
             let indent = 0;
+            /* 判斷是否是註解的 Pattern */
+            const cmtPat = /^(#|\$).*/;
             /* 輪詢範圍內的每一行，若有符合的條件則調整之 */
             for (let lineNo = range.start.line; lineNo <= range.end.line; lineNo++) {
                 /* 取得該行的資訊 */
                 const line = document.lineAt(lineNo);
                 /* 如果是空白則直接往下一行 */
-                if (line.isEmptyOrWhitespace) {
+                if (line.isEmptyOrWhitespace || cmtPat.test(line.text)) {
                     continue;
                 }
                 /* 輪詢括弧樣板 */
