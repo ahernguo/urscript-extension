@@ -3,12 +3,24 @@
     "name": "URScript",
     "scopeName": "source.urscript",
     "patterns": [
-        { "include": "#numerics" },
-        { "include": "#strings" },
-        { "include": "#comments" },
-        { "include": "#keywords" },
-        { "include": "#constants" },
-        { "include": "#methods" }
+        {
+            "include": "#numerics"
+        },
+        {
+            "include": "#strings"
+        },
+        {
+            "include": "#comments"
+        },
+        {
+            "include": "#keywords"
+        },
+        {
+            "include": "#constants"
+        },
+        {
+            "include": "#methods"
+        }
     ],
     "repository": {
         "numerics": {
@@ -16,11 +28,11 @@
                 {
                     "name": "constant.numeric.float.urscript",
                     "match": "[+-]?\\b(\\d+(\\.\\d+)?)\\b"
-				},
-				{
-					"name": "constant.numeric.integer.urscript",
-					"match": "[+-]?\\b(\\d+)\\b"
-				}
+                },
+                {
+                    "name": "constant.numeric.integer.urscript",
+                    "match": "[+-]?\\b(\\d+)\\b"
+                }
             ]
         },
         "strings": {
@@ -32,7 +44,7 @@
                     "patterns": [
                         {
                             "name": "constant.character.escape.urscript",
-                            "match": "\\\\."
+                            "match": "\\."
                         }
                     ]
                 },
@@ -57,22 +69,28 @@
                     "begin": "\\b(def|thread)\\b",
                     "end": "\\(.*\\):$",
                     "beginCaptures": {
-                        "0": { "name": "keyword.control.urscript" }
+                        "1": {
+                            "name": "keyword.control.urscript"
+                        }
                     },
-                    "contentName": "entity.name.function.urscript",
-                    "comment": "Function definition"
+                    "contentName": "entity.name.function.urscript"
                 },
                 {
-                    "match": "(\\w+)(\\().*(\\))(?!:)",
-                    "captures": {
-                        "1" : {"name": "variable.function.urscript"}
-                    }
-                },
-                {
-                    "match": "(\\w+)\\(.*\\):",
-                    "captures": {
-                        "1" :{"name": "entity.name.function.urscript"}
-                    }
+                    "begin": "(\\w+)(\\()",
+                    "end": "\\)",
+                    "beginCaptures": {
+                        "1": {
+                            "name": "entity.name.function.urscript"
+                        }
+                    },
+                    "patterns": [
+                        {
+                            "include": "#strings"
+                        },
+                        {
+                            "include": "#numerics"
+                        }
+                    ]
                 }
             ]
         },
@@ -83,37 +101,37 @@
                     "match": "\\b(while|for|return|end|kill|halt|run|join|enter_critical|exit_critical)\\b"
                 },
                 {
-                    "name" : "keyword.control.conditional.urscript",
-                    "match" : "\\b(if|elif|else)\\b"
+                    "name": "keyword.control.conditional.urscript",
+                    "match": "\\b(if|elif|else)\\b"
                 },
                 {
-                    "name" : "storage.modifier.urscript",
-                    "match" : "\\b(global|local)\\b"
+                    "name": "storage.modifier.urscript",
+                    "match": "\\b(global|local)\\b"
                 },
                 {
-                    "name" : "keyword.operator.logical.urscript",
-                    "match" : "(<=|>=|!=|==|<|>)"
+                    "name": "keyword.operator.logical.urscript",
+                    "match": "(<=|>=|!=|==|<|>)"
                 },
                 {
-                    "name" : "keyword.operator.assignment.urscript", 
-                    "match" : "="
+                    "name": "keyword.operator.assignment.urscript",
+                    "match": "="
                 },
                 {
-                    "name" : "keyword.operator.arithmetic.urscript",
-                    "match" : "(\\+|-|\\*|/)"
-                }, 
+                    "name": "keyword.operator.arithmetic.urscript",
+                    "match": "(\\+|-|\\*|/)"
+                },
                 {
-                    "name" : "keyword.other.urscript",
-                    "match" : "\\b(and|or|xor|not)\\b"
+                    "name": "keyword.other.urscript",
+                    "match": "\\b(and|or|xor|not)\\b"
                 }
             ]
         },
         "constants": {
             "patterns": [
                 {
-					"name": "constant.language.urscript",
-					"match": "\\b(True|False)\\b"
-				}
+                    "name": "constant.language.urscript",
+                    "match": "\\b(True|False)\\b"
+                }
             ]
         }
     }
