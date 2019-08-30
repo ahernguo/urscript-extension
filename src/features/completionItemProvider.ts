@@ -2,6 +2,7 @@
 import { CompletionItemProvider, CompletionItem, CompletionItemKind, CompletionContext, CancellationToken, TextDocument, Position, CompletionList, SnippetString, Range } from 'vscode';
 //用於載入外部的方法集合
 import { ScriptMethod } from '../scriptmethod';
+import { searchFunctions } from '../codeParser';
 
 /**
  * 適用於 URScript 的自動完成項目供應器
@@ -59,6 +60,8 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
             const matchItems = this.scriptCmpItems.filter(
                 mthd => mthd.label.startsWith(word)
             );
+            /* 將當前的所有方法給解析出來 */
+            searchFunctions(document.getText(), matchItems);
             /* 回傳集合 */
             return new CompletionList(matchItems, !(word.length > 1));
         } catch (error) {
