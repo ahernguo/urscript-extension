@@ -17,6 +17,22 @@
         ],
         "description": "if-statement"
     },
+    "elif": {
+        "prefix": "elif",
+        "body": [
+            "elif (${1:expression}):",
+            "  $0"
+        ],
+        "description": "else-if-statement"
+    },
+    "else": {
+        "prefix": "else",
+        "body": [
+            "else:",
+            "  $0"
+        ],
+        "description": "else-statement"
+    },
     "while": {
         "prefix": "while",
         "body": [
@@ -34,5 +50,12 @@
             "end"
         ],
         "description": "declare a new thread"
+    },
+    "global": {
+        "prefix": "global",
+        "body": [
+            "global ${1:variable}$0"
+        ],
+        "description": "declare a global variable"
     }
 }
