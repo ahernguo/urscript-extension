@@ -2,6 +2,7 @@
 import { HoverProvider, Hover, TextDocument, CancellationToken, Position } from 'vscode';
 //用於載入外部的方法集合
 import { ScriptMethod } from '../scriptmethod';
+import { getHoverFromText } from '../codeParser';
 
 /**
  * 儲存 ScriptMethod 對應的 Hover 項目
@@ -55,9 +56,12 @@ export class URScriptHoverProvider implements HoverProvider {
             if (word !== "") {
                 //利用 find 尋找是否有符合的方法名稱
                 let matchHover = this.scriptHovItems.find(hovItem => hovItem.Name === word);
-                //回傳
+                //如果有找到官方方法，回傳之
                 if (matchHover) {
                     return matchHover.Item;
+                } else {
+                    //沒有找到則試著找當前的文件
+                    return getHoverFromText(document.getText(), word);
                 }
             }
         } catch (error) {

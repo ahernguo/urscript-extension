@@ -1,5 +1,5 @@
 //用於 vscode 的名稱解析
-import { CompletionItem, CompletionItemKind, SnippetString } from 'vscode';
+import { CompletionItem, CompletionItemKind, SnippetString, Hover, Range } from 'vscode';
 //用於檔案讀取的 FileStream 解析
 import * as fs from 'fs';
 
@@ -8,7 +8,7 @@ import * as fs from 'fs';
  * @param fileName 欲搜尋的檔案
  * @param cmpItems 欲儲存的完成項目集合
  */
-export function searchKeywordsFromFile(fileName: string, keyword: string, cmpItems: CompletionItem[]) {
+export function getCompletionItemsFromFile(fileName: string, keyword: string, cmpItems: CompletionItem[]) {
     /* 宣告變數 */
     let text = '';
     /* 讀取檔案 */
@@ -25,7 +25,7 @@ export function searchKeywordsFromFile(fileName: string, keyword: string, cmpIte
     );
     /* 如果有東西 */
     if (text !== '') {
-        searchKeywords(text, keyword, cmpItems);
+        getCompletionItemsFromText(text, keyword, cmpItems);
     }
 }
 
@@ -35,7 +35,7 @@ export function searchKeywordsFromFile(fileName: string, keyword: string, cmpIte
  * @param keyword 當前使用者輸入的關鍵字
  * @param cmpItems 欲儲存的完成項目集合
  */
-export function searchKeywords(text: string, keyword: string, cmpItems: CompletionItem[]) {
+export function getCompletionItemsFromText(text: string, keyword: string, cmpItems: CompletionItem[]) {
     /* 建立 Regex Pattern */
     const mthdPat = new RegExp(`\\b(def|thread|global)\\s+${keyword}.*(\\(.*\\):)*`, "gm");
     const namePat = /\b(?!def|thread|global)\w+/gm;
@@ -53,17 +53,50 @@ export function searchKeywords(text: string, keyword: string, cmpItems: Completi
                     cmpItem.commitCharacters = ['\t', ' '];
                     if (/global/.test(value)) {
                         cmpItem.kind = CompletionItemKind.Variable;
-                        cmpItem.detail = `(global) ${nameReg[0]}`;
+                        cmpItem.detail = `(global variable) ${nameReg[0]}`;
                         cmpItem.insertText = nameReg[0];
+                    } else if (/thread/.test(value)) {
+                        cmpItem.kind = CompletionItemKind.Variable;
+                        cmpItem.detail = `(user thread) ${nameReg[0]}`;
+                        cmpItem.insertText = `${nameReg[0]}()`;
                     } else {
                         cmpItem.kind = CompletionItemKind.Function;
-                        cmpItem.detail = `(local) ${nameReg[0]}`;
+                        cmpItem.detail = `(user function) ${nameReg[0]}`;
                         cmpItem.insertText = new SnippetString(`${nameReg[0]}($0)`);
                     }
-                    
+
                     cmpItems.push(cmpItem);
                 }
             }
         );
+    }
+}
+
+/**
+ * 搜尋文字內容的指定關鍵字並轉換成滑鼠提示
+ * @param text 欲搜尋的文字
+ * @param keyword 當前使用者輸入的關鍵字
+ */
+export function getHoverFromText(text: string, keyword: string): Hover | undefined {
+    /* 建立 Regex Pattern */
+    const mthdPat = new RegExp(`\\b(def|thread|global)\\s+${keyword}.*(\\(.*\\):)*`, "gm");
+    const namePat = /\b(?!def|thread|global)\w+/gm;
+    /* 迴圈尋找符合的方法 */
+    const match = mthdPat.exec(text);
+    if (match) {
+        /* 用 Regex 取得方法名稱 */
+        const nameReg = namePat.exec(match[0]);
+        /* 有成功找到，建立完成項目 */
+        if (nameReg) {
+            let hovItem: Hover | undefined = undefined;
+            if (/global/.test(match[0])) {
+                hovItem = new Hover(`(global variable) ${nameReg[0]}`);
+            } else if (/thread/.test(match[0])) {
+                hovItem = new Hover(`(user thread) ${nameReg[0]}`);
+            } else {
+                hovItem = new Hover(`(user function) ${nameReg[0]}`);
+            }
+            return hovItem;
+        }
     }
 }
