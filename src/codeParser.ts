@@ -1,7 +1,8 @@
 //用於 vscode 的名稱解析
-import { CompletionItem, CompletionItemKind, SnippetString, Hover, Range } from 'vscode';
+import { CompletionItem, CompletionItemKind, SnippetString, Hover, WorkspaceFolder } from 'vscode';
 //用於檔案讀取的 FileStream 解析
 import * as fs from 'fs';
+import * as rd from 'readline';
 
 /**
  * 搜尋檔案內的所有方法與全域變數
@@ -45,31 +46,49 @@ export function getCompletionItemsFromText(text: string, keyword: string, cmpIte
         /* 若有找到方法，輪詢結果 */
         match.forEach(
             value => {
-                /* 用 Regex 取得方法名稱 */
-                const nameReg = namePat.exec(value);
-                /* 有成功找到，建立完成項目 */
-                if (nameReg) {
-                    const cmpItem = new CompletionItem(nameReg[0]);
-                    cmpItem.commitCharacters = ['\t', ' '];
-                    if (/global/.test(value)) {
-                        cmpItem.kind = CompletionItemKind.Variable;
-                        cmpItem.detail = `(global variable) ${nameReg[0]}`;
-                        cmpItem.insertText = nameReg[0];
-                    } else if (/thread/.test(value)) {
-                        cmpItem.kind = CompletionItemKind.Variable;
-                        cmpItem.detail = `(user thread) ${nameReg[0]}`;
-                        cmpItem.insertText = `${nameReg[0]}()`;
-                    } else {
-                        cmpItem.kind = CompletionItemKind.Function;
-                        cmpItem.detail = `(user function) ${nameReg[0]}`;
-                        cmpItem.insertText = new SnippetString(`${nameReg[0]}($0)`);
-                    }
+                if (value) {
+                    /* 用 Regex 取得方法名稱 */
+                    const nameReg = namePat.exec(value);
+                    /* 有成功找到，建立完成項目 */
+                    if (nameReg && !cmpItems.find(cmp => cmp.label === nameReg[0])) {
+                        const cmpItem = new CompletionItem(nameReg[0]);
+                        cmpItem.commitCharacters = ['\t', ' '];
+                        if (/global/.test(value)) {
+                            cmpItem.kind = CompletionItemKind.Variable;
+                            cmpItem.detail = `(global variable) ${nameReg[0]}`;
+                            cmpItem.insertText = nameReg[0];
+                        } else if (/thread/.test(value)) {
+                            cmpItem.kind = CompletionItemKind.Variable;
+                            cmpItem.detail = `(user thread) ${nameReg[0]}`;
+                            cmpItem.insertText = `${nameReg[0]}()`;
+                        } else {
+                            cmpItem.kind = CompletionItemKind.Function;
+                            cmpItem.detail = `(user function) ${nameReg[0]}`;
+                            cmpItem.insertText = new SnippetString(`${nameReg[0]}($0)`);
+                        }
 
-                    cmpItems.push(cmpItem);
+                        cmpItems.push(cmpItem);
+                    }
                 }
             }
         );
     }
+}
+
+export function getCompletionItemsFromWorkspace(workspace: WorkspaceFolder, keyword: string, cmpItems: CompletionItem[]) {
+    /* 取得資料夾內的所有檔案 */
+    const files = fs.readdirSync(workspace.uri.fsPath)
+        .filter(file => file.endsWith('.script'))
+        .map(file => `${workspace.uri.fsPath}\\${file}`);
+    /* 輪詢所有檔案 */
+    files.forEach(
+        file => {
+            /* 讀取所有字元 */
+            const text = fs.readFileSync(file, 'utf-8');
+            /* 解析 */
+            getCompletionItemsFromText(text, keyword, cmpItems);
+        }
+    );
 }
 
 /**

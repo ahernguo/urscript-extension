@@ -1,8 +1,8 @@
 //用於 vscode 的名稱解析
-import { CompletionItemProvider, CompletionItem, CompletionItemKind, CompletionContext, CancellationToken, TextDocument, Position, CompletionList, SnippetString, Range } from 'vscode';
+import { CompletionItemProvider, CompletionItem, CompletionItemKind, CompletionContext, CancellationToken, TextDocument, Position, CompletionList, SnippetString, Range, workspace } from 'vscode';
 //用於載入外部的方法集合
 import { ScriptMethod } from '../scriptmethod';
-import { getCompletionItemsFromText } from '../codeParser';
+import { getCompletionItemsFromText, getCompletionItemsFromWorkspace } from '../codeParser';
 
 /**
  * 適用於 URScript 的自動完成項目供應器
@@ -61,10 +61,17 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
                 mthd => mthd.label.startsWith(word)
             );
             /* 將當前的所有方法給解析出來 */
-            getCompletionItemsFromText(document.getText(), word, matchItems);
+            if (workspace.workspaceFolders && workspace.workspaceFolders.length > 0) {
+                workspace.workspaceFolders.forEach(workspace => {
+                    getCompletionItemsFromWorkspace(workspace, word, matchItems);
+                });
+            } else {
+                getCompletionItemsFromText(document.getText(), word, matchItems);
+            }
             /* 回傳集合 */
             return new CompletionList(matchItems, !(word.length > 1));
         } catch (error) {
+            console.log(error);
             return undefined;
         }
     }
