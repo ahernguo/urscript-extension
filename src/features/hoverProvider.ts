@@ -2,7 +2,8 @@
 import { HoverProvider, Hover, TextDocument, CancellationToken, Position, workspace } from 'vscode';
 //用於載入外部的方法集合
 import { ScriptMethod } from '../scriptmethod';
-import { getHoverFromText, getCompletionItemsFromWorkspace, getCompletionItemsFromText, getHoverFromWorkspace } from '../codeParser';
+//用於解析程式碼以提供相關物件的解析
+import { getHoverFromText, getHoverFromWorkspace } from '../codeParser';
 
 /**
  * 儲存 ScriptMethod 對應的 Hover 項目

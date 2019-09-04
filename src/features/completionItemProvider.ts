@@ -2,6 +2,7 @@
 import { CompletionItemProvider, CompletionItem, CompletionItemKind, CompletionContext, CancellationToken, TextDocument, Position, CompletionList, SnippetString, Range, workspace } from 'vscode';
 //用於載入外部的方法集合
 import { ScriptMethod } from '../scriptmethod';
+//用於解析程式碼以提供相關物件的解析
 import { getCompletionItemsFromText, getCompletionItemsFromWorkspace } from '../codeParser';
 
 /**
