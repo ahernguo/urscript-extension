@@ -1,8 +1,8 @@
 //用於 vscode 的名稱解析
-import { HoverProvider, Hover, TextDocument, CancellationToken, Position } from 'vscode';
+import { HoverProvider, Hover, TextDocument, CancellationToken, Position, workspace } from 'vscode';
 //用於載入外部的方法集合
 import { ScriptMethod } from '../scriptmethod';
-import { getHoverFromText } from '../codeParser';
+import { getHoverFromText, getCompletionItemsFromWorkspace, getCompletionItemsFromText, getHoverFromWorkspace } from '../codeParser';
 
 /**
  * 儲存 ScriptMethod 對應的 Hover 項目
@@ -54,14 +54,28 @@ export class URScriptHoverProvider implements HoverProvider {
             let word = document.getText(wordRange);
             /* 如果有東西，則進行搜尋比對 */
             if (word !== "") {
-                //利用 find 尋找是否有符合的方法名稱
+                /* 利用 find 尋找是否有符合的方法名稱 */
                 let matchHover = this.scriptHovItems.find(hovItem => hovItem.Name === word);
-                //如果有找到官方方法，回傳之
+                /* 如果有找到官方方法，回傳之 */
                 if (matchHover) {
                     return matchHover.Item;
                 } else {
-                    //沒有找到則試著找當前的文件
-                    return getHoverFromText(document.getText(), word);
+                    /* 先從當前文件找起 */
+                    let hov = getHoverFromText(document.getText(), word);
+                    /* 如果沒有，則往 Workspace 開找 */
+                    if (!hov && workspace.workspaceFolders) {
+                        /* 輪詢各個資料夾 */
+                        for (const fold of workspace.workspaceFolders) {
+                            /* 嘗試找出 Hover */
+                            hov = getHoverFromWorkspace(fold, word, document.fileName);
+                            /* 如果有則離開並回傳 */
+                            if (hov) {
+                                break;
+                            }
+                        }
+                    }
+                    /* 回傳 */
+                    return hov;
                 }
             }
         } catch (error) {

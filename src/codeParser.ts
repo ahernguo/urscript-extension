@@ -2,33 +2,6 @@
 import { CompletionItem, CompletionItemKind, SnippetString, Hover, WorkspaceFolder } from 'vscode';
 //用於檔案讀取的 FileStream 解析
 import * as fs from 'fs';
-import * as rd from 'readline';
-
-/**
- * 搜尋檔案內的所有方法與全域變數
- * @param fileName 欲搜尋的檔案
- * @param cmpItems 欲儲存的完成項目集合
- */
-export function getCompletionItemsFromFile(fileName: string, keyword: string, cmpItems: CompletionItem[]) {
-    /* 宣告變數 */
-    let text = '';
-    /* 讀取檔案 */
-    fs.readFile(
-        fileName,
-        (err, data) => {
-            /* 如果有錯誤，直接跳走 */
-            if (err) {
-                throw err;
-            }
-            /* 讀取所有字元 */
-            text = data.toString();
-        }
-    );
-    /* 如果有東西 */
-    if (text !== '') {
-        getCompletionItemsFromText(text, keyword, cmpItems);
-    }
-}
 
 /**
  * 搜尋文字內容的所有方法與全域變數
@@ -75,6 +48,12 @@ export function getCompletionItemsFromText(text: string, keyword: string, cmpIte
     }
 }
 
+/**
+ * 搜尋 Workspace 內的所有檔案方法與全域變數
+ * @param workspace 欲搜尋的 Workspace 路徑
+ * @param keyword 當前使用者輸入的關鍵字
+ * @param cmpItems 欲儲存的完成項目集合
+ */
 export function getCompletionItemsFromWorkspace(workspace: WorkspaceFolder, keyword: string, cmpItems: CompletionItem[]) {
     /* 取得資料夾內的所有檔案 */
     const files = fs.readdirSync(workspace.uri.fsPath)
@@ -116,6 +95,30 @@ export function getHoverFromText(text: string, keyword: string): Hover | undefin
                 hovItem = new Hover(`(user function) ${nameReg[0]}`);
             }
             return hovItem;
+        }
+    }
+}
+
+/**
+ * 搜尋 Workspace 內的所有檔案方法與全域變數
+ * @param workspace 欲搜尋的 Workspace 路徑
+ * @param keyword 當前使用者輸入的關鍵字
+ * @param cmpItems 欲儲存的完成項目集合
+ */
+export function getHoverFromWorkspace(workspace: WorkspaceFolder, keyword: string, explored: string) : Hover | undefined {
+    /* 取得資料夾內的所有檔案 */
+    const files = fs.readdirSync(workspace.uri.fsPath)
+        .filter(file => file.endsWith('.script') && (file !== explored.split(/.*[\/|\\]/)[1]))
+        .map(file => `${workspace.uri.fsPath}\\${file}`);
+    /* 輪詢所有檔案 */
+    for (const file of files) {
+        /* 讀取所有字元 */
+        const text = fs.readFileSync(file, 'utf-8');
+        /* 嘗試搜尋 */
+        const hov = getHoverFromText(text, keyword);
+        /* 如果有東西則回傳 */
+        if (hov) {
+            return hov;
         }
     }
 }
