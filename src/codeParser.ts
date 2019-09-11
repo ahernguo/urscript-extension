@@ -1,7 +1,8 @@
 //用於 vscode 的名稱解析
-import { CompletionItem, CompletionItemKind, SnippetString, Hover, WorkspaceFolder } from 'vscode';
+import { CompletionItem, CompletionItemKind, SnippetString, Hover, WorkspaceFolder, Location, Uri, Position } from 'vscode';
 //用於檔案讀取的 FileStream 解析
 import * as fs from 'fs';
+import { ReadLinesSync } from './utilities/readLines';
 
 /**
  * 搜尋文字內容的所有方法與全域變數
@@ -105,7 +106,7 @@ export function getHoverFromText(text: string, keyword: string): Hover | undefin
  * @param keyword 當前使用者輸入的關鍵字
  * @param cmpItems 欲儲存的完成項目集合
  */
-export function getHoverFromWorkspace(workspace: WorkspaceFolder, keyword: string, explored: string) : Hover | undefined {
+export function getHoverFromWorkspace(workspace: WorkspaceFolder, keyword: string, explored: string): Hover | undefined {
     /* 取得資料夾內的所有檔案 */
     const files = fs.readdirSync(workspace.uri.fsPath)
         .filter(file => file.endsWith('.script') && (file !== explored.split(/.*[\/|\\]/)[1]))
@@ -121,4 +122,68 @@ export function getHoverFromWorkspace(workspace: WorkspaceFolder, keyword: strin
             return hov;
         }
     }
+}
+
+/**
+ * 搜尋檔案內容的指定關鍵字並轉換成定義位置
+ * @param fileName 欲解析的檔案路徑
+ * @param keyword 欲搜尋的關鍵字
+ */
+export function getLocationFromFile(fileName: string, keyword: string): Location[] {
+    /* 建立 Regex Pattern */
+    const mthdPat = new RegExp(`\\b(def|thread|global)\\s+${keyword}.*(\\(.*\\):)*`, "gm");
+    const namePat = /\b(?!def|thread|global)\w+/gm;    
+    /* 宣告回傳變數 */
+    let locColl: Location[] = [];
+    /* 建立行讀取器 */
+    const lineReader = new ReadLinesSync(fileName);
+    /* 輪詢每一行，直至找到關鍵字 */
+    for (const ret of lineReader) {
+        /* 確保有讀到資料 */
+        if (ret.line) {
+            /* 迴圈尋找符合的方法 */
+            const match = mthdPat.exec(ret.line.toString());
+            if (match) {
+                /* 用 Regex 取得方法名稱 */
+                const nameReg = namePat.exec(match[0]);
+                /* 有成功找到，建立完成項目 */
+                if (nameReg) {
+                    const loc = new Location(
+                        Uri.file(fileName),
+                        new Position(
+                            ret.lineNo,
+                            nameReg.index
+                        )
+                    );
+                    locColl.push(loc);
+                }
+            }
+        }
+    }
+    return locColl;
+}
+
+/**
+ * 搜尋 Workspace 內的所有檔案，藉以找出定義位置
+ * @param workspace 欲搜尋的 Workspace 路徑
+ * @param keyword 當前使用者輸入的關鍵字
+ * @param cmpItems 欲儲存的完成項目集合
+ */
+export function getLocationFromWorkspace(workspace: WorkspaceFolder, keyword: string, explored: string): Location[] {
+    /* 取得資料夾內的所有檔案 */
+    const files = fs.readdirSync(workspace.uri.fsPath)
+        .filter(file => file.endsWith('.script') && (file !== explored.split(/.*[\/|\\]/)[1]))
+        .map(file => `${workspace.uri.fsPath}\\${file}`);
+    /* 初始化變數 */
+    let locColl: Location[] = [];
+    /* 輪詢所有檔案 */
+    for (const file of files) {
+        /* 讀取 Location */
+        const loc = getLocationFromFile(file, keyword);
+        if (loc) {
+            loc.forEach(l => locColl.push(l));
+        }
+    }
+    /* 回傳 */
+    return locColl;
 }
