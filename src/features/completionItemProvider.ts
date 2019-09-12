@@ -4,6 +4,8 @@ import { CompletionItemProvider, CompletionItem, CompletionItemKind, CompletionC
 import { ScriptMethod } from '../scriptmethod';
 //用於解析程式碼以提供相關物件的解析
 import { getCompletionItemsFromText, getCompletionItemsFromWorkspace } from '../codeParser';
+//檢查字串是否為空字串
+import { isBlank } from '../utilities/checkString';
 
 /**
  * 適用於 URScript 的自動完成項目供應器
@@ -54,7 +56,7 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
                 );
             }
             /* 如果無法取得當前的文字，直接離開！ */
-            if (word === '') {
+            if (isBlank(word)) {
                 return undefined;
             }
             /* 取得符合當前輸入文字的方法 */

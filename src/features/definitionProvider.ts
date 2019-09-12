@@ -2,6 +2,8 @@
 import { DefinitionProvider, TextDocument, Position, CancellationToken, Location, LocationLink, workspace } from "vscode";
 //用於解析程式碼以提供相關物件的解析
 import { getLocationFromWorkspace, getLocationFromFile } from "../codeParser";
+//檢查字串是否為空字串
+import { isBlank } from "../utilities/checkString";
 
 /**
  * 適用於 URScript 的尋找定義供應器
@@ -21,7 +23,7 @@ export class URScriptDefinitionProvider implements DefinitionProvider {
             /* 取得停留位置上的字詞 */
             let word = document.getText(wordRange);
             /* 如果有東西，則進行搜尋比對 */
-            if (word !== "") {
+            if (!isBlank(word)) {
                 /* 先從當前的文件找起 */
                 let locColl = getLocationFromFile(document.fileName, word);
                 /* 當前文件找不到，往 Workspace 開找 */

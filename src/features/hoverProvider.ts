@@ -4,6 +4,8 @@ import { HoverProvider, Hover, TextDocument, CancellationToken, Position, worksp
 import { ScriptMethod } from '../scriptmethod';
 //用於解析程式碼以提供相關物件的解析
 import { getHoverFromText, getHoverFromWorkspace } from '../codeParser';
+//檢查字串是否為空字串
+import { isBlank } from '../utilities/checkString';
 
 /**
  * 儲存 ScriptMethod 對應的 Hover 項目
@@ -54,7 +56,7 @@ export class URScriptHoverProvider implements HoverProvider {
             /* 取得停留位置上的字詞 */
             let word = document.getText(wordRange);
             /* 如果有東西，則進行搜尋比對 */
-            if (word !== "") {
+            if (!isBlank(word)) {
                 /* 利用 find 尋找是否有符合的方法名稱 */
                 let matchHover = this.scriptHovItems.find(hovItem => hovItem.Name === word);
                 /* 如果有找到官方方法，回傳之 */
