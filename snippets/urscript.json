@@ -57,5 +57,19 @@
             "global ${1:variable}$0"
         ],
         "description": "declare a global variable"
+    },
+    "true": {
+        "prefix": "True",
+        "body": [
+            "True"
+        ],
+        "description": "autofill a 'True' sign"
+    },
+    "false": {
+        "prefix": "False",
+        "body": [
+            "False"
+        ],
+        "description": "autofill a 'False' sign"
     }
 }
