@@ -27,7 +27,7 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
                 /* 加入要自動填寫的文字，因要讓使用者輸入 '(' 時跳出註解，故這邊輸入名稱就好 */
                 cmpItem.insertText = new SnippetString(mthd.Name);
                 /* 加入自動完成的符號 */
-                cmpItem.commitCharacters = [ '(', ')', ':' ];
+                cmpItem.commitCharacters = [ '(', ')', ':', '\t', '\n', ' ' ];
                 /* 加入文件註解 */
                 cmpItem.documentation = mthd.Documentation;
                 /* 回傳 */
