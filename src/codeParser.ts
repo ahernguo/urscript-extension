@@ -1,14 +1,19 @@
 //用於 vscode 的名稱解析
-import { CompletionItem, CompletionItemKind, SnippetString, Hover, WorkspaceFolder, Location, Uri, Position } from 'vscode';
+import { CompletionItem, CompletionItemKind, SnippetString, Hover, WorkspaceFolder, Location, Uri, Position, MarkdownString } from 'vscode';
 //用於檔案讀取的 FileStream 解析
 import * as fs from 'fs';
 //用於讀取每一行的解析
 import { ReadLinesSync } from './utilities/readLines';
+import { isBlank } from './utilities/checkString';
 
 /**
  * 取出變數或方法名稱的 Regex 樣板
  */
-const namePat = /\b(?!def|thread|global)\w+/gm;
+const namePat = /\b(?!def|thread|global)\w+/;
+/**
+ * 取出參數內容的 Regex 樣板
+ */
+const paramPat = /\((.*?)\)/;
 
 /**
  * 將 RegExpExecArray 轉成對應的 CompletionItems
@@ -40,8 +45,23 @@ function parseCmpItem(matchResult: RegExpExecArray | null, cmpItems: CompletionI
                         cmpItem.insertText = `${nameReg[0]}()`;
                     } else {    //方法
                         cmpItem.kind = CompletionItemKind.Function;
-                        cmpItem.detail = `(user function) ${nameReg[0]}`;
-                        cmpItem.insertText = new SnippetString(`${nameReg[0]}($0)`);
+                        /* 嘗試尋找參數內容 */
+                        const paramReg = paramPat.exec(value);
+                        /* 如果有參數，列出來 */
+                        if (paramReg && paramReg.length > 1 && !isBlank(paramReg[1])) {
+                            /* 將參數給拆出來 */
+                            const param = paramReg[1].split(',').map(p => p.trim());
+                            /* 組合 */
+                            cmpItem.detail = `(user function) ${nameReg[0]}(${param.join(', ')})`;
+                            /* 計算 $1~$n */
+                            let signIdx = 1;
+                            const sign = param.map(p => `\${${signIdx++}:${p}}`);
+                            /* 自動填入 */
+                            cmpItem.insertText = new SnippetString(`${nameReg[0]}(${sign.join(', ')})$0`);
+                        } else {
+                            cmpItem.detail = `(user function) ${nameReg[0]}`;
+                            cmpItem.insertText = new SnippetString(`${nameReg[0]}()$0`);
+                        }
                     }
                     /* 將找到的加入集合 */
                     cmpItems.push(cmpItem);
@@ -68,11 +88,29 @@ function parseHover(matchResult: RegExpExecArray | null): Hover | undefined {
     if (nameReg) {
         let hovItem: Hover | undefined = undefined;
         if (/global/.test(step)) {
-            hovItem = new Hover(`(global variable) ${nameReg[0]}`);
+            hovItem = new Hover(
+                new MarkdownString(`\`global\`  ${nameReg[0]}`)
+            );
         } else if (/thread/.test(step)) {
-            hovItem = new Hover(`(user thread) ${nameReg[0]}`);
+            hovItem = new Hover(
+                new MarkdownString(`\`user thread\`  ${nameReg[0]}`)
+            );
         } else {
-            hovItem = new Hover(`(user function) ${nameReg[0]}`);
+            /* 嘗試尋找參數內容 */
+            const paramReg = paramPat.exec(step);
+            /* 如果有參數，列出來 */
+            if (paramReg && paramReg.length > 1) {
+                /* 將參數給拆出來 */
+                const param = paramReg[1].split(',').map(p => p.trim());
+                /* 組合 */
+                hovItem = new Hover(
+                    new MarkdownString(`\`user function\`  ${nameReg[0]}(${param.join(', ')})`)
+                );
+            } else {
+                hovItem = new Hover(
+                    new MarkdownString(`\`user function\`  ${nameReg[0]}()`)
+                );
+            }
         }
         return hovItem;
     }
