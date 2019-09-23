@@ -1,16 +1,38 @@
 {
-    "name": "urscript",
-    "displayName": "URScript",
-    "description": "Code snippet and completion items for Universal Robots Script",
-    "version": "0.0.1",
-    "publisher": "Ahern",
-    "engines": {
-        "vscode": "^1.37.0"
-    },
-    "categories": [
-        "Programming Languages",
-        "Snippets",
-        "Other"
+  "name": "urscript",
+  "displayName": "URScript",
+  "description": "Code snippet and completion items for Universal Robots Script",
+  "version": "0.0.2",
+  "publisher": "Ahern",
+  "engines": {
+    "vscode": "^1.37.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:urscript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ahernguo/urscript-extension.git"
+  },
+  "main": "./out/extension",
+  "contributes": {
+    "languages": [
+      {
+        "id": "urscript",
+        "aliases": [
+          "URScript",
+          "script"
+        ],
+        "extensions": [
+          ".script"
+        ],
+        "configuration": "./language-configuration.json"
+      }
     ],
     "activationEvents": [
         "onLanguage:urscript"
