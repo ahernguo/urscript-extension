@@ -1,5 +1,5 @@
 //用於 vscode 的名稱解析
-import { CompletionItem, CompletionItemKind, SnippetString, Hover, WorkspaceFolder, Location, Uri, Position, MarkdownString } from 'vscode';
+import { CompletionItem, CompletionItemKind, SnippetString, Hover, WorkspaceFolder, Location, Uri, Position, MarkdownString, SignatureHelp, SignatureInformation, ParameterInformation } from 'vscode';
 //用於檔案讀取的 FileStream 解析
 import * as fs from 'fs';
 //用於讀取每一行的解析
@@ -73,16 +73,20 @@ function parseDocReturn(line?: string) {
 function findDoc(name: string, lines?: string[]): ScriptMethod | undefined {
     /* 確保 lines 有東西且最後一行是註解的結尾 */
     if (lines && lines[lines.length - 1] === '###') {
-        /* 因 lines 是 Queue，所以最新的在最後面，反過來比較好找 */
-        const revLines = lines.reverse();
-        /* 尋找第一個 '###' */
-        const startIndex = revLines.indexOf('###');
-        /* 尋找最後一個 '###' */
-        const endIndex = revLines.indexOf('###', startIndex + 1);
+        /* 因 lines 是 Queue，故從後面往前找 '###' */
+        let startIndex = -1;
+        let endIndex = lines.length - 1;
+        /* 由於一開始已檢查 lines[lines.length - 1] === '###'，故只要從 -2 開始找 start 即可 */
+        for (let idx = lines.length - 2; idx >= 0; idx--) {
+            if (lines[idx] === '###') {
+                startIndex = idx;
+                break;
+            }
+        }
         /* 如果都有找到，轉成 UrDoc */
         if (startIndex > -1 && startIndex < endIndex) {
             /* 移除 '#' 字號並去前後空白，留下有資料的物件即可 */
-            const doc = revLines
+            const doc = lines
                 .slice(startIndex + 1, endIndex)
                 .map(l => l.replace('#', '').trim());
             /* 取出有 @param 的片段並組成參數 */
@@ -96,7 +100,6 @@ function findDoc(name: string, lines?: string[]): ScriptMethod | undefined {
             /* 取出沒有 @param 的片段組成 name */
             const summary = doc
                 .filter(l => !l.startsWith('@'))
-                .reverse()  //因 doc 一開始是用 revLines 的，所以這邊要再反回來
                 .join('  \n');
             /* 組合成匿名物件 */
             const info = {
@@ -270,6 +273,56 @@ function parseHover(matchResult: RegExpExecArray | null, oldLines?: string[]): H
 }
 
 /**
+ * 將 RegExpExecArray 轉成對應的 SignatureHelp
+ * @param matchResult 欲轉換的 Regex 比對結果
+ * @param oldLines 先前已讀過的行暫存
+ */
+function parseSignature(matchResult: RegExpExecArray | null, oldLines?: string[]): SignatureHelp | undefined {
+    /* 如果沒東西，直接離開 */
+    if (!matchResult || matchResult.length <= 0) {
+        return;
+    }
+    /* 暫存搜尋的結果 */
+    const step = matchResult[0];
+    /* 用 Regex 取得方法名稱 */
+    const nameReg = namePat.exec(step);
+    /* 有成功找到，建立完成項目 */
+    if (nameReg) {
+        /*
+            查看前面有沒有註解，目前預設應該要長成...
+
+            ###
+            # get digital input
+            # @param n number the input to read
+            # @returns bool input level
+            ###
+         */
+        const doc = findDoc(nameReg[0], oldLines);
+        /* 如果有找到，進行解析 */
+        if (doc) {
+            /* 宣告簽章資訊 */
+            const sigInfo = new SignatureInformation(doc.Label);
+            /* 建立 parameters */
+            const sigPara = doc.Parameters.map(
+                para => {
+                    let paraInfo = new ParameterInformation(para.Label);
+                    paraInfo.documentation = para.Documentation;
+                    return paraInfo;
+                }
+            );
+            sigInfo.parameters = sigPara;
+            /* 建立簽章提示 */
+            const sigHelp = new SignatureHelp();
+            sigHelp.activeParameter = 0;
+            sigHelp.activeSignature = 0;
+            sigHelp.signatures = [sigInfo];
+            /* 回傳 */
+            return sigHelp;
+        }
+    }
+}
+
+/**
  * 搜尋文字內容的所有方法與全域變數
  * @param text 欲搜尋的文字
  * @param keyword 當前使用者輸入的關鍵字
@@ -391,7 +444,7 @@ export function getHoverFromFile(fileName: string, keyword: string): Hover | und
  * 搜尋 Workspace 內的所有檔案方法與全域變數
  * @param workspace 欲搜尋的 Workspace 路徑
  * @param keyword 當前使用者輸入的關鍵字
- * @param cmpItems 欲儲存的完成項目集合
+ * @param explored 已經探索過(要跳過)的檔案名稱
  */
 export function getHoverFromWorkspace(workspace: WorkspaceFolder, keyword: string, explored: string): Hover | undefined {
     /* 取得資料夾內的所有檔案 */
@@ -455,7 +508,7 @@ export function getLocationFromFile(fileName: fs.PathLike, keyword: string): Loc
  * 搜尋 Workspace 內的所有檔案，藉以找出定義位置
  * @param workspace 欲搜尋的 Workspace 路徑
  * @param keyword 當前使用者輸入的關鍵字
- * @param cmpItems 欲儲存的完成項目集合
+ * @param explored 已經探索過(要跳過)的檔案名稱
  */
 export function getLocationFromWorkspace(workspace: WorkspaceFolder, keyword: string, explored: string): Location[] {
     /* 取得資料夾內的所有檔案 */
@@ -474,4 +527,67 @@ export function getLocationFromWorkspace(workspace: WorkspaceFolder, keyword: st
     }
     /* 回傳 */
     return locColl;
+}
+
+/**
+ * 搜尋檔案內容的指定關鍵字並轉換成簽章
+ * @param fileName 欲搜尋的檔案路徑
+ * @param keyword 當前使用者停留的關鍵字
+ */
+export function getSignatureFromFile(fileName: string, keyword: string): SignatureHelp | undefined {
+    /* 建立 Regex Pattern */
+    const mthdPat = new RegExp(`\\b(def)\\s+${keyword}.*(\\(.*\\):)*`, "gm");
+    /* 建立已讀取過的暫存區 */
+    const oldLines: string[] = [];
+    /* 建立讀取器 */
+    const lineReader = new ReadLinesSync(fileName);
+    /* 輪詢每一行 */
+    let sigHelp: SignatureHelp | undefined;
+    for (const pkg of lineReader) {
+        /* 確保有讀到東西 */
+        if (pkg.line) {
+            /* 轉成字串 */
+            const cur = pkg.line.toString().trim();
+            /* 嘗試找出方法或變數 */
+            const match = mthdPat.exec(cur);
+            /* 解析是否有符合的物件 */
+            sigHelp = parseSignature(match, oldLines);
+            /* 成功找到則離開迴圈 */
+            if (sigHelp) {
+                break;
+            }
+            /* 加入讀過的暫存區 */
+            if (oldLines.length > 20) {
+                oldLines.shift();
+            }
+            oldLines.push(cur);
+        }
+    }
+    /* 回傳 */
+    return sigHelp;
+}
+
+/**
+ * 搜尋 Workspace 內的所有檔案，並找出符合的簽章
+ * @param workspace 欲搜尋的 Workspace 路徑
+ * @param keyword 當前使用者輸入的關鍵字
+ * @param explored 已經探索過(要跳過)的檔案名稱
+ */
+export function getSignatureFromWorkspace(workspace: WorkspaceFolder, keyword: string, explored: string): SignatureHelp | undefined {
+    /* 取得資料夾內的所有檔案 */
+    const files = fs.readdirSync(workspace.uri.fsPath)
+        .filter(file => file.endsWith('.script') && (file !== explored.split(/.*[\/|\\]/)[1]))
+        .map(file => `${workspace.uri.fsPath}\\${file}`);
+    /* 輪詢所有檔案 */
+    let sigHelp: SignatureHelp | undefined;
+    for (const file of files) {
+        /* 搜尋檔案中是否有指定的關鍵字並取得其資訊 */
+        sigHelp = getSignatureFromFile(file, keyword);
+        /* 如果有東西則離開迴圈 */
+        if (sigHelp) {
+            break;
+        }
+    }
+    /* 回傳 */
+    return sigHelp;
 }

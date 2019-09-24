@@ -1,9 +1,11 @@
 //用於 vscode 的名稱解析
-import { SignatureHelpProvider, TextDocument, Position, CancellationToken, SignatureHelpContext, SignatureHelp, SignatureInformation, ParameterInformation, SignatureHelpProviderMetadata } from 'vscode';
+import { SignatureHelpProvider, TextDocument, Position, CancellationToken, SignatureHelpContext, SignatureHelp, SignatureInformation, ParameterInformation, SignatureHelpProviderMetadata, workspace } from 'vscode';
 //用於載入外部的方法集合
 import { ScriptMethod } from '../scriptmethod';
 //用於判斷物件是否為空
 import { isNullOrUndefined } from 'util';
+//用於解析程式碼以提供相關物件的解析
+import { getSignatureFromFile, getSignatureFromWorkspace } from '../codeParser';
 
 /**
  * 儲存 ScriptMethod 對應的 Hover 項目
@@ -105,6 +107,23 @@ export class URScriptSignatureHelpProvider implements SignatureHelpProvider {
                     matched.Item.activeSignature = 0;
                     /* 回傳 */
                     return matched.Item;
+                } else {
+                    /* 如果沒有找到，找一下當前的檔案是否有符合的項目 */
+                    let sigHelp = getSignatureFromFile(document.fileName, word);
+                    /* 如果沒有，則往 Workspace 開找 */
+                    if (!sigHelp && workspace.workspaceFolders) {
+                        /* 輪詢各個資料夾 */
+                        for (const fold of workspace.workspaceFolders) {
+                            /* 嘗試找出 Hover */
+                            sigHelp = getSignatureFromWorkspace(fold, word, document.fileName);
+                            /* 如果有則離開並回傳 */
+                            if (sigHelp) {
+                                break;
+                            }
+                        }
+                    }
+                    /* 回傳 */
+                    return sigHelp;
                 }
             }
         } catch (error) {
