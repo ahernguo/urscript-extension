@@ -47,16 +47,38 @@ export enum Types {
  * 取得 Types 對應的字串
  * @param value 欲判斷的類型
  */
-export function getTypes(value: Types): string {
+export function type2Str(value: Types): string {
     switch (value) {
         case Types.Array: return 'array';
         case Types.Bool: return 'bool';
         case Types.Float: return 'float';
         case Types.Int: return 'int';
-        case Types.None: return 'void';
         case Types.Number: return 'number';
         case Types.Pose: return 'pose';
         case Types.String: return 'string';
+        default: return 'void';
+    }
+}
+
+/**
+ * 將字串轉換為 Types
+ * @param str 欲轉換的字串
+ */
+export function str2Type(str: string | undefined): Types {
+    if (str) {
+        const lowerName = str.toLowerCase();
+        switch (lowerName) {
+            case 'array': return Types.Array;
+            case 'bool': return Types.Bool;
+            case 'float': return Types.Float;
+            case 'int': return Types.Int;
+            case 'number': return Types.Number;
+            case 'pose': return Types.Pose;
+            case 'string': return Types.String;
+            default: return Types.None;
+        }
+    } else {
+        return Types.None;
     }
 }
 
@@ -90,9 +112,9 @@ export class MethodParameter {
         this.Label = jsPara.Label;
         this.Comment = jsPara.Comment;
         this.Default = jsPara.Default;
-        this.Type = Types[jsPara.Type as keyof typeof Types];
+        this.Type = str2Type(jsPara.Type);
         /* 組裝 Documentation */
-        const docStr = `${getTypes(this.Type)} **${this.Label}**\n> ${this.Comment}`;
+        const docStr = `${type2Str(this.Type)} **${this.Label}**\n> ${this.Comment}`;
         this.Documentation = new MarkdownString(docStr);
     }
 
@@ -101,9 +123,9 @@ export class MethodParameter {
      */
     public getParaStr(): string {
         if (isBlank(this.Default)) {
-            return `${getTypes(this.Type)} ${this.Label}`;
+            return `${type2Str(this.Type)} ${this.Label}`;
         } else {
-            return `${getTypes(this.Type)} ${this.Label} = ${this.Default}`;
+            return `${type2Str(this.Type)} ${this.Label} = ${this.Default}`;
         }
     }
 }
@@ -153,7 +175,7 @@ export class ScriptMethod {
         this.Deprecated = jsMthd.Deprecated;
         this.Comment = jsMthd.Comment;
         this.Parameters = jsMthd.Parameters.map(jsPara => new MethodParameter(jsPara));
-        this.ReturnType = Types[jsMthd.ReturnType as keyof typeof Types];
+        this.ReturnType = str2Type(jsMthd.ReturnType);
         /* 組裝 Documentation */
         //先用 docStr 來儲存 Return 與 Deprecated
         const docStr: string[] = [];
@@ -176,7 +198,7 @@ export class ScriptMethod {
         //將簽章內的標籤用逗號組裝起來
         let paraStr = this.Parameters.map(para => para.getParaStr()).join(", ");
         //標籤 = 名稱(簽章)
-        this.Label = `${getTypes(this.ReturnType)} ${this.Name}(${paraStr})`;
+        this.Label = `${type2Str(this.ReturnType)} ${this.Name}(${paraStr})`;
     }
 }
 
