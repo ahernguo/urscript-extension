@@ -35,29 +35,28 @@
       }
     ],
     "activationEvents": [
-        "onLanguage:urscript"
+      "onLanguage:urscript"
     ],
     "main": "./out/extension",
     "contributes": {
-        "languages": [
-            {
-                "id": "urscript",
-                "aliases": [
-                    "URScript",
-                    "script"
-                ],
-                "extensions": [
-                    ".script"
-                ],
-                "configuration": "./language-configuration.json"
-            }
-        ],
-        "extensions": [
-          ".script"
-        ],
-        "configuration": "./language-configuration.json"
-      }
-    ],
+      "languages": [
+        {
+          "id": "urscript",
+          "aliases": [
+            "URScript",
+            "script"
+          ],
+          "extensions": [
+            ".script"
+          ],
+          "configuration": "./language-configuration.json"
+        }
+      ],
+      "extensions": [
+        ".script"
+      ],
+      "configuration": "./language-configuration.json"
+    },
     "snippets": [
       {
         "language": "urscript",
