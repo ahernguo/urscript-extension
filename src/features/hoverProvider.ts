@@ -1,5 +1,5 @@
 //用於 vscode 的名稱解析
-import { HoverProvider, Hover, TextDocument, CancellationToken, Position, workspace, MarkdownString } from 'vscode';
+import { HoverProvider, Hover, TextDocument, CancellationToken, Position, workspace } from 'vscode';
 //用於載入外部的方法集合
 import { ScriptMethod } from '../scriptmethod';
 //用於解析程式碼以提供相關物件的解析
@@ -25,7 +25,10 @@ class ScriptHover {
         this.Name = mthd.Name;
         this.Item = new Hover(
             [
-                new MarkdownString(`\`URScript\` ${mthd.Label}`),
+                {
+                    language: 'csharp',
+                    value: mthd.Label
+                },
                 mthd.Documentation
             ]
         );
