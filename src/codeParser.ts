@@ -155,12 +155,12 @@ function parseCmpItem(matchResult: RegExpExecArray | null, cmpItems: CompletionI
                     /* 依照不同項目撰寫說明 */
                     if (/global/.test(value)) {         //變數
                         cmpItem.kind = CompletionItemKind.Variable;
-                        cmpItem.detail = `(global variable) ${nameReg[0]}`;
                         cmpItem.insertText = nameReg[0];
+                        cmpItem.detail = `global ${nameReg[0]}`;
                     } else if (/thread/.test(value)) {  //執行緒
                         cmpItem.kind = CompletionItemKind.Variable;
-                        cmpItem.detail = `(user thread) ${nameReg[0]}`;
                         cmpItem.insertText = `${nameReg[0]}()`;
+                        cmpItem.detail = `thread ${nameReg[0]}`;
                     } else {    //方法
                         cmpItem.kind = CompletionItemKind.Function;
                         /* 如果有 doc，直接用 doc 做即可 */
@@ -176,14 +176,14 @@ function parseCmpItem(matchResult: RegExpExecArray | null, cmpItems: CompletionI
                                 /* 將參數給拆出來 */
                                 const param = paramReg[1].split(',').map(p => p.trim());
                                 /* 組合 */
-                                cmpItem.detail = `(user function) ${nameReg[0]}(${param.join(', ')})`;
+                                cmpItem.detail = `${nameReg[0]}(${param.join(', ')})`;
                                 /* 計算 $1~$n */
                                 let signIdx = 1;
                                 const sign = param.map(p => `\${${signIdx++}:${p}}`);
                                 /* 自動填入 */
                                 cmpItem.insertText = new SnippetString(`${nameReg[0]}(${sign.join(', ')})$0`);
                             } else {
-                                cmpItem.detail = `(user function) ${nameReg[0]}`;
+                                cmpItem.detail = `${nameReg[0]}`;
                                 cmpItem.insertText = new SnippetString(`${nameReg[0]}()$0`);
                             }
                         }
@@ -240,8 +240,6 @@ function parseHover(matchResult: RegExpExecArray | null, oldLines?: string[]): H
                 }
             );
         } else {
-            /* 提醒是使用者自訂的方法 */
-            items.push(new MarkdownString('*user function*'));
             /* 如果有註解，直接利用 */
             if (doc) {
                 items.push(
@@ -251,6 +249,8 @@ function parseHover(matchResult: RegExpExecArray | null, oldLines?: string[]): H
                     }
                 );
             } else {
+                /* 提醒是使用者自訂的方法 */
+                items.push(new MarkdownString('*user function*'));
                 /* 嘗試尋找參數內容 */
                 const paramReg = paramPat.exec(step);
                 /* 如果有參數，列出來 */
