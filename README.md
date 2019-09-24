@@ -20,10 +20,12 @@ Universal Robots provides simulator for Linux only. This extension provides a si
   - Base on scriptManual.pdf
     ![completion](resources/figures/completion.png)
 
-  - Show tips when mouse hover
+- Show tips when mouse hover
+  - Contains URScript and user defined
     ![hover](resources/figures/hover_tip.png)
 
-  - Code snippets
+- Code snippets
+  - def, if and others
     ![snippet](resources/figures/snippets.png)
 
 ## Version
