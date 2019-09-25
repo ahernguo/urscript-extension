@@ -26,7 +26,7 @@ class ScriptHover {
         this.Item = new Hover(
             [
                 {
-                    language: 'csharp',
+                    language: 'urscript',
                     value: mthd.Label
                 },
                 mthd.Documentation

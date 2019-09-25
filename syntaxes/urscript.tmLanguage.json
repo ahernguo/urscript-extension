@@ -20,6 +20,9 @@
         },
         {
             "include": "#methods"
+        },
+        {
+            "include": "#hover-info"
         }
     ],
     "repository": {
@@ -56,6 +59,53 @@
             ]
         },
         "comments": {
+            "patterns": [
+                {
+                    "name": "comment.block.documentation.urscript",
+                    "begin": "(###)",
+                    "end": "(###)",
+                    "patterns": [
+                        {
+                            "name": "comment.block.documentation.urscript",
+                            "begin": "(@param)\\s+(\\w+)",
+                            "end": "(none|void|bool|number|int|float|array)",
+                            "beginCaptures": {
+                                "1": {
+                                    "name": "entity.name.tag.urscript"
+                                },
+                                "2": {
+                                    "name": "variable.name.urscript"
+                                }
+                            },
+                            "endCaptures": {
+                                "1": {
+                                    "name": "entity.name.type.urscript"
+                                }
+                            }
+                        },
+                        {
+                            "name": "comment.block.documentation.urscript",
+                            "begin": "(@returns)",
+                            "end": "(none|void|bool|number|int|float|array)",
+                            "beginCaptures": {
+                                "1": {
+                                    "name": "entity.name.tag.urscript"
+                                }
+                            },
+                            "endCaptures": {
+                                "1": {
+                                    "name": "entity.name.type.urscript"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "include": "#comment-base"
+                }
+            ]
+        },
+        "comment-base": {
             "patterns": [
                 {
                     "name": "comment.line.number-sign.urscript",
@@ -131,6 +181,30 @@
                 {
                     "name": "constant.language.urscript",
                     "match": "\\b(True|False)\\b"
+                }
+            ]
+        },
+        "hover-info": {
+            "patterns": [
+                {
+                    "name": "support.other.urscript",
+                    "begin": "^(void|bool|int|float|number|array)\\s",
+                    "end": "$",
+                    "beginCaptures": {
+                        "1": {
+                            "name": "entity.name.type.urscript"
+                        }
+                    },
+                    "patterns": [
+                        {
+                            "name": "entity.name.type.urscript",
+                            "match": "(none|void|bool|number|int|float|array)"
+                        },
+                        {
+                            "name": "entity.name.function.urscript",
+                            "match": "([a-zA-Z_{1}][a-zA-Z0-9_]+)(?=\\()"
+                        }
+                    ]
                 }
             ]
         }

@@ -244,7 +244,7 @@ function parseHover(matchResult: RegExpExecArray | null, oldLines?: string[]): H
             if (doc) {
                 items.push(
                     {
-                        language: 'csharp',
+                        language: 'urscript',
                         value: doc.Label
                     }
                 );

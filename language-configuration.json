@@ -1,8 +1,4 @@
 {
-    // 註解
-    "comments": {
-        "lineComment": "#"  // 單行註解
-    },
     // 括弧的符號
     "brackets": [
         ["[", "]"],
