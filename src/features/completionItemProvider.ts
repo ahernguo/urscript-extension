@@ -72,7 +72,7 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
                     /* 建立完成項目 */
                     const cmpItem = new CompletionItem('###', CompletionItemKind.Snippet);
                     cmpItem.range = new Range(
-                        new Position(position.line, position.character - 1),
+                        new Position(position.line, position.character - word.length),
                         position
                     );
                     cmpItem.commitCharacters = ['\n', '\t'];
@@ -81,9 +81,9 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
                     const text = nextLine.text.trim();
                     if (/^(def)/.test(text)) {
                         /* 找出參數內容 */
-                        const paramReg = /\((.*)\)/.exec(text);
+                        const paramReg = /\((.*?)\)/.exec(text);
                         /* 如果有參數，列出來 */
-                        if (paramReg && paramReg.length > 1) {
+                        if (paramReg && paramReg.length > 1 && !isBlank(paramReg[1])) {
                             /* 將參數給拆出來 */
                             let index = 2;
                             const param = paramReg[1]
@@ -112,7 +112,7 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
                 /* 建立 @param */
                 const paramCmpItem = new CompletionItem('@param', CompletionItemKind.Snippet);
                 paramCmpItem.range = new Range(
-                    new Position(position.line, position.character - 1),
+                    new Position(position.line, position.character - word.length),
                     position
                 );
                 paramCmpItem.commitCharacters = ['\n', '\t', ' '];
@@ -125,7 +125,7 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
                 /* 建立 @returns */
                 const returnCmpItem = new CompletionItem('@returns', CompletionItemKind.Snippet);
                 returnCmpItem.range = new Range(
-                    new Position(position.line, position.character - 1),
+                    new Position(position.line, position.character - word.length),
                     position
                 );
                 returnCmpItem.commitCharacters = ['\n', '\t', ' '];
