@@ -88,7 +88,7 @@ function findDoc(name: string, lines?: string[]): ScriptMethod | undefined {
             /* 移除 '#' 字號並去前後空白，留下有資料的物件即可 */
             const doc = lines
                 .slice(startIndex + 1, endIndex)
-                .map(l => l.replace('#', '').trim());
+                .map(l => l.replace(/#/g, '').trim());
             /* 取出有 @param 的片段並組成參數 */
             const params = doc
                 .filter(l => l.startsWith('@param'))

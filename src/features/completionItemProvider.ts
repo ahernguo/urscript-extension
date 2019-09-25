@@ -1,5 +1,5 @@
 //用於 vscode 的名稱解析
-import { CompletionItemProvider, CompletionItem, CompletionItemKind, CompletionContext, CancellationToken, TextDocument, Position, CompletionList, SnippetString, Range, workspace } from 'vscode';
+import { CompletionItemProvider, CompletionItem, CompletionItemKind, CompletionContext, CancellationToken, TextDocument, Position, CompletionList, SnippetString, Range, workspace, MarkdownString } from 'vscode';
 //用於載入外部的方法集合
 import { ScriptMethod } from '../scriptmethod';
 //用於解析程式碼以提供相關物件的解析
@@ -50,33 +50,112 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
             /* 取得當前輸入的文字 */
             let word = '';
             const wordRange = document.getWordRangeAtPosition(position);
+            /* 如果是字詞，取得完整的字詞 */
             if (wordRange) {
                 word = document.getText(
                     new Range(wordRange.start, position)
                 );
+            } else {
+                /* 非字詞則檢查是否是特殊符號 */
+                const line = document.lineAt(position.line);
+                word = line.text.trim();
             }
             /* 如果無法取得當前的文字，直接離開！ */
             if (isBlank(word)) {
                 return undefined;
             }
-            /* 取得符合當前輸入文字的方法 */
-            const matchItems = this.scriptCmpItems.filter(
-                mthd => mthd.label.startsWith(word)
-            );
-            /* 將當前的所有方法給解析出來 */
-            if (workspace.workspaceFolders && workspace.workspaceFolders.length > 0) {
-                workspace.workspaceFolders.forEach(workspace => {
-                    getCompletionItemsFromWorkspace(workspace, word, matchItems);
-                });
+            /* 如果當前是輸入註解符號 '#' 則依照下一行決定插入方法或變數註解 */
+            if (word.startsWith('#')) {
+                /* 取得下一行的文字 */
+                const nextLine = document.lineAt(position.line + 1);
+                if (nextLine && !nextLine.isEmptyOrWhitespace) {
+                    /* 建立完成項目 */
+                    const cmpItem = new CompletionItem('###', CompletionItemKind.Snippet);
+                    cmpItem.range = new Range(
+                        new Position(position.line, position.character - 1),
+                        position
+                    );
+                    cmpItem.commitCharacters = ['\n', '\t'];
+                    cmpItem.documentation = '\n###\n# your comments\n###\n';
+                    /* 去頭去尾並檢查內容是 def, global 或 thread */
+                    const text = nextLine.text.trim();
+                    if (/^(def)/.test(text)) {
+                        /* 找出參數內容 */
+                        const paramReg = /\((.*)\)/.exec(text);
+                        /* 如果有參數，列出來 */
+                        if (paramReg && paramReg.length > 1) {
+                            /* 將參數給拆出來 */
+                            let index = 2;
+                            const param = paramReg[1]
+                                .split(',')
+                                .map(p => `# @param ${p.trim()} \${${index++}|bool,int,float,number,array,pose|} \${${index++}:${p.trim()}}`);
+                            /* 組合成 Snippet */
+                            cmpItem.insertText = new SnippetString(
+                                `###\n# \${1:summary}\n${param.join('\n')}\n###`
+                            );
+                        } else {
+                            /* 加入一般用的註解 */
+                            cmpItem.insertText = new SnippetString(
+                                '###\n# ${0}\n###'
+                            );
+                        }
+                    } else {
+                        /* 加入一般用的註解 */
+                        cmpItem.insertText = new SnippetString(
+                            '###\n# ${0}\n###'
+                        );
+                    }
+                    /* 回傳 */
+                    return new CompletionList([cmpItem], false);
+                }
+            } else if (word.startsWith('@')) {
+                /* 建立 @param */
+                const paramCmpItem = new CompletionItem('@param', CompletionItemKind.Snippet);
+                paramCmpItem.range = new Range(
+                    new Position(position.line, position.character - 1),
+                    position
+                );
+                paramCmpItem.commitCharacters = ['\n', '\t', ' '];
+                paramCmpItem.documentation = new MarkdownString(
+                    '@param `name` `type` your comments'
+                );
+                paramCmpItem.insertText = new SnippetString(
+                    '# @param ${1:name} ${2|bool,int,float,number,array,pose|} ${0:comments}'
+                );
+                /* 建立 @returns */
+                const returnCmpItem = new CompletionItem('@returns', CompletionItemKind.Snippet);
+                returnCmpItem.range = new Range(
+                    new Position(position.line, position.character - 1),
+                    position
+                );
+                returnCmpItem.commitCharacters = ['\n', '\t', ' '];
+                returnCmpItem.documentation = new MarkdownString(
+                    '@returns `type` your comments'
+                );
+                returnCmpItem.insertText = new SnippetString(
+                    '# @returns ${1|void,bool,int,float,number,array,pose|} ${0:comments}'
+                );
+                /* 回傳 */
+                return new CompletionList([paramCmpItem, returnCmpItem], false);
             } else {
-                getCompletionItemsFromText(document.getText(), word, matchItems);
+                /* 取得符合當前輸入文字的方法 */
+                const matchItems = this.scriptCmpItems.filter(
+                    mthd => mthd.label.startsWith(word)
+                );
+                /* 將當前的所有方法給解析出來 */
+                if (workspace.workspaceFolders && workspace.workspaceFolders.length > 0) {
+                    workspace.workspaceFolders.forEach(workspace => {
+                        getCompletionItemsFromWorkspace(workspace, word, matchItems);
+                    });
+                } else {
+                    getCompletionItemsFromText(document.getText(), word, matchItems);
+                }
+                /* 回傳集合 */
+                return new CompletionList(matchItems, !(word.length > 1));
             }
-            /* 回傳集合 */
-            return new CompletionList(matchItems, !(word.length > 1));
         } catch (error) {
             console.log(error);
             return undefined;
         }
     }
-    
 }

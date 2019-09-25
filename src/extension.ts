@@ -41,7 +41,8 @@ export function activate(context: vscode.ExtensionContext) {
     /* 自動完成項目 */
     const cmpPvd = vscode.languages.registerCompletionItemProvider(
         'urscript',
-        new URScriptCompletionItemProvider(funcs)
+        new URScriptCompletionItemProvider(funcs),
+        '#', '@'
     );
 
     /* 滑鼠停留提示 */
