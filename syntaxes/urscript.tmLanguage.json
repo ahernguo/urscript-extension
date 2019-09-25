@@ -62,8 +62,8 @@
             "patterns": [
                 {
                     "name": "comment.block.documentation.urscript",
-                    "begin": "(###)",
-                    "end": "(###)",
+                    "begin": "^(###)$",
+                    "end": "^(###)$",
                     "patterns": [
                         {
                             "name": "comment.block.documentation.urscript",
