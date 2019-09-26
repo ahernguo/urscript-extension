@@ -68,7 +68,7 @@
                         {
                             "name": "comment.block.documentation.urscript",
                             "begin": "(@param)\\s+(\\w+)",
-                            "end": "(none|void|bool|number|int|float|array|pose)",
+                            "end": "(none|void|bool|number|int|float|array|pose|string)",
                             "beginCaptures": {
                                 "1": {
                                     "name": "entity.name.tag.urscript"
@@ -86,7 +86,7 @@
                         {
                             "name": "comment.block.documentation.urscript",
                             "begin": "(@returns)",
-                            "end": "(none|void|bool|number|int|float|array|pose)",
+                            "end": "(none|void|bool|number|int|float|array|pose|string)",
                             "beginCaptures": {
                                 "1": {
                                     "name": "entity.name.tag.urscript"
@@ -194,7 +194,7 @@
             "patterns": [
                 {
                     "name": "support.other.urscript",
-                    "begin": "^(void|bool|int|float|number|array|pose)\\s",
+                    "begin": "^(void|bool|int|float|number|array|pose|string)\\s",
                     "end": "$",
                     "beginCaptures": {
                         "1": {
@@ -204,11 +204,20 @@
                     "patterns": [
                         {
                             "name": "entity.name.type.urscript",
-                            "match": "(none|void|bool|number|int|float|array|pose)"
+                            "match": "(none|void|bool|number|int|float|array|pose|string)"
                         },
                         {
                             "name": "entity.name.function.urscript",
                             "match": "([a-zA-Z_{1}][a-zA-Z0-9_]+)(?=\\()"
+                        },
+                        {
+                            "include": "#strings"
+                        },
+                        {
+                            "include": "#numerics"
+                        },
+                        {
+                            "include": "#constants"
                         }
                     ]
                 }
