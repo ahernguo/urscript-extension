@@ -230,42 +230,52 @@ export class URScriptFormattingProvider
     private formatBracket(
         editColl: TextEdit[],
         line: TextLine,
-        pattern: { Start: RegExp; End: RegExp }
+        pattern: { Start: RegExp; End: RegExp }[]
     ): number {
         /* 宣告儲存括號位置的集合 */
         const strCnt: { Start: number, End: number }[] = [];
         const start: number[] = [];
         const end: { Index: number, Matched: boolean}[] = [];
-        /* 找出所有的符號 */
+        /* 找出所有的字串 */
         let match: RegExpExecArray | null;
         while (match = this.StringPattern.exec(line.text)) {
             strCnt.push({ Start: match.index, End: this.StringPattern.lastIndex });
         }
-        while (match = pattern.Start.exec(line.text)) {
-            if (!this.inRange(strCnt, match.index)) {
-                start.unshift(match.index); //倒置，越後面的括號要先判斷
-            }
-        }
-        while (match = pattern.End.exec(line.text)) {
-            if (!this.inRange(strCnt, match.index)) {
-                end.push({ Index: match.index, Matched: false});
-            }
-        }
-        /* 一對一配對 */
+        /* 宣告配對組合 */
         const pair: { Start: number, End: number }[] = [];
-        for (const idx of start) {
-            /* 找出最近的結束括弧 */
-            const tarIdx = end.findIndex(kvp => !kvp.Matched && (idx < kvp.Index));
-            if (tarIdx > -1) {
-                /* 加入集合 */
-                pair.push({ Start: idx + 1, End: end[tarIdx].Index });
-                /* 標記為已經被配對，避免被重複搜尋 */
-                end[tarIdx].Matched = true;
+        /* 依序抓出 Pattern */
+        for (const pat of pattern) {
+            while (match = pat.Start.exec(line.text)) {
+                if (!this.inRange(strCnt, match.index)) {
+                    start.unshift(match.index); //倒置，越後面的括號要先判斷
+                }
+            }
+            while (match = pat.End.exec(line.text)) {
+                if (!this.inRange(strCnt, match.index)) {
+                    end.push({ Index: match.index, Matched: false});
+                }
+            }
+            /* 每組 Pattern 結束後要先把相同的組合組在一起 */
+            for (const idx of start) {
+                /* 找出最近的結束括弧 */
+                const tarIdx = end.findIndex(kvp => !kvp.Matched && (idx < kvp.Index));
+                if (tarIdx > -1) {
+                    /* 加入集合 */
+                    pair.push({ Start: idx + 1, End: end[tarIdx].Index });
+                    /* 標記為已經被配對，避免被重複搜尋 */
+                    end[tarIdx].Matched = true;
+                }
             }
         }
+        /* 如果有在大括弧裡面的，從 pair 中移除，避免重複排版 */
+        const formatRange = pair.filter(
+            p => !pair.some(
+                o => (o.Start < p.Start) && (p.End < o.End)
+            )
+        );
         /* 依序將配對的內容拆開並加上空白 */
-        if (pair.length > 0) {
-            for (const p of pair) {
+        if (formatRange.length > 0) {
+            for (const p of formatRange) {
                 /* 取出括弧中間的內容 */
                 const subStr = line.text.substring(p.Start, p.End);
                 /* 切割 */
@@ -285,11 +295,11 @@ export class URScriptFormattingProvider
         }
         /* 根據狀態進行回傳 */
         if (start.length === end.length) {
-            return 0;
-        } else if (start.length > 0 && end.length === 0) {
-            return 1;
+            return 0;   //全部都有閉鎖
+        } else if (start.length > end.length) {
+            return 1;   //開始的比結束的多
         } else {
-            return 2;
+            return 2;   //結束的比開始的多
         }
     }
 
@@ -619,13 +629,11 @@ export class URScriptFormattingProvider
                     continue;
                 }
                 /* 如果此行是註解，直接檢查前面縮排就好。若是內容則判斷之 */
-                const isCmt = /^(#|\$).*/.test(line.text);
+                const isCmt = /^\s*(#|\$).*/.test(line.text);
                 let brkStt = 0;
                 if (!isCmt) {
                     /* 輪詢括弧樣板 */
-                    this.BracketPatterns.forEach(
-                        pat => brkStt |= this.formatBracket(txtEdit, line, pat)
-                    );
+                    brkStt = this.formatBracket(txtEdit, line, this.BracketPatterns);
                     /* 輪詢符號樣板 */
                     this.SignPatterns.forEach(
                         pat => this.formatSign(txtEdit, line, pat)
@@ -682,9 +690,7 @@ export class URScriptFormattingProvider
                 return [];
             }
             /* 輪詢括弧樣板 */
-            this.BracketPatterns.forEach(pat =>
-                this.formatBracket(edits, line, pat)
-            );
+            this.formatBracket(edits, line, this.BracketPatterns);
             /* 輪詢符號樣板 */
             this.SignPatterns.forEach(pat =>
                 this.formatSign(edits, line, pat)
