@@ -139,6 +139,9 @@
                         },
                         {
                             "include": "#numerics"
+                        },
+                        {
+                            "include": "#constants"
                         }
                     ]
                 }
