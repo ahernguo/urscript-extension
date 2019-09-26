@@ -172,14 +172,17 @@ class IncludeResult {
 export class URScriptFormattingProvider
     implements DocumentRangeFormattingEditProvider {
 
-    /** 用於排版括弧內容的樣板集合 */
-    private static BracketPatterns: { Start: string; End: string }[] = [
-        { Start: "(", End: ")" },
-        { Start: "[", End: "]" }
+    /** 用於抓取字串內容的 Regex */
+    private StringPattern = /\"(\d|\w|\s|[.,+\-\*/\(\)\[\]\{\}])*\"/g;
+    
+    /** 用於括弧排版的樣板集合 */
+    private BracketPatterns: { Start: RegExp; End: RegExp }[] = [
+        { Start: /\(/g, End: /\)/g },
+        { Start: /\[/g, End: /\]/g }
     ];
 
     /** 用於符號排版，前後加上空白的樣板集合 */
-    private static SignPatterns: SignPattern[] = [
+    private SignPatterns: SignPattern[] = [
         new SignPattern("=", [
             new SignIncludeString(IncludePosition.Both, "="), // ==
             new SignIncludeString(IncludePosition.Both, ">"), // >=, =>
@@ -207,55 +210,87 @@ export class URScriptFormattingProvider
     ];
 
     /**
-     * 搜尋括弧內容並排版
+     * 檢查指定的位置是否在範圍中
+     * @param range 可供判斷的範圍
+     * @param value 欲判斷的位置
+     */
+    private inRange(range: { Start: number, End: number }[], value: number): boolean {
+        return range.some(
+            p => (p.Start < value) && (value < p.End)
+        );
+    }
+
+    /**
+     * 搜尋括弧並在內容分隔補上空白
      * @param editColl 欲儲存所有文字變更的集合
      * @param line 當前的文字行
      * @param pattern 欲搜尋並處理的樣板
-     * @returns (true)未閉鎖的括弧，可能是多行式方法 (false)已完成閉鎖或非括弧
+     * @returns (0)已完全閉鎖 (1)只有起始括弧 (2)只有結尾括弧
      */
     private formatBracket(
         editColl: TextEdit[],
         line: TextLine,
-        pattern: { Start: string; End: string }
-    ): boolean {
-        /* 回傳值 */
-        let unclosed = false;
-        /* 從第一個字開始搜尋 */
-        let searchIndex = 0;
-        /* 開始搜尋，直至找不到括號離開 */
-        while (true) {
-            /* 檢查並取得括弧位置 */
-            const left = line.text.indexOf(pattern.Start, searchIndex);
-            /* 如果沒有起始括弧就直接離開吧 */
-            if (left === -1) {
-                break;
-            }
-            const right = line.text.indexOf(pattern.End, left);
-            /* 如果有成對的括號，進行排版 */
-            if (left < right) {
-                //取出括號內的文字
-                const paraStr = line.text.substring(left + 1, right);
-                //利用逗號進行分割並去頭去尾
-                const paraAry = paraStr.split(",").map(word => word.trim());
-                //重新組成字串，逗號後方加上空白
-                const newStr = paraAry.join(", ");
-                //加入要回傳的集合
-                editColl.push(
-                    new TextEdit(
-                        new Range(line.lineNumber, left + 1, line.lineNumber, right),
-                        newStr
-                    )
-                );
-                /* 重設 searchIndex，從 right 之後繼續搜尋 */
-                searchIndex = right;
-            } else {
-                /* 沒有成對的括弧，直接離開 */
-                unclosed = true;
-                break;
+        pattern: { Start: RegExp; End: RegExp }
+    ): number {
+        /* 宣告儲存括號位置的集合 */
+        const strCnt: { Start: number, End: number }[] = [];
+        const start: number[] = [];
+        const end: { Index: number, Matched: boolean}[] = [];
+        /* 找出所有的符號 */
+        let match: RegExpExecArray | null;
+        while (match = this.StringPattern.exec(line.text)) {
+            strCnt.push({ Start: match.index, End: this.StringPattern.lastIndex });
+        }
+        while (match = pattern.Start.exec(line.text)) {
+            if (!this.inRange(strCnt, match.index)) {
+                start.unshift(match.index); //倒置，越後面的括號要先判斷
             }
         }
-        /* 回傳 */
-        return unclosed;
+        while (match = pattern.End.exec(line.text)) {
+            if (!this.inRange(strCnt, match.index)) {
+                end.push({ Index: match.index, Matched: false});
+            }
+        }
+        /* 一對一配對 */
+        const pair: { Start: number, End: number }[] = [];
+        for (const idx of start) {
+            /* 找出最近的結束括弧 */
+            const tarIdx = end.findIndex(kvp => !kvp.Matched && (idx < kvp.Index));
+            if (tarIdx > -1) {
+                /* 加入集合 */
+                pair.push({ Start: idx + 1, End: end[tarIdx].Index });
+                /* 標記為已經被配對，避免被重複搜尋 */
+                end[tarIdx].Matched = true;
+            }
+        }
+        /* 依序將配對的內容拆開並加上空白 */
+        if (pair.length > 0) {
+            for (const p of pair) {
+                /* 取出括弧中間的內容 */
+                const subStr = line.text.substring(p.Start, p.End);
+                /* 切割 */
+                const split = subStr.split(",").map(str => str.trim());
+                /* 組合成字串 */
+                const param = split.join(", ");
+                /* 如果內容不同再進行排版 */
+                if (subStr !== param) {
+                    editColl.push(
+                        new TextEdit(
+                            new Range(line.lineNumber, p.Start, line.lineNumber, p.End),
+                            param
+                        )
+                    );
+                }
+            }
+        }
+        /* 根據狀態進行回傳 */
+        if (start.length === end.length) {
+            return 0;
+        } else if (start.length > 0 && end.length === 0) {
+            return 1;
+        } else {
+            return 2;
+        }
     }
 
     /**
@@ -527,25 +562,9 @@ export class URScriptFormattingProvider
      * @returns (true)要減少縮排數量 (false)不須減少
      */
     private needDecreaseIndent(line: TextLine): boolean {
-        /* 初始化回傳值 */
-        let need = false;
         /* 先用 Regex 檢查是否有指定的符號  */
         const match = line.text.match(/\b(end)|(elif.*:)|(else:)/g);
-        need = match ? match.length > 0 : false;
-        /* 如果沒有指定的符號，檢查是否有 '單一' 的括弧結尾，表示使用者使用了多行式的內容 */
-        if (!need) {
-            need = URScriptFormattingProvider.BracketPatterns.some(
-                pat => {
-                    /* 起始括弧 */
-                    const startPat = line.text.indexOf(pat.Start);
-                    /* 結尾括弧 */
-                    const endPat = line.text.indexOf(pat.End);
-                    /* 如果沒有起始但是有結尾，表示多行內容結束了 */
-                    return (startPat === -1) && (endPat > -1);
-                }
-            );
-        }
-        return need;
+        return match ? match.length > 0 : false;
     }
 
     /**
@@ -583,28 +602,36 @@ export class URScriptFormattingProvider
                 /* 取得該行的資訊 */
                 const line = document.lineAt(lineNo);
                 /* 如果是空白則直接往下一行 */
-                if (line.isEmptyOrWhitespace) {
+                if (line.text.length === 0) {
+                    continue;
+                } else if (line.isEmptyOrWhitespace && line.text.length > 0) {
+                    /* 裡面全空白，將之刪除 */
+                    const edit = new TextEdit(
+                        new Range(
+                            new Position(lineNo, 0),
+                            new Position(lineNo, line.text.length)
+                        ),
+                        ""
+                    );
+                    /* 加入集合 */
+                    txtEdit.push(edit);
+                    /* 往下一筆前進 */
                     continue;
                 }
                 /* 如果此行是註解，直接檢查前面縮排就好。若是內容則判斷之 */
                 const isCmt = /^(#|\$).*/.test(line.text);
-                let unclosed = false;
+                let brkStt = 0;
                 if (!isCmt) {
                     /* 輪詢括弧樣板 */
-                    URScriptFormattingProvider.BracketPatterns.forEach(
-                        pat => {
-                            /* 不要直接等於，避免把它洗回 false */
-                            if (this.formatBracket(txtEdit, line, pat)) {
-                                unclosed = true;
-                            }
-                        }
+                    this.BracketPatterns.forEach(
+                        pat => brkStt |= this.formatBracket(txtEdit, line, pat)
                     );
                     /* 輪詢符號樣板 */
-                    URScriptFormattingProvider.SignPatterns.forEach(
+                    this.SignPatterns.forEach(
                         pat => this.formatSign(txtEdit, line, pat)
                     );
                     /* 優先檢查是否是 end，因 end 也要往前減少縮排 */
-                    if (this.needDecreaseIndent(line)) {
+                    if ((brkStt & 0x02) === 0x02 || this.needDecreaseIndent(line)) {
                         indent = indent >= options.tabSize ? indent - options.tabSize : 0;
                     }
                 }
@@ -616,7 +643,7 @@ export class URScriptFormattingProvider
                     this.trimRight(txtEdit, line);
                 }
                 /* 如果此行是方法或區塊，將 indent + 2 */
-                if (!isCmt && (unclosed || this.needIncreaseIndent(line))) {
+                if (!isCmt && ((brkStt & 0x01) === 0x01 || this.needIncreaseIndent(line))) {
                     indent += options.tabSize;
                 }
             }
@@ -655,11 +682,11 @@ export class URScriptFormattingProvider
                 return [];
             }
             /* 輪詢括弧樣板 */
-            URScriptFormattingProvider.BracketPatterns.forEach(pat =>
+            this.BracketPatterns.forEach(pat =>
                 this.formatBracket(edits, line, pat)
             );
             /* 輪詢符號樣板 */
-            URScriptFormattingProvider.SignPatterns.forEach(pat =>
+            this.SignPatterns.forEach(pat =>
                 this.formatSign(edits, line, pat)
             );
             /* 檢查右側是否有多餘的空白並刪除之 */
