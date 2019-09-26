@@ -3,6 +3,12 @@ All notable changes to the "urscript" extension will be documented in this file.
 
 Goto [urscript-extension](https://github.com/ahernguo/urscript-extension) for more details.
 
+## 0.0.4 - 2019-09-26
+* BUGFIXES
+  * Fix documentation not shows well
+  * Fix multi-lines function format incorrectly
+  * Line is full of spaces and comments are formatted properly
+
 ## 0.0.3 - 2019-09-25
 * FEATURE
   * TSDoc like documentation added
