@@ -142,6 +142,9 @@
                         },
                         {
                             "include": "#constants"
+                        },
+                        {
+                            "include": "#methods"
                         }
                     ]
                 }
