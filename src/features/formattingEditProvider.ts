@@ -325,7 +325,7 @@ export class URScriptFormattingProvider
                 /* 檢查此符號前面是否有註解符號 */
                 const cmtSign = line.text.indexOf("#");
                 /* 如果 '#' 在 index 之前，直接往下一個進行 */
-                if (cmtSign < index) {
+                if (cmtSign > -1 && cmtSign < index) {
                     /* 重設 searchIndex，從 end 之後繼續搜尋 */
                     searchIndex = index + 1;
                     continue;
