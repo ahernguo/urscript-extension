@@ -573,7 +573,7 @@ export class URScriptFormattingProvider
      */
     private needDecreaseIndent(line: TextLine): boolean {
         /* 先用 Regex 檢查是否有指定的符號  */
-        const match = line.text.match(/\b(end)|(elif.*:)|(else:)/g);
+        const match = line.text.match(/\b(?<!\w)end(?!\w)|(elif.*:)|(else:)/g);
         return match ? match.length > 0 : false;
     }
 
