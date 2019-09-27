@@ -172,16 +172,13 @@ class IncludeResult {
 export class URScriptFormattingProvider
   implements DocumentRangeFormattingEditProvider {
   
-  /** 用於抓取字串內容的 Regex */
-  private StringPattern = /"([^\\"]|\\")*"/g;
-
   /** 用於取得合法逗號的 Regex */
   private CommaPattern = /,(?=([^\"]*\"[^\"]*\")*[^\"]*$)/g;
 
   /** 用於括弧排版的樣板集合 */
   private BracketPatterns: { Start: RegExp; End: RegExp }[] = [
-    { Start: /\(/g, End: /\)/g },
-    { Start: /\[/g, End: /\]/g }
+    { Start: /\((?=([^\"]*\"[^\"]*\")*[^\"]*$)/g, End: /\)(?=([^\"]*\"[^\"]*\")*[^\"]*$)/g },
+    { Start: /\[(?=([^\"]*\"[^\"]*\")*[^\"]*$)/g, End: /\](?=([^\"]*\"[^\"]*\")*[^\"]*$)/g }
   ];
 
   /** 用於符號排版，前後加上空白的樣板集合 */
@@ -213,18 +210,6 @@ export class URScriptFormattingProvider
   ];
 
   /**
-   * 檢查指定的位置是否在範圍中
-   * @param range 可供判斷的範圍
-   * @param value 欲判斷的位置
-   */
-  private inRange(
-    range: { Start: number; End: number }[],
-    value: number
-  ): boolean {
-    return range.some(p => p.Start < value && value < p.End);
-  }
-
-  /**
    * 搜尋括弧並在內容分隔補上空白
    * @param editColl 欲儲存所有文字變更的集合
    * @param line 當前的文字行
@@ -238,13 +223,8 @@ export class URScriptFormattingProvider
   ): number {
     /* 宣告回傳的括弧狀態 */
     let bracketState = 0x00;
-    /* 宣告儲存括號位置的集合 */
-    const stringRange: { Start: number; End: number }[] = [];
     /* 找出所有的字串 */
     let match: RegExpExecArray | null;
-    while ((match = this.StringPattern.exec(line.text))) {
-      stringRange.push({ Start: match.index, End: this.StringPattern.lastIndex });
-    }
     /* 宣告配對組合 */
     const pair: { Start: number; End: number }[] = [];
     /* 依序抓出 Pattern */
@@ -254,15 +234,11 @@ export class URScriptFormattingProvider
       const end: { Index: number; Matched: boolean }[] = [];
       /* 找起始括弧 */
       while ((match = pat.Start.exec(line.text))) {
-        if (!this.inRange(stringRange, match.index)) {
-          start.unshift(match.index); //倒置，越後面的括號要先判斷
-        }
+        start.unshift(match.index); //倒置，越後面的括號要先判斷
       }
       /* 找結尾括弧 */
       while ((match = pat.End.exec(line.text))) {
-        if (!this.inRange(stringRange, match.index)) {
-          end.push({ Index: match.index, Matched: false });
-        }
+        end.push({ Index: match.index, Matched: false });
       }
       /* 每組 Pattern 結束後要先把相同的組合組在一起 */
       for (const idx of start) {
