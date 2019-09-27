@@ -299,9 +299,7 @@ export class URScriptFormattingProvider
           lastIndex = this.CommaPattern.lastIndex;
         }
         /* 補上最後一段(不會被 capture 到) */
-        if (lastIndex > 0) {
-          strColl.push(subStr.substr(lastIndex).trim());
-        }
+        strColl.push(subStr.substr(lastIndex).trim());
         /* 組合成字串 */
         const param = strColl.join(", ");
         /* 如果內容不同再進行排版 */
