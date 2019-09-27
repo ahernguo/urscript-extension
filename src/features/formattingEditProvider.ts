@@ -171,8 +171,12 @@ class IncludeResult {
  */
 export class URScriptFormattingProvider
   implements DocumentRangeFormattingEditProvider {
+  
   /** 用於抓取字串內容的 Regex */
-  private StringPattern = /\"(\d|\w|\s|[.,+\-\*/\(\)\[\]\{\}])*\"/g;
+  private StringPattern = /"([^\\"]|\\")*"/g;
+
+  /** 用於取得合法逗號的 Regex */
+  private CommaPattern = /,(?=([^\"]*\"[^\"]*\")*[^\"]*$)/g;
 
   /** 用於括弧排版的樣板集合 */
   private BracketPatterns: { Start: RegExp; End: RegExp }[] = [
@@ -232,26 +236,31 @@ export class URScriptFormattingProvider
     line: TextLine,
     pattern: { Start: RegExp; End: RegExp }[]
   ): number {
+    /* 宣告回傳的括弧狀態 */
+    let bracketState = 0x00;
     /* 宣告儲存括號位置的集合 */
-    const strCnt: { Start: number; End: number }[] = [];
-    const start: number[] = [];
-    const end: { Index: number; Matched: boolean }[] = [];
+    const stringRange: { Start: number; End: number }[] = [];
     /* 找出所有的字串 */
     let match: RegExpExecArray | null;
     while ((match = this.StringPattern.exec(line.text))) {
-      strCnt.push({ Start: match.index, End: this.StringPattern.lastIndex });
+      stringRange.push({ Start: match.index, End: this.StringPattern.lastIndex });
     }
     /* 宣告配對組合 */
     const pair: { Start: number; End: number }[] = [];
     /* 依序抓出 Pattern */
     for (const pat of pattern) {
+      /* 每次重新宣告，避免不同 pattern 混用 */
+      const start: number[] = [];
+      const end: { Index: number; Matched: boolean }[] = [];
+      /* 找起始括弧 */
       while ((match = pat.Start.exec(line.text))) {
-        if (!this.inRange(strCnt, match.index)) {
+        if (!this.inRange(stringRange, match.index)) {
           start.unshift(match.index); //倒置，越後面的括號要先判斷
         }
       }
+      /* 找結尾括弧 */
       while ((match = pat.End.exec(line.text))) {
-        if (!this.inRange(strCnt, match.index)) {
+        if (!this.inRange(stringRange, match.index)) {
           end.push({ Index: match.index, Matched: false });
         }
       }
@@ -266,6 +275,12 @@ export class URScriptFormattingProvider
           end[tarIdx].Matched = true;
         }
       }
+      /* 檢查此 Pattern 的狀態 */
+      if (start.length > end.length) {
+        bracketState |= 0x01; //開始比結束的多
+      } else if (start.length < end.length) {
+        bracketState |= 0x02; //結束比開始的多
+      }
     }
     /* 如果有在大括弧裡面的，從 pair 中移除，避免重複排版 */
     const formatRange = pair.filter(
@@ -276,10 +291,19 @@ export class URScriptFormattingProvider
       for (const p of formatRange) {
         /* 取出括弧中間的內容 */
         const subStr = line.text.substring(p.Start, p.End);
-        /* 切割 */
-        const split = subStr.split(",").map(str => str.trim());
+        /* 由於 line.text.split(this.CommaPattern) 會取得怪怪的元素，所以只好手動分割了!! */
+        const strColl: string[] = [];
+        let lastIndex = 0;
+        while ((match = this.CommaPattern.exec(subStr))) {
+          strColl.push(subStr.substring(lastIndex, match.index).trim());
+          lastIndex = this.CommaPattern.lastIndex;
+        }
+        /* 補上最後一段(不會被 capture 到) */
+        if (lastIndex > 0) {
+          strColl.push(subStr.substr(lastIndex).trim());
+        }
         /* 組合成字串 */
-        const param = split.join(", ");
+        const param = strColl.join(", ");
         /* 如果內容不同再進行排版 */
         if (subStr !== param) {
           editColl.push(
@@ -291,14 +315,8 @@ export class URScriptFormattingProvider
         }
       }
     }
-    /* 根據狀態進行回傳 */
-    if (start.length === end.length) {
-      return 0; //全部都有閉鎖
-    } else if (start.length > end.length) {
-      return 1; //開始的比結束的多
-    } else {
-      return 2; //結束的比開始的多
-    }
+    /* 回傳 */
+    return bracketState;
   }
 
   /**
