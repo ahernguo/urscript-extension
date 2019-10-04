@@ -1,7 +1,15 @@
 //用於 vscode 的名稱解析
-import { DefinitionProvider, TextDocument, Position, CancellationToken, Location, LocationLink, workspace } from "vscode";
+import {
+    CancellationToken,
+    DefinitionProvider,
+    Location,
+    LocationLink,
+    Position,
+    TextDocument,
+    workspace
+} from "vscode";
 //用於解析程式碼以提供相關物件的解析
-import { getLocationFromWorkspace, getLocationFromFile } from "../codeParser";
+import { getLocationFromWorkspace, getLocationFromDocument } from "../codeParser";
 //檢查字串是否為空字串
 import { isBlank } from "../utilities/checkString";
 
@@ -25,7 +33,7 @@ export class URScriptDefinitionProvider implements DefinitionProvider {
             /* 如果有東西，則進行搜尋比對 */
             if (!isBlank(word)) {
                 /* 先從當前的文件找起 */
-                let locColl = getLocationFromFile(document.fileName, word);
+                let locColl = getLocationFromDocument(document, word);
                 /* 當前文件找不到，往 Workspace 開找 */
                 if (locColl.length === 0 && workspace.workspaceFolders) {
                     /* 輪詢各個資料夾 */
@@ -45,5 +53,5 @@ export class URScriptDefinitionProvider implements DefinitionProvider {
             return undefined;
         }
     }
-    
+
 }

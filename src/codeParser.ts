@@ -1,5 +1,19 @@
 //用於 vscode 的名稱解析
-import { CompletionItem, CompletionItemKind, SnippetString, Hover, WorkspaceFolder, Location, Uri, Position, MarkdownString, SignatureHelp, SignatureInformation, ParameterInformation } from 'vscode';
+import {
+    CompletionItem,
+    CompletionItemKind,
+    Hover,
+    Location,
+    MarkdownString,
+    ParameterInformation,
+    Position,
+    SignatureHelp,
+    SignatureInformation,
+    SnippetString,
+    TextDocument,
+    Uri,
+    WorkspaceFolder,
+} from 'vscode';
 //用於檔案讀取的 FileStream 解析
 import * as fs from 'fs';
 //用於讀取每一行的解析
@@ -324,18 +338,30 @@ function parseSignature(matchResult: RegExpExecArray | null, oldLines?: string[]
 
 /**
  * 搜尋文字內容的所有方法與全域變數
- * @param text 欲搜尋的文字
+ * @param document 欲解析的文件
  * @param keyword 當前使用者輸入的關鍵字
  * @param cmpItems 欲儲存的完成項目集合
  */
-export function getCompletionItemsFromText(text: string, keyword: string, cmpItems: CompletionItem[]) {
+export function getCompletionItemsFromDocument(document: TextDocument, keyword: string, cmpItems: CompletionItem[]) {
     /* 建立 Regex Pattern */
     const mthdPat = new RegExp(`\\b(def|thread|global)\\s+${keyword}.*(\\(.*\\):)*`, "gm");
-    /* 迴圈尋找符合的方法 */
-    let match: RegExpExecArray | null;
-    while (match = mthdPat.exec(text)) {
+    /* 建立已讀取過的暫存區 */
+    const oldLines: string[] = [];
+    /* 輪詢每一行 */
+    for (let lineNo = 0; lineNo < document.lineCount; lineNo++) {
+        /* 取得當前的行 */
+        const line = document.lineAt(lineNo);
+        /* 轉成字串 */
+        const cur = line.text.trim();
+        /* 利用 Regex 尋找方法或變數名稱 */
+        const match = mthdPat.exec(cur);
         /* 解析並加入集合 */
-        parseCmpItem(match, cmpItems);
+        parseCmpItem(match, cmpItems, oldLines);
+        /* 加入讀過的暫存區 */
+        if (oldLines.length > 20) {
+            oldLines.shift();
+        }
+        oldLines.push(cur);
     }
 }
 
@@ -376,11 +402,12 @@ export function getCompletionItemsFromFile(fileName: fs.PathLike, keyword: strin
  * @param workspace 欲搜尋的 Workspace 路徑
  * @param keyword 當前使用者輸入的關鍵字
  * @param cmpItems 欲儲存的完成項目集合
+ * @param explored 已經探索過(要跳過)的檔案名稱
  */
-export function getCompletionItemsFromWorkspace(workspace: WorkspaceFolder, keyword: string, cmpItems: CompletionItem[]) {
+export function getCompletionItemsFromWorkspace(workspace: WorkspaceFolder, keyword: string, cmpItems: CompletionItem[], explored: string) {
     /* 取得資料夾內的所有檔案 */
     const files = fs.readdirSync(workspace.uri.fsPath)
-        .filter(file => file.endsWith('.script'))
+        .filter(file => file.endsWith('.script') && (file !== explored.split(/.*[\/|\\]/)[1]))
         .map(file => `${workspace.uri.fsPath}\\${file}`);
     /* 輪詢所有檔案 */
     files.forEach(
@@ -389,17 +416,37 @@ export function getCompletionItemsFromWorkspace(workspace: WorkspaceFolder, keyw
 }
 
 /**
- * 搜尋文字內容的指定關鍵字並轉換成滑鼠提示
- * @param text 欲搜尋的文字
+ * 搜尋檔案內容的指定關鍵字並轉換成滑鼠提示
+ * @param document 欲解析的文件
+ * @param fileName 欲搜尋的檔案路徑
  * @param keyword 當前使用者停留的關鍵字
  */
-export function getHoverFromText(text: string, keyword: string): Hover | undefined {
+export function getHoverFromDocument(document: TextDocument, keyword: string): Hover | undefined {
     /* 建立 Regex Pattern */
     const mthdPat = new RegExp(`\\b(def|thread|global)\\s+${keyword}.*(\\(.*\\):)*`, "gm");
-    /* 迴圈尋找符合的方法 */
-    const match = mthdPat.exec(text);
+    /* 建立已讀取過的暫存區 */
+    const oldLines: string[] = [];
+    /* 輪詢每一行 */
+    let hov: Hover | undefined;
+    for (let lineNo = 0; lineNo < document.lineCount; lineNo++) {
+        /* 轉成字串 */
+        const cur = document.lineAt(lineNo).text.trim();
+        /* 嘗試找出方法或變數 */
+        const match = mthdPat.exec(cur);
+        /* 解析是否有符合的物件 */
+        hov = parseHover(match, oldLines);
+        /* 成功找到則離開迴圈 */
+        if (hov) {
+            break;
+        }
+        /* 加入讀過的暫存區 */
+        if (oldLines.length > 20) {
+            oldLines.shift();
+        }
+        oldLines.push(cur);
+    }
     /* 回傳 */
-    return parseHover(match);
+    return hov;
 }
 
 /**
@@ -467,6 +514,41 @@ export function getHoverFromWorkspace(workspace: WorkspaceFolder, keyword: strin
 
 /**
  * 搜尋檔案內容的指定關鍵字並轉換成定義位置
+ * @param document 欲解析的文件
+ * @param fileName 欲解析的檔案路徑
+ * @param keyword 欲搜尋的關鍵字
+ */
+export function getLocationFromDocument(document: TextDocument, keyword: string): Location[] {
+    /* 建立 Regex Pattern */
+    const mthdPat = new RegExp(`\\b(def|thread|global)\\s+${keyword}.*(\\(.*\\):)*`, "gm");
+    const namePat = /\b(?!def|thread|global)\w+/gm;
+    /* 宣告回傳變數 */
+    let locColl: Location[] = [];
+    /* 輪詢每一行，直至找到關鍵字 */
+    for (let lineNo = 0; lineNo < document.lineCount; lineNo++) {
+        /* 迴圈尋找符合的方法 */
+        const match = mthdPat.exec(document.lineAt(lineNo).text);
+        if (match) {
+            /* 用 Regex 取得方法名稱 */
+            const nameReg = namePat.exec(match[0]);
+            /* 有成功找到，建立完成項目 */
+            if (nameReg) {
+                const loc = new Location(
+                    document.uri,
+                    new Position(
+                        lineNo,
+                        nameReg.index
+                    )
+                );
+                locColl.push(loc);
+            }
+        }
+    }
+    return locColl;
+}
+
+/**
+ * 搜尋檔案內容的指定關鍵字並轉換成定義位置
  * @param fileName 欲解析的檔案路徑
  * @param keyword 欲搜尋的關鍵字
  */
@@ -527,6 +609,40 @@ export function getLocationFromWorkspace(workspace: WorkspaceFolder, keyword: st
     }
     /* 回傳 */
     return locColl;
+}
+
+/**
+ * 搜尋檔案內容的指定關鍵字並轉換成簽章
+ * @param document 欲解析的文件
+ * @param fileName 欲搜尋的檔案路徑
+ * @param keyword 當前使用者停留的關鍵字
+ */
+export function getSignatureFromDocument(document: TextDocument, keyword: string): SignatureHelp | undefined {
+    /* 建立 Regex Pattern */
+    const mthdPat = new RegExp(`\\b(def)\\s+${keyword}.*(\\(.*\\):)*`, "gm");
+    /* 建立已讀取過的暫存區 */
+    const oldLines: string[] = [];
+    /* 輪詢每一行 */
+    let sigHelp: SignatureHelp | undefined;
+    for (let lineNo = 0; lineNo < document.lineCount; lineNo++) {
+        /* 轉成字串 */
+        const cur = document.lineAt(lineNo).text.trim();
+        /* 嘗試找出方法或變數 */
+        const match = mthdPat.exec(cur);
+        /* 解析是否有符合的物件 */
+        sigHelp = parseSignature(match, oldLines);
+        /* 成功找到則離開迴圈 */
+        if (sigHelp) {
+            break;
+        }
+        /* 加入讀過的暫存區 */
+        if (oldLines.length > 20) {
+            oldLines.shift();
+        }
+        oldLines.push(cur);
+    }
+    /* 回傳 */
+    return sigHelp;
 }
 
 /**

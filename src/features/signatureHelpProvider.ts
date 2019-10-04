@@ -1,11 +1,22 @@
 //用於 vscode 的名稱解析
-import { SignatureHelpProvider, TextDocument, Position, CancellationToken, SignatureHelpContext, SignatureHelp, SignatureInformation, ParameterInformation, SignatureHelpProviderMetadata, workspace } from 'vscode';
+import {
+    CancellationToken,
+    ParameterInformation,
+    Position,
+    SignatureHelp,
+    SignatureHelpContext,
+    SignatureHelpProvider,
+    SignatureHelpProviderMetadata,
+    SignatureInformation,
+    TextDocument,
+    workspace
+} from 'vscode';
 //用於載入外部的方法集合
 import { ScriptMethod } from '../scriptmethod';
 //用於判斷物件是否為空
 import { isNullOrUndefined } from 'util';
 //用於解析程式碼以提供相關物件的解析
-import { getSignatureFromFile, getSignatureFromWorkspace } from '../codeParser';
+import { getSignatureFromWorkspace, getSignatureFromDocument } from '../codeParser';
 
 /**
  * 儲存 ScriptMethod 對應的 Hover 項目
@@ -37,7 +48,7 @@ class ScriptSignature {
         const sigHelp = new SignatureHelp();
         sigHelp.activeParameter = 0;
         sigHelp.activeSignature = 0;
-        sigHelp.signatures = [ sigInfo ];
+        sigHelp.signatures = [sigInfo];
         /* 賦值 */
         this.Item = sigHelp;
         this.Name = mthd.Name;
@@ -59,7 +70,7 @@ export class URScriptSignatureHelpProvider implements SignatureHelpProvider {
     public constructor(funcs: ScriptMethod[]) {
         this.scriptSignatures = funcs.map(mthd => new ScriptSignature(mthd));
     }
-    
+
     /**
      * 取得滑鼠輸入中的簽章提示
      * @param document vscode 當前的文字編輯器
@@ -109,7 +120,7 @@ export class URScriptSignatureHelpProvider implements SignatureHelpProvider {
                     return matched.Item;
                 } else {
                     /* 如果沒有找到，找一下當前的檔案是否有符合的項目 */
-                    let sigHelp = getSignatureFromFile(document.fileName, word);
+                    let sigHelp = getSignatureFromDocument(document, word);
                     /* 如果沒有，則往 Workspace 開找 */
                     if (!sigHelp && workspace.workspaceFolders) {
                         /* 輪詢各個資料夾 */
@@ -146,7 +157,7 @@ export class URScriptSignatureHelpProviderMetadata implements SignatureHelpProvi
      * 建構簽章提示觸發設定
      */
     constructor() {
-        this.triggerCharacters = [ '(' ];
-        this.retriggerCharacters = [ ',' ];
+        this.triggerCharacters = ['('];
+        this.retriggerCharacters = [','];
     }
 }

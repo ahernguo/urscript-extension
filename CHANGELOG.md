@@ -3,6 +3,13 @@ All notable changes to the "urscript" extension will be documented in this file.
 
 Goto [urscript-extension](https://github.com/ahernguo/urscript-extension) for more details.
 
+## 0.0.5 - 2019-10-04
+* BUGFIXES
+  * Fix format incorrect when sign/keyword in string and comment
+* ENHANCEMENT
+  * Add keyword formatting
+  * Now `CompletionItems`, `SignatureHelp`, `Hover`, `Go to Definition` can search current unsaved document
+
 ## 0.0.4 - 2019-09-26
 * BUGFIXES
   * Fix documentation not shows well

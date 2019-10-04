@@ -1,9 +1,22 @@
 //用於 vscode 的名稱解析
-import { CompletionItemProvider, CompletionItem, CompletionItemKind, CompletionContext, CancellationToken, TextDocument, Position, CompletionList, SnippetString, Range, workspace, MarkdownString } from 'vscode';
+import {
+    CancellationToken,
+    CompletionContext,
+    CompletionItem,
+    CompletionItemKind,
+    CompletionItemProvider,
+    CompletionList,
+    MarkdownString,
+    Position,
+    Range,
+    SnippetString,
+    TextDocument,
+    workspace
+} from 'vscode';
 //用於載入外部的方法集合
 import { ScriptMethod } from '../scriptmethod';
 //用於解析程式碼以提供相關物件的解析
-import { getCompletionItemsFromText, getCompletionItemsFromWorkspace } from '../codeParser';
+import { getCompletionItemsFromDocument, getCompletionItemsFromWorkspace } from '../codeParser';
 //檢查字串是否為空字串
 import { isBlank } from '../utilities/checkString';
 
@@ -29,7 +42,7 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
                 /* 加入要自動填寫的文字，因要讓使用者輸入 '(' 時跳出註解，故這邊輸入名稱就好 */
                 cmpItem.insertText = new SnippetString(mthd.Name);
                 /* 加入自動完成的符號 */
-                cmpItem.commitCharacters = [ '(', ')', ':', '\t', '\n', ' ' ];
+                cmpItem.commitCharacters = ['(', ')', ':', '\t', '\n', ' '];
                 /* 加入文件註解 */
                 cmpItem.documentation = mthd.Documentation;
                 /* 回傳 */
@@ -88,7 +101,10 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
                             let index = 2;
                             const param = paramReg[1]
                                 .split(',')
-                                .map(p => `# @param ${p.trim()} \${${index++}|bool,int,float,number,array,pose,string|} \${${index++}:${p.trim()}}`);
+                                .map(
+                                    p =>
+                                        `# @param ${p.trim()} \${${index++}|bool,int,float,number,array,pose,string|} \${${index++}:${p.trim()}}`
+                                );
                             /* 組合成 Snippet */
                             cmpItem.insertText = new SnippetString(
                                 `###\n# \${1:summary}\n${param.join('\n')}\n###`
@@ -142,13 +158,20 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
                 const matchItems = this.scriptCmpItems.filter(
                     mthd => mthd.label.startsWith(word)
                 );
-                /* 將當前的所有方法給解析出來 */
+                /* 將當前的編輯器中的所有方法給解析出來 */
+                getCompletionItemsFromDocument(document, word, matchItems);
+                /* 如果有開專案資料夾，則也將周圍的解析出來 */
                 if (workspace.workspaceFolders && workspace.workspaceFolders.length > 0) {
-                    workspace.workspaceFolders.forEach(workspace => {
-                        getCompletionItemsFromWorkspace(workspace, word, matchItems);
-                    });
-                } else {
-                    getCompletionItemsFromText(document.getText(), word, matchItems);
+                    workspace.workspaceFolders.forEach(
+                        workspace => {
+                            getCompletionItemsFromWorkspace(
+                                workspace,
+                                word,
+                                matchItems,
+                                document.fileName
+                            );
+                        }
+                    );
                 }
                 /* 回傳集合 */
                 return new CompletionList(matchItems, !(word.length > 1));

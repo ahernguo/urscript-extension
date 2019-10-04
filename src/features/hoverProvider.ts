@@ -1,9 +1,16 @@
 //用於 vscode 的名稱解析
-import { HoverProvider, Hover, TextDocument, CancellationToken, Position, workspace } from 'vscode';
+import {
+    CancellationToken,
+    Hover,
+    HoverProvider,
+    Position,
+    TextDocument,
+    workspace
+} from 'vscode';
 //用於載入外部的方法集合
 import { ScriptMethod } from '../scriptmethod';
 //用於解析程式碼以提供相關物件的解析
-import { getHoverFromWorkspace, getHoverFromFile } from '../codeParser';
+import { getHoverFromWorkspace, getHoverFromDocument } from '../codeParser';
 //檢查字串是否為空字串
 import { isBlank } from '../utilities/checkString';
 
@@ -72,7 +79,7 @@ export class URScriptHoverProvider implements HoverProvider {
                     return matchHover.Item;
                 } else {
                     /* 先從當前文件找起 */
-                    let hov = getHoverFromFile(document.fileName, word);
+                    let hov = getHoverFromDocument(document, word);
                     /* 如果沒有，則往 Workspace 開找 */
                     if (!hov && workspace.workspaceFolders) {
                         /* 輪詢各個資料夾 */
@@ -93,5 +100,4 @@ export class URScriptHoverProvider implements HoverProvider {
             return undefined;
         }
     }
-    
 }
