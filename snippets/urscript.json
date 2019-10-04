@@ -71,5 +71,33 @@
             "False"
         ],
         "description": "autofill a 'False' sign"
+    },
+    "return": {
+        "prefix": "return",
+        "body": [
+            "return "
+        ],
+        "description": "autofill a 'return' keyword"
+    },
+    "and": {
+        "prefix": "and",
+        "body": [
+            "and "
+        ],
+        "description":"autofill a 'and' logical operator"
+    },
+    "or": {
+        "prefix": "or",
+        "body": [
+            "or "
+        ],
+        "description":"autofill a 'or' logical operator"
+    },
+    "not": {
+        "prefix": "not",
+        "body": [
+            "not "
+        ],
+        "description":"autofill a 'not' logical operator"
     }
 }
