@@ -256,6 +256,8 @@ class SignPattern {
                         const excludeResult = ex.exec(line.text);
                         if (excludeResult && excludeResult.length > 0 && match) {
                             return (excludeResult.index <= match.index) && (match.index <= (excludeResult.index + excludeResult[0].length));
+                        } else {
+                            return false;
                         }
                     }
                 );
