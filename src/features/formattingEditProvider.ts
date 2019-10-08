@@ -104,19 +104,15 @@ class BracketPattern {
         let match: RegExpExecArray | null;
         /* 尋找起始括弧 */
         while ((match = this.StartPattern.exec(line.text))) {
-            /* 如果在註解後面，離開迴圈。因 RegExp 是依序由左往右搜尋，故若其中一個在註解後面，後面的也都是在註解後了 */
-            if (commentIndex > -1 && commentIndex < match.index) {
-                break;
-            } else {
+            /* 如果此括弧在註解前面，則加入集合 */
+            if ((commentIndex < 0) || (match.index < commentIndex)) {
                 start.unshift(match.index); //倒置，越後面的括號要先判斷
             }
         }
         /* 尋找結尾括弧 */
         while ((match = this.EndPattern.exec(line.text))) {
-            /* 如果在註解後面，離開迴圈。因 RegExp 是依序由左往右搜尋，故若其中一個在註解後面，後面的也都是在註解後了 */
-            if (commentIndex > -1 && commentIndex < match.index) {
-                break;
-            } else {
+            /* 如果此括弧在註解前面，則加入集合 */
+            if ((commentIndex < 0) || (match.index < commentIndex)) {
                 end.push(
                     {
                         Index: match.index,
@@ -237,9 +233,9 @@ class SignPattern {
         let index = 0;
         let match: RegExpExecArray | null;
         while ((match = this.NotStringPattern.exec(line.text))) {
-            /* 因 RegExp 是依序由左往右搜尋，故若其中一個在註解後面，後面的也都是在註解後了 */
+            /* 若符號在註解後面，直接往下一個繼續。此處是因為懶得用大 if 排版，所以才用 continue 😆 */
             if (commentIndex > -1 && commentIndex < match.index) {
-                break;
+                continue;   //不能 break !! 請看下方 260 行左右的註解
             }
             /* 檢查是否已有處理過。符號與括號不衝突，故只要考慮非括弧的來源即可 */
             index = match.index;
@@ -252,13 +248,23 @@ class SignPattern {
             if (this.Excludes) {
                 const exclude = this.Excludes.some(
                     ex => {
-                        /* 檢查是否成立 */
-                        const excludeResult = ex.exec(line.text);
-                        if (excludeResult && excludeResult.length > 0 && match) {
-                            return (excludeResult.index <= match.index) && (match.index <= (excludeResult.index + excludeResult[0].length));
-                        } else {
-                            return false;
+                        /* 檢查是否成立，一樣要整行都查過一遍！ */
+                        let isExcluded = false;
+                        let excludeResult: RegExpExecArray | null;
+                        while ((excludeResult = ex.exec(line.text))) {
+                            if (match &&
+                                (excludeResult.index <= match.index) &&
+                                (match.index <= (excludeResult.index + excludeResult[0].length))
+                            ) {
+                                isExcluded = true;
+                                //此處不能下 break!!
+                                //如果提前離開，下次 ex 會 cache 在這一行，導致判斷錯誤
+                                //所以要讓它完整讀到 lastIndex === 0 才行，故直接讓他飄完吧！
+                                //來源: https://stackoverflow.com/questions/10229144/bug-with-regexp-in-javascript-when-do-global-search 
+                            }
                         }
+                        /* 回傳 */
+                        return isExcluded;
                     }
                 );
                 /* 如果需要被過濾，就往下一筆吧~ */
@@ -336,16 +342,17 @@ class KeywordPattern {
         line: TextLine,
         commentIndex: number
     ) {
-        const match = this.Search.exec(line.text);
-        if (match && match.length > 0) {
-            /* 若此關鍵字在註解後方，直接離開 */
+        /* 輪詢該行裡面的所有關鍵字 */
+        let match: RegExpExecArray | null;
+        while ((match = this.Search.exec(line.text))) {
+            /* 若關鍵字在註解後面，直接往下一個繼續。此處是因為懶得用大 if 排版，所以才用 continue 😆 */
             if (commentIndex > -1 && commentIndex < match.index) {
-                return;
+                continue;   //不能 break !! 請看 260 行左右的註解
             }
-            /* 如果找到的東西跟要取代的是一樣的，那就直接離開吧 */
+            /* 如果找到的東西跟要取代的是一樣的，那就往下一個關鍵字繼續吧 */
             const replace = this.ReplaceAll ? this.Replace : match[0].replace(this.Keyword, this.Replace);
             if (match[0] === replace) {
-                return;
+                continue;
             }
             /* 檢查是否已有處理過 */
             const index = match.index + this.Offset;
@@ -406,24 +413,25 @@ export class URScriptFormattingProvider
         new SignPattern("+", "\\+"),
         new SignPattern("--", "--"),
         new SignPattern("-", "-", [
-            /(\(|,|=|return)\s*-/
+            /(\(|\[|,|=|return)\s*-/g,
+            /[eE]-\d+/g
         ]),
         new SignPattern("*", "\\*"),
         new SignPattern("/", "\\/", [
-            /(http|https):\/\/\w+/
+            /(http|https):\/\/\w+/g
         ])
     ];
 
     /** 關鍵字的排版 */
     private KeywordPatterns: KeywordPattern[] = [
-        new KeywordPattern("if", /\s+if(\()/, "if ", false),
-        new KeywordPattern("elif", /\s+elif(\()/, "elif ", false),
-        new KeywordPattern("while", /\s+while(\()/, "while ", false),
-        new KeywordPattern("or", /(\s+|\b)or(\s+|\b)/, " or ", true),
-        new KeywordPattern("and", /(\s+|\b)and(\s+|\b)/, " and ", true),
-        new KeywordPattern("not", /((\s+|\b)not(\s+|\b))(?![^\(]*\))/, " not ", true)
+        new KeywordPattern("if", /\s+if(\()/g, "if ", false),
+        new KeywordPattern("elif", /\s+elif(\()/g, "elif ", false),
+        new KeywordPattern("while", /\s+while(\()/g, "while ", false),
+        new KeywordPattern("or", /(\s+|\b)or(\s+|\b)/g, " or ", true),
+        new KeywordPattern("and", /(\s+|\b)and(\s+|\b)/g, " and ", true),
+        new KeywordPattern("not", /((\s+|\b)not(\s+|\b))(?![^\(]*\))/g, " not ", true)
     ];
-   
+
     /**
      * 取得當前的縮排空白數量
      * @param line 欲計算空白數量的行
