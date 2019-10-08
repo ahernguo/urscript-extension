@@ -35,6 +35,10 @@
                 {
                     "name": "constant.numeric.integer.urscript",
                     "match": "[+-]?\\b(\\d+)\\b"
+                },
+                {
+                    "name": "constant.numeric.exponent.urscript",
+                    "match": "[+-]?\\b(\\d+(\\.\\d+)?)[eE]{1}[+-]?\\d+\\b"
                 }
             ]
         },
