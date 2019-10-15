@@ -26,11 +26,15 @@ import { ScriptMethod, type2Str, str2Type } from './scriptmethod';
 /**
  * 取出變數或方法名稱的 Regex 樣板
  */
-const namePat = /\b(?!def|thread|global)\w+/;
+const namePat = /(\b(?<=def|thread|global).*(?=\(|=))|(\b(?<=global).+\b)/;
 /**
  * 取出參數內容的 Regex 樣板
  */
 const paramPat = /\((.*?)\)/;
+/**
+ * 最大的已讀取過的行之數量
+ */
+const maxOldLineCount = 20;
 
 /**
  * 解析文件註解並轉換為可用於 MethodParameter 的物件
@@ -39,21 +43,21 @@ const paramPat = /\((.*?)\)/;
 function parseDocParam(line: string) {
     /* 將該行利用空白切開 */
     const splitted = line
-        .replace('@param', '')
+        .replace("@param", "")
         .trim()
-        .split(' ');
+        .split(" ");
     /* 第一筆為參數名稱 */
     const first = splitted.shift();
-    const label = first ? first : '';
+    const label = first ? first : "";
     /* 第二筆為類型 */
     const type = str2Type(splitted.shift());
     /* 之後的是註解 */
-    const comment = splitted.join(' ');
+    const comment = splitted.join(" ");
     return {
         "Label": label,
         "Type": type2Str(type),
         "Comment": comment,
-        "Default": ''
+        "Default": ""
     };
 }
 
@@ -65,13 +69,13 @@ function parseDocReturn(line?: string) {
     if (line) {
         /* 將該行利用空白切開 */
         const splitted = line
-            .replace('@returns', '')
+            .replace("@returns", "")
             .trim()
-            .split(' ');
+            .split(" ");
         /* 第一筆為類型 */
         const type = str2Type(splitted.shift());
         /* 之後的是註解 */
-        const comment = splitted.join(' ');
+        const comment = splitted.join(" ");
         return {
             "ReturnType": type2Str(type),
             "Return": comment
@@ -86,13 +90,13 @@ function parseDocReturn(line?: string) {
  */
 function findDoc(name: string, lines?: string[]): ScriptMethod | undefined {
     /* 確保 lines 有東西且最後一行是註解的結尾 */
-    if (lines && lines[lines.length - 1] === '###') {
+    if (lines && lines[lines.length - 1] === "###") {
         /* 因 lines 是 Queue，故從後面往前找 '###' */
         let startIndex = -1;
         let endIndex = lines.length - 1;
         /* 由於一開始已檢查 lines[lines.length - 1] === '###'，故只要從 -2 開始找 start 即可 */
         for (let idx = lines.length - 2; idx >= 0; idx--) {
-            if (lines[idx] === '###') {
+            if (lines[idx] === "###") {
                 startIndex = idx;
                 break;
             }
@@ -105,22 +109,22 @@ function findDoc(name: string, lines?: string[]): ScriptMethod | undefined {
                 .map(l => l.replace(/#/g, '').trim());
             /* 取出有 @param 的片段並組成參數 */
             const params = doc
-                .filter(l => l.startsWith('@param'))
+                .filter(l => l.startsWith("@param"))
                 .map(l => parseDocParam(l));
             /* 取出 @returns 片段組成回傳資訊 */
             const returns = parseDocReturn(
-                doc.find(l => l.startsWith('@returns'))
+                doc.find(l => l.startsWith("@returns"))
             );
             /* 取出沒有 @param 的片段組成 name */
             const summary = doc
-                .filter(l => !l.startsWith('@'))
-                .join('  \n');
+                .filter(l => !l.startsWith("@"))
+                .join("  \n");
             /* 組合成匿名物件 */
             const info = {
                 "Name": name,
-                "ReturnType": returns ? returns.ReturnType : 'None',
-                "Return": returns ? returns.Return : '',
-                "Deprecated": '',
+                "ReturnType": returns ? returns.ReturnType : "None",
+                "Return": returns ? returns.Return : "",
+                "Deprecated": "",
                 "Comment": summary,
                 "Parameters": params
             };
@@ -148,62 +152,67 @@ function parseCmpItem(matchResult: RegExpExecArray | null, cmpItems: CompletionI
                 /* 用 Regex 取得方法名稱 */
                 const nameReg = namePat.exec(value);
                 /* 有成功找到，建立完成項目 */
-                if (nameReg && !cmpItems.find(cmp => cmp.label === nameReg[0])) {
-                    /* 建立要回傳的完成項目 */
-                    const cmpItem = new CompletionItem(nameReg[0]);
-                    cmpItem.commitCharacters = ['\t', ' ', '\n'];
-                    /*
-                        查看前面有沒有註解，目前預設應該要長成...
+                if (nameReg) {
+                    /* 去空白 */
+                    const name = nameReg[0].trim();
+                    /* 如果尚未被加入集合中，加入之 */
+                    if (!cmpItems.some(cmp => cmp.label === name)) {
+                        /* 建立要回傳的完成項目 */
+                        const cmpItem = new CompletionItem(name);
+                        cmpItem.commitCharacters = ["\t", " ", "\n"];
+                        /*
+                            查看前面有沒有註解，目前預設應該要長成...
 
-                        ###
-                        # get digital input
-                        # @param n number the input to read
-                        # @returns bool input level
-                        ###
-                    */
-                    const doc = findDoc(nameReg[0], oldLines);
-                    /* 如果有 doc 則加入 documentation */
-                    if (doc) {
-                        cmpItem.documentation = doc.Documentation;
-                    }
-                    /* 依照不同項目撰寫說明 */
-                    if (/global/.test(value)) {         //變數
-                        cmpItem.kind = CompletionItemKind.Variable;
-                        cmpItem.insertText = nameReg[0];
-                        cmpItem.detail = `global ${nameReg[0]}`;
-                    } else if (/thread/.test(value)) {  //執行緒
-                        cmpItem.kind = CompletionItemKind.Variable;
-                        cmpItem.insertText = `${nameReg[0]}()`;
-                        cmpItem.detail = `thread ${nameReg[0]}`;
-                    } else {    //方法
-                        cmpItem.kind = CompletionItemKind.Function;
-                        /* 如果有 doc，直接用 doc 做即可 */
+                            ###
+                            # get digital input
+                            # @param n number the input to read
+                            # @returns bool input level
+                            ###
+                        */
+                        const doc = findDoc(name, oldLines);
+                        /* 如果有 doc 則加入 documentation */
                         if (doc) {
-                            cmpItem.detail = doc.Label;
-                            cmpItem.insertText = new SnippetString(doc.Name); //讓使用者等等用 '(' 顯示簽章
-                            cmpItem.commitCharacters.push('(');
-                        } else {
-                            /* 嘗試尋找參數內容 */
-                            const paramReg = paramPat.exec(value);
-                            /* 如果有參數，列出來 */
-                            if (paramReg && paramReg.length > 1 && !isBlank(paramReg[1])) {
-                                /* 將參數給拆出來 */
-                                const param = paramReg[1].split(',').map(p => p.trim());
-                                /* 組合 */
-                                cmpItem.detail = `${nameReg[0]}(${param.join(', ')})`;
-                                /* 計算 $1~$n */
-                                let signIdx = 1;
-                                const sign = param.map(p => `\${${signIdx++}:${p}}`);
-                                /* 自動填入 */
-                                cmpItem.insertText = new SnippetString(`${nameReg[0]}(${sign.join(', ')})$0`);
+                            cmpItem.documentation = doc.Documentation;
+                        }
+                        /* 依照不同項目撰寫說明 */
+                        if (/global/.test(value)) {         //變數
+                            cmpItem.kind = CompletionItemKind.Variable;
+                            cmpItem.insertText = name;
+                            cmpItem.detail = `global ${name}`;
+                        } else if (/thread/.test(value)) {  //執行緒
+                            cmpItem.kind = CompletionItemKind.Variable;
+                            cmpItem.insertText = `${name}()`;
+                            cmpItem.detail = `thread ${name}`;
+                        } else {    //方法
+                            cmpItem.kind = CompletionItemKind.Function;
+                            /* 如果有 doc，直接用 doc 做即可 */
+                            if (doc) {
+                                cmpItem.detail = doc.Label;
+                                cmpItem.insertText = new SnippetString(doc.Name); //讓使用者等等用 '(' 顯示簽章
+                                cmpItem.commitCharacters.push("(");
                             } else {
-                                cmpItem.detail = `${nameReg[0]}`;
-                                cmpItem.insertText = new SnippetString(`${nameReg[0]}()$0`);
+                                /* 嘗試尋找參數內容 */
+                                const paramReg = paramPat.exec(value);
+                                /* 如果有參數，列出來 */
+                                if (paramReg && paramReg.length > 1 && !isBlank(paramReg[1])) {
+                                    /* 將參數給拆出來 */
+                                    const param = paramReg[1].split(",").map(p => p.trim());
+                                    /* 組合 */
+                                    cmpItem.detail = `${name}(${param.join(", ")})`;
+                                    /* 計算 $1~$n */
+                                    let signIdx = 1;
+                                    const sign = param.map(p => `\${${signIdx++}:${p}}`);
+                                    /* 自動填入 */
+                                    cmpItem.insertText = new SnippetString(`${name}(${sign.join(", ")})$0`);
+                                } else {
+                                    cmpItem.detail = `${name}`;
+                                    cmpItem.insertText = new SnippetString(`${name}()$0`);
+                                }
                             }
                         }
+                        /* 將找到的加入集合 */
+                        cmpItems.push(cmpItem);
                     }
-                    /* 將找到的加入集合 */
-                    cmpItems.push(cmpItem);
                 }
             }
         }
@@ -226,6 +235,8 @@ function parseHover(matchResult: RegExpExecArray | null, oldLines?: string[]): H
     const nameReg = namePat.exec(step);
     /* 有成功找到，建立完成項目 */
     if (nameReg) {
+        /* 取得內容並去除空白 */
+        const name = nameReg[0].trim();
         /* 建立要儲存 Hover 內容的容器 */
         const items: (MarkdownString | { language: string, value: string })[] = [];
         /*
@@ -237,20 +248,20 @@ function parseHover(matchResult: RegExpExecArray | null, oldLines?: string[]): H
             # @returns bool input level
             ###
          */
-        const doc = findDoc(nameReg[0], oldLines);
+        const doc = findDoc(name, oldLines);
         /* 建立第一列，方法或變數內容 */
         if (/global/.test(step)) {
             items.push(
                 {
-                    language: 'urscript',
-                    value: `global ${nameReg[0]}`
+                    language: "urscript",
+                    value: `global ${name}`
                 }
             );
         } else if (/thread/.test(step)) {
             items.push(
                 {
-                    language: 'urscript',
-                    value: `thread  ${nameReg[0]}`
+                    language: "urscript",
+                    value: `thread  ${name}`
                 }
             );
         } else {
@@ -258,22 +269,22 @@ function parseHover(matchResult: RegExpExecArray | null, oldLines?: string[]): H
             if (doc) {
                 items.push(
                     {
-                        language: 'urscript',
+                        language: "urscript",
                         value: doc.Label
                     }
                 );
             } else {
                 /* 提醒是使用者自訂的方法 */
-                items.push(new MarkdownString('*user function*'));
+                items.push(new MarkdownString("*user function*"));
                 /* 嘗試尋找參數內容 */
                 const paramReg = paramPat.exec(step);
                 /* 如果有參數，列出來 */
                 if (paramReg && paramReg.length > 1) {
                     /* 將參數給拆出來 */
-                    const param = paramReg[1].split(',').map(p => p.trim());
-                    items.push(new MarkdownString(`${nameReg[0]}(${param.join(', ')})`));
+                    const param = paramReg[1].split(",").map(p => p.trim());
+                    items.push(new MarkdownString(`${name}(${param.join(", ")})`));
                 } else {
-                    items.push(new MarkdownString(`${nameReg[0]}()`));
+                    items.push(new MarkdownString(`${name}()`));
                 }
             }
         }
@@ -302,6 +313,8 @@ function parseSignature(matchResult: RegExpExecArray | null, oldLines?: string[]
     const nameReg = namePat.exec(step);
     /* 有成功找到，建立完成項目 */
     if (nameReg) {
+        /* 取得內容並去除空白 */
+        const name = nameReg[0].trim();
         /*
             查看前面有沒有註解，目前預設應該要長成...
 
@@ -311,7 +324,7 @@ function parseSignature(matchResult: RegExpExecArray | null, oldLines?: string[]
             # @returns bool input level
             ###
          */
-        const doc = findDoc(nameReg[0], oldLines);
+        const doc = findDoc(name, oldLines);
         /* 如果有找到，進行解析 */
         if (doc) {
             /* 宣告簽章資訊 */
@@ -344,7 +357,7 @@ function parseSignature(matchResult: RegExpExecArray | null, oldLines?: string[]
  */
 export function getCompletionItemsFromDocument(document: TextDocument, keyword: string, cmpItems: CompletionItem[]) {
     /* 建立 Regex Pattern */
-    const mthdPat = new RegExp(`\\b(def|thread|global)\\s+${keyword}.*(\\(.*\\):)*`, "gm");
+    const mthdPat = new RegExp(`\\b(def|thread|global)\\s+${keyword}.*(\\(.*\\):)*`, "ig");
     /* 建立已讀取過的暫存區 */
     const oldLines: string[] = [];
     /* 輪詢每一行 */
@@ -358,7 +371,7 @@ export function getCompletionItemsFromDocument(document: TextDocument, keyword: 
         /* 解析並加入集合 */
         parseCmpItem(match, cmpItems, oldLines);
         /* 加入讀過的暫存區 */
-        if (oldLines.length > 20) {
+        if (oldLines.length > maxOldLineCount) {
             oldLines.shift();
         }
         oldLines.push(cur);
@@ -373,7 +386,7 @@ export function getCompletionItemsFromDocument(document: TextDocument, keyword: 
  */
 export function getCompletionItemsFromFile(fileName: fs.PathLike, keyword: string, cmpItems: CompletionItem[]) {
     /* 建立 Regex Pattern */
-    const mthdPat = new RegExp(`\\b(def|thread|global)\\s+${keyword}.*(\\(.*\\):)*`, "gm");
+    const mthdPat = new RegExp(`\\b(def|thread|global)\\s+${keyword}.*(\\(.*\\):)*`, "ig");
     /* 建立已讀取過的暫存區 */
     const oldLines: string[] = [];
     /* 建立行讀取器 */
@@ -389,12 +402,55 @@ export function getCompletionItemsFromFile(fileName: fs.PathLike, keyword: strin
             /* 解析並加入集合 */
             parseCmpItem(match, cmpItems, oldLines);
             /* 加入讀過的暫存區 */
-            if (oldLines.length > 20) {
+            if (oldLines.length > maxOldLineCount) {
                 oldLines.shift();
             }
             oldLines.push(cur);
         }
     }
+}
+
+/**
+ * 搜尋檔案內容的全域變數
+ * @param filePath 欲搜尋的檔案路徑(X://..//*.variable)
+ * @param fileName 欲搜尋的檔案名稱(僅 *.variable)
+ * @param keyword 當前使用者輸入的關鍵字
+ * @param cmpItems 欲儲存的完成項目集合
+ */
+function getCompletionItemsFromVariables(filePath: fs.PathLike, fileName: fs.PathLike, keyword: string, cmpItems: CompletionItem[]) {
+    /* 建立 Regex Pattern */
+    const namePat = new RegExp(`^${keyword}.*(?==)`, "ig");
+    const valuePat = /(?<==)\s*.+/g;
+    /* 宣告等下要用的搜尋結果 */
+    let nameMatch: RegExpExecArray | null;
+    let valueMatch: RegExpExecArray | null;
+    /* 建立行讀取器 */
+    const lineReader = new ReadLinesSync(filePath);
+    /* 輪詢每一行 */
+    for (const pkg of lineReader) {
+        /* 確保有讀到東西 */
+        if (pkg.line) {
+            /* 轉成字串 */
+            const cur = pkg.line.toString().trim();
+            /* 利用 Regex 尋找名稱 */
+            while ((nameMatch = namePat.exec(cur))) {
+                /* 有找到東西，取出其數值片段並組合 */
+                while ((valueMatch = valuePat.exec(cur))) {
+                    /* 建立完成項目 */
+                    const cmpItem = new CompletionItem(nameMatch[0], CompletionItemKind.Variable);
+                    cmpItem.commitCharacters = ["\t", " ", "\n"];
+                    cmpItem.insertText = nameMatch[0];
+                    cmpItem.detail = nameMatch[0];
+                    cmpItem.documentation = new MarkdownString(
+                        `*${fileName}*\n\n${nameMatch[0]} = \`${valueMatch[0]}\``
+                    );
+                    /* 加入集合 */
+                    cmpItems.push(cmpItem);
+                }
+            }
+        }
+    }
+    
 }
 
 /**
@@ -406,12 +462,22 @@ export function getCompletionItemsFromFile(fileName: fs.PathLike, keyword: strin
  */
 export function getCompletionItemsFromWorkspace(workspace: WorkspaceFolder, keyword: string, cmpItems: CompletionItem[], explored: string) {
     /* 取得資料夾內的所有檔案 */
-    const files = fs.readdirSync(workspace.uri.fsPath)
-        .filter(file => file.endsWith('.script') && (file !== explored.split(/.*[\/|\\]/)[1]))
+    const files = fs.readdirSync(workspace.uri.fsPath);
+    /* 取得 .script 檔案 */
+    const scripts = files
+        .filter(file => file.endsWith(".script") && (file !== explored.split(/.*[\/|\\]/)[1]))
         .map(file => `${workspace.uri.fsPath}\\${file}`);
     /* 輪詢所有檔案 */
-    files.forEach(
+    scripts.forEach(
         file => getCompletionItemsFromFile(file, keyword, cmpItems)
+    );
+    /* 取得資料夾內的 .variable 檔案 */
+    const variables = files
+        .filter(file => file.endsWith(".variables"))
+        .map(file => [`${workspace.uri.fsPath}\\${file}`, file]);
+    /* 輪詢所有檔案 */
+    variables.forEach(
+        file => getCompletionItemsFromVariables(file[0], file[1], keyword, cmpItems)
     );
 }
 
@@ -420,10 +486,11 @@ export function getCompletionItemsFromWorkspace(workspace: WorkspaceFolder, keyw
  * @param document 欲解析的文件
  * @param fileName 欲搜尋的檔案路徑
  * @param keyword 當前使用者停留的關鍵字
+ * @returns 滑鼠提示
  */
 export function getHoverFromDocument(document: TextDocument, keyword: string): Hover | undefined {
     /* 建立 Regex Pattern */
-    const mthdPat = new RegExp(`\\b(def|thread|global)\\s+${keyword}.*(\\(.*\\):)*`, "gm");
+    const mthdPat = new RegExp(`(\\b(def|thread)\\s+${keyword}\\(.*\\):)|(\\bglobal\\s+${keyword}\\b)`, "g");
     /* 建立已讀取過的暫存區 */
     const oldLines: string[] = [];
     /* 輪詢每一行 */
@@ -440,7 +507,7 @@ export function getHoverFromDocument(document: TextDocument, keyword: string): H
             break;
         }
         /* 加入讀過的暫存區 */
-        if (oldLines.length > 20) {
+        if (oldLines.length > maxOldLineCount) {
             oldLines.shift();
         }
         oldLines.push(cur);
@@ -453,10 +520,11 @@ export function getHoverFromDocument(document: TextDocument, keyword: string): H
  * 搜尋檔案內容的指定關鍵字並轉換成滑鼠提示
  * @param fileName 欲搜尋的檔案路徑
  * @param keyword 當前使用者停留的關鍵字
+ * @returns 滑鼠提示
  */
 export function getHoverFromFile(fileName: string, keyword: string): Hover | undefined {
     /* 建立 Regex Pattern */
-    const mthdPat = new RegExp(`\\b(def|thread|global)\\s+${keyword}.*(\\(.*\\):)*`, "gm");
+    const mthdPat = new RegExp(`(\\b(def|thread)\\s+${keyword}\\(.*\\):)|(\\bglobal\\s+${keyword}\\b)`, "g");
     /* 建立已讀取過的暫存區 */
     const oldLines: string[] = [];
     /* 建立讀取器 */
@@ -477,7 +545,7 @@ export function getHoverFromFile(fileName: string, keyword: string): Hover | und
                 break;
             }
             /* 加入讀過的暫存區 */
-            if (oldLines.length > 20) {
+            if (oldLines.length > maxOldLineCount) {
                 oldLines.shift();
             }
             oldLines.push(cur);
@@ -488,24 +556,85 @@ export function getHoverFromFile(fileName: string, keyword: string): Hover | und
 }
 
 /**
+ * 搜尋檔案內容的指定關鍵字並轉換成滑鼠提示
+ * @param filePath 欲搜尋的檔案路徑(X://..//*.variable)
+ * @param fileName 欲搜尋的檔案名稱(僅 *.variable)
+ * @param keyword 當前使用者輸入的關鍵字
+ * @returns 滑鼠提示
+ */
+function getHoverFromVariables(filePath: string, fileName: string, keyword: string): Hover | undefined {
+    /* 建立 Regex Pattern */
+    const namePat = new RegExp(`^${keyword}(?==)`, "g");
+    const valuePat = /(?<==)\s*.+/g;
+    /* 宣告等下要用的搜尋結果 */
+    let nameMatch: RegExpExecArray | null;
+    let valueMatch: RegExpExecArray | null;
+    /* 建立行讀取器 */
+    const lineReader = new ReadLinesSync(filePath);
+    /* 輪詢每一行 */
+    for (const pkg of lineReader) {
+        /* 確保有讀到東西 */
+        if (pkg.line) {
+            /* 轉成字串 */
+            const cur = pkg.line.toString().trim();
+            /* 利用 Regex 尋找名稱 */
+            while ((nameMatch = namePat.exec(cur))) {
+                /* 有找到東西，取出其數值片段並組合 */
+                while ((valueMatch = valuePat.exec(cur))) {
+                    /* 建立要儲存 Hover 內容的容器 */
+                    const items: (MarkdownString | { language: string, value: string })[] = [
+                        new MarkdownString(`*${fileName}*`),
+                        {
+                            language: "urscript",
+                            value: `global ${nameMatch[0]} = ${valueMatch[0]}`
+                        }
+                    ];
+                    /* 回傳 */
+                    return new Hover(items);
+                }
+            }
+        }
+    }
+}
+
+/**
  * 搜尋 Workspace 內的所有檔案方法與全域變數
  * @param workspace 欲搜尋的 Workspace 路徑
  * @param keyword 當前使用者輸入的關鍵字
  * @param explored 已經探索過(要跳過)的檔案名稱
+ * @returns 滑鼠提示
  */
 export function getHoverFromWorkspace(workspace: WorkspaceFolder, keyword: string, explored: string): Hover | undefined {
     /* 取得資料夾內的所有檔案 */
-    const files = fs.readdirSync(workspace.uri.fsPath)
-        .filter(file => file.endsWith('.script') && (file !== explored.split(/.*[\/|\\]/)[1]))
-        .map(file => `${workspace.uri.fsPath}\\${file}`);
+    const files = fs.readdirSync(workspace.uri.fsPath);
+    /* 取得 .variable 檔案。推測應該要優先於 global */
+    const variables = files
+        .filter(file => file.endsWith(".variables"))
+        .map(file => [`${workspace.uri.fsPath}\\${file}`, file]);
     /* 輪詢所有檔案 */
     let hov: Hover | undefined;
-    for (const file of files) {
+    for (const file of variables) {
         /* 搜尋檔案中是否有指定的關鍵字並取得其資訊 */
-        hov = getHoverFromFile(file, keyword);
+        hov = getHoverFromVariables(file[0], file[1], keyword);
         /* 如果有東西則離開迴圈 */
         if (hov) {
             break;
+        }
+    }
+    /* 如果 variable 找不到則找 script 檔案 */
+    if (!hov) {
+        /* 取得所有的 .script 檔案 */
+        const scripts = files
+            .filter(file => file.endsWith(".script") && (file !== explored.split(/.*[\/|\\]/)[1]))
+            .map(file => `${workspace.uri.fsPath}\\${file}`);
+        /* 輪詢所有檔案 */
+        for (const file of scripts) {
+            /* 搜尋檔案中是否有指定的關鍵字並取得其資訊 */
+            hov = getHoverFromFile(file, keyword);
+            /* 如果有東西則離開迴圈 */
+            if (hov) {
+                break;
+            }
         }
     }
     /* 回傳 */
@@ -517,10 +646,11 @@ export function getHoverFromWorkspace(workspace: WorkspaceFolder, keyword: strin
  * @param document 欲解析的文件
  * @param fileName 欲解析的檔案路徑
  * @param keyword 欲搜尋的關鍵字
+ * @returns 定義位置
  */
 export function getLocationFromDocument(document: TextDocument, keyword: string): Location[] {
     /* 建立 Regex Pattern */
-    const mthdPat = new RegExp(`\\b(def|thread|global)\\s+${keyword}.*(\\(.*\\):)*`, "gm");
+    const mthdPat = new RegExp(`(\\b(def|thread)\\s+${keyword}\\(.*\\):)|(\\bglobal\\s+${keyword}\\b)`, "g");
     const namePat = /\b(?!def|thread|global)\w+/gm;
     /* 宣告回傳變數 */
     let locColl: Location[] = [];
@@ -551,13 +681,12 @@ export function getLocationFromDocument(document: TextDocument, keyword: string)
  * 搜尋檔案內容的指定關鍵字並轉換成定義位置
  * @param fileName 欲解析的檔案路徑
  * @param keyword 欲搜尋的關鍵字
+ * @param locColl 欲存放定義位置的容器
  */
-export function getLocationFromFile(fileName: fs.PathLike, keyword: string): Location[] {
+export function getLocationFromFile(fileName: fs.PathLike, keyword: string, locColl: Location[]) {
     /* 建立 Regex Pattern */
-    const mthdPat = new RegExp(`\\b(def|thread|global)\\s+${keyword}.*(\\(.*\\):)*`, "gm");
+    const mthdPat = new RegExp(`(\\b(def|thread)\\s+${keyword}\\(.*\\):)|(\\bglobal\\s+${keyword}\\b)`, "g");
     const namePat = /\b(?!def|thread|global)\w+/gm;
-    /* 宣告回傳變數 */
-    let locColl: Location[] = [];
     /* 建立行讀取器 */
     const lineReader = new ReadLinesSync(fileName);
     /* 輪詢每一行，直至找到關鍵字 */
@@ -583,7 +712,42 @@ export function getLocationFromFile(fileName: fs.PathLike, keyword: string): Loc
             }
         }
     }
-    return locColl;
+}
+
+/**
+ * 搜尋檔案內容的指定關鍵字並轉換成定義位置
+ * @param filePath 欲搜尋的檔案路徑(X://..//*.variable)
+ * @param fileName 欲搜尋的檔案名稱(僅 *.variable)
+ * @param keyword 欲搜尋的關鍵字
+ * @param locColl 欲存放定義位置的容器
+ */
+export function getLocationFromVariables(filePath: fs.PathLike, fileName: fs.PathLike, keyword: string, locColl: Location[]) {
+    /* 建立 Regex Pattern */
+    const namePat = new RegExp(`^${keyword}(?==)`, "g");
+    /* 宣告等下要用的搜尋結果 */
+    let nameMatch: RegExpExecArray | null;
+    /* 建立行讀取器 */
+    const lineReader = new ReadLinesSync(filePath);
+    /* 輪詢每一行 */
+    for (const pkg of lineReader) {
+        /* 確保有讀到東西 */
+        if (pkg.line) {
+            /* 轉成字串 */
+            const cur = pkg.line.toString().trim();
+            /* 利用 Regex 尋找名稱 */
+            while ((nameMatch = namePat.exec(cur))) {
+                /* 組合資訊 */
+                const loc = new Location(
+                    Uri.file(filePath.toString()),
+                    new Position(
+                        pkg.lineNo,
+                        nameMatch.index
+                    )
+                );
+                locColl.push(loc);
+            }
+        }
+    }
 }
 
 /**
@@ -594,18 +758,27 @@ export function getLocationFromFile(fileName: fs.PathLike, keyword: string): Loc
  */
 export function getLocationFromWorkspace(workspace: WorkspaceFolder, keyword: string, explored: string): Location[] {
     /* 取得資料夾內的所有檔案 */
-    const files = fs.readdirSync(workspace.uri.fsPath)
-        .filter(file => file.endsWith('.script') && (file !== explored.split(/.*[\/|\\]/)[1]))
-        .map(file => `${workspace.uri.fsPath}\\${file}`);
+    const files = fs.readdirSync(workspace.uri.fsPath);
     /* 初始化變數 */
     let locColl: Location[] = [];
+    /* 取得 .variables 檔案 */
+    const variables = files
+        .filter(file => file.endsWith(".variables"))
+        .map(file => [`${workspace.uri.fsPath}\\${file}`, file]);
     /* 輪詢所有檔案 */
-    for (const file of files) {
-        /* 讀取 Location */
-        const loc = getLocationFromFile(file, keyword);
-        if (loc) {
-            loc.forEach(l => locColl.push(l));
-        }
+    for (const file of variables) {
+        /* 尋找定義位置 */
+        getLocationFromVariables(file[0], file[1], keyword, locColl);
+    }
+    /* 取得 .script 檔案 */
+    const scripts = files
+        .filter(file => file.endsWith(".script") && (file !== explored.split(/.*[\/|\\]/)[1]))
+        .map(file => `${workspace.uri.fsPath}\\${file}`);
+    
+    /* 輪詢所有檔案 */
+    for (const file of scripts) {
+        /* 尋找定義位置 */
+        getLocationFromFile(file, keyword, locColl);
     }
     /* 回傳 */
     return locColl;
@@ -619,7 +792,7 @@ export function getLocationFromWorkspace(workspace: WorkspaceFolder, keyword: st
  */
 export function getSignatureFromDocument(document: TextDocument, keyword: string): SignatureHelp | undefined {
     /* 建立 Regex Pattern */
-    const mthdPat = new RegExp(`\\b(def)\\s+${keyword}.*(\\(.*\\):)*`, "gm");
+    const mthdPat = new RegExp(`\\bdef\\s+${keyword}\\(.*\\):`, "g");
     /* 建立已讀取過的暫存區 */
     const oldLines: string[] = [];
     /* 輪詢每一行 */
@@ -636,7 +809,7 @@ export function getSignatureFromDocument(document: TextDocument, keyword: string
             break;
         }
         /* 加入讀過的暫存區 */
-        if (oldLines.length > 20) {
+        if (oldLines.length > maxOldLineCount) {
             oldLines.shift();
         }
         oldLines.push(cur);
@@ -652,7 +825,7 @@ export function getSignatureFromDocument(document: TextDocument, keyword: string
  */
 export function getSignatureFromFile(fileName: string, keyword: string): SignatureHelp | undefined {
     /* 建立 Regex Pattern */
-    const mthdPat = new RegExp(`\\b(def)\\s+${keyword}.*(\\(.*\\):)*`, "gm");
+    const mthdPat = new RegExp(`\\bdef\\s+${keyword}\\(.*\\):`, "g");
     /* 建立已讀取過的暫存區 */
     const oldLines: string[] = [];
     /* 建立讀取器 */
@@ -673,7 +846,7 @@ export function getSignatureFromFile(fileName: string, keyword: string): Signatu
                 break;
             }
             /* 加入讀過的暫存區 */
-            if (oldLines.length > 20) {
+            if (oldLines.length > maxOldLineCount) {
                 oldLines.shift();
             }
             oldLines.push(cur);
@@ -692,7 +865,7 @@ export function getSignatureFromFile(fileName: string, keyword: string): Signatu
 export function getSignatureFromWorkspace(workspace: WorkspaceFolder, keyword: string, explored: string): SignatureHelp | undefined {
     /* 取得資料夾內的所有檔案 */
     const files = fs.readdirSync(workspace.uri.fsPath)
-        .filter(file => file.endsWith('.script') && (file !== explored.split(/.*[\/|\\]/)[1]))
+        .filter(file => file.endsWith(".script") && (file !== explored.split(/.*[\/|\\]/)[1]))
         .map(file => `${workspace.uri.fsPath}\\${file}`);
     /* 輪詢所有檔案 */
     let sigHelp: SignatureHelp | undefined;

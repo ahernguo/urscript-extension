@@ -2,7 +2,7 @@
   "name": "urscript",
   "displayName": "URScript",
   "description": "Code snippet and completion items for Universal Robots Script",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "publisher": "Ahern",
   "engines": {
     "vscode": "^1.35.1"
@@ -29,7 +29,8 @@
           "script"
         ],
         "extensions": [
-          ".script"
+          ".script",
+          ".variables"
         ],
         "configuration": "./language-configuration.json"
       }
@@ -38,25 +39,6 @@
       "onLanguage:urscript"
     ],
     "main": "./out/extension",
-    "contributes": {
-      "languages": [
-        {
-          "id": "urscript",
-          "aliases": [
-            "URScript",
-            "script"
-          ],
-          "extensions": [
-            ".script"
-          ],
-          "configuration": "./language-configuration.json"
-        }
-      ],
-      "extensions": [
-        ".script"
-      ],
-      "configuration": "./language-configuration.json"
-    },
     "snippets": [
       {
         "language": "urscript",

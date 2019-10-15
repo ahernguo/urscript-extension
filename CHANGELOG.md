@@ -3,6 +3,13 @@ All notable changes to the "urscript" extension will be documented in this file.
 
 Goto [urscript-extension](https://github.com/ahernguo/urscript-extension) for more details.
 
+## 0.0.6 - 2019-10-15
+* BUGFIXES
+  * Fix `Hover` and `SignatureHelp` got incorrect item when start as same word
+* FEATURE
+  * Supports `.variables` file
+
+
 ## 0.0.5 - 2019-10-04
 * BUGFIXES
   * Fix format incorrect when sign/keyword in string and comment
