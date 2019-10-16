@@ -4,11 +4,12 @@
 
 This is a Visual Studio Code extension that built for **[Universal Robots](https://www.universal-robots.com/)™ Script** language.
 
-Universal Robots provides simulator for Linux only. This extension provides a simple coding environment with VSCode.
+This extension provides a simple coding environment with VSCode that more easily use than simulator.
 
 ## Notice
 
 - Compiler, syntax check are **NOT** includes. You should upload program to controller or simulator for compile and execute.
+- This extension **WITHOUT** LSP (Language Server Protocol)
 - Below option will be modified after extension activated
   - `editor.tabSize: 2`
   - `editor.insertSpaces: true`
@@ -16,19 +17,29 @@ Universal Robots provides simulator for Linux only. This extension provides a si
 
 ## Features
 
-- Completion Items
-  - Base on scriptManual.pdf
-    ![completion](resources/figures/completion.png)
+- Completion and signatures
+  - Base on official scriptManual.pdf
+    ![completion](resources/figures/completion_signatures.gif)
 
 - Show tips when mouse hover
-  - Contains URScript and user defined
-    ![hover](resources/figures/hover_tip.png)
+  - Contains official and user defined
+    ![hover](resources/figures/hover.gif)
 
 - Code snippets
   - def, if and others
-    ![snippet](resources/figures/snippets.png)
+    ![snippet](resources/figures/snippets.gif)
+
+- Formatting
+  - Indents, add spaces
+    ![format](resources/figures/format.gif)
 
 ## Version
+
+Please refer to [change logs](CHANGELOG.md) for detail changes.
+
+### 0.1.x (beta)
+
+- Most features have been developed, tracking and fix bugs
 
 ### 0.0.x (dev)
 
@@ -36,7 +47,9 @@ Universal Robots provides simulator for Linux only. This extension provides a si
 
 ## Installation
 
-To install the extension we need to compile it into the VSIX code and then side load it into VSCode.
+You can download latest .vsix from [release page](https://github.com/ahernguo/urscript-extension/releases).
+
+Or to install the latest commits from `master` branch, compile it into the VSIX code and then side load it into VSCode.
 
 1.  `npm install -g vsce` to make sure you have vsce installed globally
 2.  `git clone https://github.com/ahernguo/urscript-extension` to clone the repo if you havent already done so
