@@ -121,7 +121,7 @@
             "patterns": [
                 {
                     "begin": "\\b(def|thread)\\b",
-                    "end": "\\(.*\\):$",
+                    "end": "\\(.*\\):\\s*$",
                     "beginCaptures": {
                         "1": {
                             "name": "keyword.control.urscript"
