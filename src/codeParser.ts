@@ -2,17 +2,20 @@
 import {
     CompletionItem,
     CompletionItemKind,
+    DocumentSymbol,
     Hover,
     Location,
     MarkdownString,
     ParameterInformation,
     Position,
+    Range,
     SignatureHelp,
     SignatureInformation,
     SnippetString,
+    SymbolKind,
     TextDocument,
     Uri,
-    WorkspaceFolder,
+    WorkspaceFolder
 } from 'vscode';
 //用於檔案讀取的 FileStream 解析
 import * as fs from 'fs';
@@ -879,4 +882,52 @@ export function getSignatureFromWorkspace(workspace: WorkspaceFolder, keyword: s
     }
     /* 回傳 */
     return sigHelp;
+}
+
+/**
+ * 搜尋檔案內容的方法並轉換成符號
+ * @param document 欲解析的文件
+ * @returns 文件裡的所有符號
+ */
+export function getSymbolsFromDocument(document: TextDocument): DocumentSymbol[] {
+    /* 建立 Regex Pattern */
+    const mthdPat = /^(?!=)(def|thread)\s+\w+\(.*\):/g;
+    const namePat = /\b(?!def|thread)\w+(?=\()/gm;
+    const paraPat = /\b(?!def|thread)\S+.+(?=:)/g;
+    /* 宣告等下要用的搜尋結果 */
+    let mthdMatch: RegExpExecArray | null;
+    let nameMatch: RegExpExecArray | null;
+    let paraMatch: RegExpExecArray | null;
+    /* 宣告回傳變數 */
+    let symColl: DocumentSymbol[] = [];
+    /* 輪詢每一行，直至找到關鍵字 */
+    for (let lineNo = 0; lineNo < document.lineCount; lineNo++) {
+        /* 迴圈尋找符合的方法 */
+        const text = document.lineAt(lineNo).text;
+        /* 輪詢內容  */
+        while ((mthdMatch = mthdPat.exec(text))) {
+            /* 取得名稱 */
+            while ((nameMatch = namePat.exec(mthdMatch[0]))) {
+                /* 找出名稱至參數內容 */
+                while ((paraMatch = paraPat.exec(mthdMatch[0]))) {
+                    /* 成功找到，組合項目 */
+                    const sym = new DocumentSymbol(
+                        nameMatch[0],
+                        paraMatch[0],
+                        SymbolKind.Function,
+                        new Range(
+                            lineNo, nameMatch.index,
+                            lineNo, nameMatch.index + nameMatch[0].length
+                        ),
+                        new Range(
+                            lineNo, nameMatch.index,
+                            lineNo, nameMatch.index + nameMatch[0].length
+                        )
+                    );
+                    symColl.push(sym);
+                }
+            }
+        }
+    }
+    return symColl;
 }

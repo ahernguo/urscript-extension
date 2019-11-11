@@ -13,6 +13,8 @@ import { URScriptSignatureHelpProvider, URScriptSignatureHelpProviderMetadata } 
 import { URScriptFormattingProvider } from './features/formattingEditProvider';
 // 尋找定義
 import { URScriptDefinitionProvider } from './features/definitionProvider';
+// 符號定義
+import { URScriptDocumentSymbolProvider } from './features/documentSymbolProvider';
 
 /**
  * 此套件的啟用方法。於切換至 URScript 語言時回呼此至此，由 package.json 內的 `activationEvents` 進行設定
@@ -77,8 +79,14 @@ export function activate(context: vscode.ExtensionContext) {
         new URScriptDefinitionProvider()
     );
 
+    /* 文件符號 */
+    const symPvd = vscode.languages.registerDocumentSymbolProvider(
+        'urscript',
+        new URScriptDocumentSymbolProvider()
+    );
+
     /* 加入上下文的訂閱器中 */
-    context.subscriptions.push(cmpPvd, hovPvd, sigPvd, fmtPvd, typPvd, defPvd);
+    context.subscriptions.push(cmpPvd, hovPvd, sigPvd, fmtPvd, typPvd, defPvd, symPvd);
 }
 
 /**
