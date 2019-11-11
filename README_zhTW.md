@@ -33,17 +33,17 @@
   - 縮排、增加空白
     ![format](resources/figures/format.gif)
 
+- 移至定義/預覽定義
+  - 提供前往指定的方法位置(`F12`)，或採分割畫面預覽該方法
+    ![definition](resources/figures/go_definition.gif)
+
+- 文件符號與大綱
+  - 提供前往符號(`CTRL + SHIFT + O`)與大綱資訊
+    ![symbols](resources/figures/symbols.gif)
+
 ## 版本紀錄
 
 如欲觀看詳細的變更內容，請參考 [change logs](CHANGELOG.md)
-
-### 0.1.x (beta)
-
-- 大致功能已完成，追蹤並修復問題
-
-### 0.0.x (dev)
-
-- CompletionItems、SignatureHelp、Hover、Snippets
 
 ## 安裝方式
 

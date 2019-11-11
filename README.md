@@ -33,17 +33,17 @@ This extension provides a simple coding environment with VSCode that more easily
   - Indents, add spaces
     ![format](resources/figures/format.gif)
 
+- Go to definition
+  - Go to (`F12`) and preview functions
+    ![definition](resources/figures/go_definition.gif)
+
+- Symbols and outline
+  - Go to symbol (`CTRL + SHIFT + O`) and outline information
+    ![symbols](resources/figures/symbols.gif)
+
 ## Version
 
 Please refer to [change logs](CHANGELOG.md) for detail changes.
-
-### 0.1.x (beta)
-
-- Most features have been developed, tracking and fix bugs
-
-### 0.0.x (dev)
-
-- CompletionItems、SignatureHelp、Hover、Snippets
 
 ## Installation
 
