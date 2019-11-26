@@ -429,7 +429,8 @@ export class URScriptFormattingProvider
         new KeywordPattern("while", /\s+while(\()/g, "while ", false),
         new KeywordPattern("or", /(\s+|\b)or(\s+|\b)/g, " or ", true),
         new KeywordPattern("and", /(\s+|\b)and(\s+|\b)/g, " and ", true),
-        new KeywordPattern("not", /((\s+|\b)not(\s+|\b))(?![^\(]*\))/g, " not ", true)
+        new KeywordPattern("not", /(?<=\()\s*not(\s+|\b)/g, "not ", true),
+        new KeywordPattern("not", /(?<==|or|and|not)\s*not\s*(?![^\(]*\))/g, " not ", true)
     ];
 
     /**

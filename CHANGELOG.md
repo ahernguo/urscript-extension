@@ -3,6 +3,10 @@ All notable changes to the "urscript" extension will be documented in this file.
 
 Goto [urscript-extension](https://github.com/ahernguo/urscript-extension) for more details.
 
+## 0.1.3 - 2019-11-26
+* BUGFIXES
+  * Correct formatting when formats `if (not isArcOn()):`
+
 ## 0.1.2 - 2019-11-11
 * BUGFIXES
   * Fix regex error when spaces after `:` sign
