@@ -3,6 +3,10 @@ All notable changes to the "urscript" extension will be documented in this file.
 
 Goto [urscript-extension](https://github.com/ahernguo/urscript-extension) for more details.
 
+## 0.1.4 - 2019-12-05
+* FEATURE
+  * Add and upload logo
+
 ## 0.1.3 - 2019-11-26
 * BUGFIXES
   * Correct formatting when formats `if (not isArcOn()):`
