@@ -3,6 +3,12 @@ All notable changes to the "urscript" extension will be documented in this file.
 
 Goto [urscript-extension](https://github.com/ahernguo/urscript-extension) for more details.
 
+## 0.1.5 - 2020-03-02
+* FEATURE
+  * Toggle comments now available. Key bindings to `Cmd`+`/` (`Ctrl`+`/` in windows) as default.
+* BUGFIXES
+  * Fix exception when `#` in the last line
+
 ## 0.1.4 - 2019-12-05
 * FEATURE
   * Add and upload logo

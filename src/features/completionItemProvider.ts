@@ -77,8 +77,8 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
             if (isBlank(word)) {
                 return undefined;
             }
-            /* 如果當前是輸入註解符號 '#' 則依照下一行決定插入方法或變數註解 */
-            if (word.startsWith('#')) {
+            /* 如果當前是輸入註解符號 '#' 則依照下一行決定插入方法或變數註解。確保下一行有東西可以抓，否則就只是一般註解 */
+            if (word.startsWith('#') && (document.lineCount > (position.line + 1))) {
                 /* 取得下一行的文字 */
                 const nextLine = document.lineAt(position.line + 1);
                 if (nextLine && !nextLine.isEmptyOrWhitespace) {

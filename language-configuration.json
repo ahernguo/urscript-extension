@@ -29,5 +29,9 @@
     "indentationRules": {
         "increaseIndentPattern": "\\b(def|thread|while|for|if|elif|else).*:",
         "decreaseIndentPattern": "\\b(end)\\b"
+    },
+    // 註解區塊
+    "comments": {
+        "lineComment": "#"
     }
 }
