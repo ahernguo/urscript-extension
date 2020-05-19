@@ -28,6 +28,10 @@ export class URScriptDefinitionProvider implements DefinitionProvider {
         try {
             /* 取得當前滑鼠所停留位置是否有字詞(前後為符號或空白則認定字詞)，如果有則取得其字詞範圍 */
             let wordRange = document.getWordRangeAtPosition(position);
+            /* 如果滑鼠指到奇怪的地方，就不理他囉 */
+            if (!wordRange) {
+                return undefined;
+            }
             /* 取得停留位置上的字詞 */
             let word = document.getText(wordRange);
             /* 如果有東西，則進行搜尋比對 */

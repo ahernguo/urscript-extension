@@ -1298,7 +1298,7 @@
       {
         "Label": "f",
         "Type": "Float",
-        "Comment": "ﬂoating point value",
+        "Comment": "floating point value",
         "Default": ""
       }
     ]
@@ -1313,7 +1313,7 @@
       {
         "Label": "f",
         "Type": "Float",
-        "Comment": "ﬂoating point value",
+        "Comment": "floating point value",
         "Default": ""
       }
     ]
@@ -1328,7 +1328,7 @@
       {
         "Label": "f",
         "Type": "Float",
-        "Comment": "ﬂoating point value",
+        "Comment": "floating point value",
         "Default": ""
       }
     ]
@@ -1343,13 +1343,13 @@
       {
         "Label": "x",
         "Type": "Float",
-        "Comment": "ﬂoating point value",
+        "Comment": "floating point value",
         "Default": ""
       },
       {
         "Label": "y",
         "Type": "Float",
-        "Comment": "ﬂoating point value",
+        "Comment": "floating point value",
         "Default": ""
       }
     ]
@@ -1374,12 +1374,12 @@
     "ReturnType": "Int",
     "Return": "rounded integer",
     "Deprecated": "",
-    "Comment": "Returns the smallest integer value that is not less than f\r\n\r\nRounds ﬂoating point number to the smallest integer no greater than f",
+    "Comment": "Returns the smallest integer value that is not less than f\r\n\r\nRounds floating point number to the smallest integer no greater than f",
     "Parameters": [
       {
         "Label": "f",
         "Type": "Float",
-        "Comment": "ﬂoating point value",
+        "Comment": "floating point value",
         "Default": ""
       }
     ]
@@ -1394,7 +1394,7 @@
       {
         "Label": "f",
         "Type": "Float",
-        "Comment": "ﬂoating point value",
+        "Comment": "floating point value",
         "Default": ""
       }
     ]
@@ -1419,12 +1419,12 @@
     "ReturnType": "Int",
     "Return": "rounded integer",
     "Deprecated": "",
-    "Comment": "Returns largest integer not greater than f\r\n\r\nRounds ﬂoating point number to the largest integer no greater than f",
+    "Comment": "Returns largest integer not greater than f\r\n\r\nRounds floating point number to the largest integer no greater than f",
     "Parameters": [
       {
         "Label": "f",
         "Type": "Float",
-        "Comment": "ﬂoating point value",
+        "Comment": "floating point value",
         "Default": ""
       }
     ]
@@ -1511,13 +1511,13 @@
       {
         "Label": "b",
         "Type": "Float",
-        "Comment": "ﬂoating point value",
+        "Comment": "floating point value",
         "Default": ""
       },
       {
         "Label": "f",
         "Type": "Float",
-        "Comment": "ﬂoating point value",
+        "Comment": "floating point value",
         "Default": ""
       }
     ]
@@ -1532,7 +1532,7 @@
       {
         "Label": "a",
         "Type": "Number",
-        "Comment": "Pose, ﬂoat, int or List",
+        "Comment": "Pose, float, int or List",
         "Default": ""
       }
     ]
@@ -1542,12 +1542,12 @@
     "ReturnType": "Array",
     "Return": "normalized form of v",
     "Deprecated": "",
-    "Comment": "Returns the normalized form of a list of ﬂoats\r\n\r\nExcept for the case of all zeroes, the normalized form corresponds to the unit vector in the direction of v.\r\n\r\nThrows an exception if the sum of all squared elements is zero",
+    "Comment": "Returns the normalized form of a list of floats\r\n\r\nExcept for the case of all zeroes, the normalized form corresponds to the unit vector in the direction of v.\r\n\r\nThrows an exception if the sum of all squared elements is zero",
     "Parameters": [
       {
         "Label": "v",
         "Type": "Array",
-        "Comment": "List of ﬂoats",
+        "Comment": "List of floats",
         "Default": ""
       }
     ]
@@ -1682,13 +1682,13 @@
       {
         "Label": "base",
         "Type": "Float",
-        "Comment": "ﬂoating point value",
+        "Comment": "floating point value",
         "Default": ""
       },
       {
         "Label": "exponent",
         "Type": "Float",
-        "Comment": "ﬂoating point value",
+        "Comment": "floating point value",
         "Default": ""
       }
     ]
@@ -1711,7 +1711,7 @@
   {
     "Name": "random",
     "ReturnType": "Float",
-    "Return": "pseudo-random number between 0 and 1 (ﬂoat)",
+    "Return": "pseudo-random number between 0 and 1 (float)",
     "Deprecated": "",
     "Comment": "Random Number",
     "Parameters": []
@@ -1756,7 +1756,7 @@
       {
         "Label": "f",
         "Type": "Float",
-        "Comment": "ﬂoating point value",
+        "Comment": "floating point value",
         "Default": ""
       }
     ]
@@ -1771,7 +1771,7 @@
       {
         "Label": "f",
         "Type": "Float",
-        "Comment": "ﬂoating point value",
+        "Comment": "floating point value",
         "Default": ""
       }
     ]
@@ -1786,7 +1786,7 @@
       {
         "Label": "f",
         "Type": "Float",
-        "Comment": "ﬂoating point value",
+        "Comment": "floating point value",
         "Default": ""
       }
     ]
@@ -1815,7 +1815,7 @@
   {
     "Name": "get_analog_in",
     "ReturnType": "Float",
-    "Return": "ﬂoat, The signal level in Amperes, or Volts",
+    "Return": "float, The signal level in Amperes, or Volts",
     "Deprecated": "The `get_standard_analog_in` and `get_tool_analog_in` replace this function. Ports 2-3 should be changed to 0-1 for the latter function. This function might be removed in the next major release.",
     "Comment": "Get analog input signal level",
     "Parameters": [
@@ -1830,7 +1830,7 @@
   {
     "Name": "get_analog_out",
     "ReturnType": "Float",
-    "Return": "ﬂoat, The signal level in Amperes, or Volts",
+    "Return": "float, The signal level in Amperes, or Volts",
     "Deprecated": "The `get_standard_analog_out` replaces this function. This function might be removed in the next major release",
     "Comment": "Get analog output signal level",
     "Parameters": [
@@ -1950,7 +1950,7 @@
   {
     "Name": "get_standard_analog_in",
     "ReturnType": "Float",
-    "Return": "ﬂoat, The signal level in Amperes, or Volts",
+    "Return": "float, The signal level in Amperes, or Volts",
     "Deprecated": "",
     "Comment": "Get standard analog input signal level\r\n\r\nSee also `get_tool_analog_in`.",
     "Parameters": [
@@ -1965,7 +1965,7 @@
   {
     "Name": "get_standard_analog_out",
     "ReturnType": "Float",
-    "Return": "ﬂoat, The signal level in Amperes, or Volts",
+    "Return": "float, The signal level in Amperes, or Volts",
     "Deprecated": "",
     "Comment": "Get standard analog output signal level",
     "Parameters": [
@@ -2010,7 +2010,7 @@
   {
     "Name": "get_tool_analog_in",
     "ReturnType": "Float",
-    "Return": "ﬂoat, The signal level in Amperes, or Volts",
+    "Return": "float, The signal level in Amperes, or Volts",
     "Deprecated": "",
     "Comment": "Get tool analog input signal level\r\n\r\nSee also `get_standard_analog_in`.",
     "Parameters": [
@@ -2278,11 +2278,11 @@
     ]
   },
   {
-    "Name": "read_input_ﬂoat_register",
+    "Name": "read_input_float_register",
     "ReturnType": "Float",
-    "Return": "The value held by the register (ﬂoat)",
+    "Return": "The value held by the register (float)",
     "Deprecated": "",
-    "Comment": "Reads the ﬂoat from one of the input registers, which can also be accessed by a Field bus. Note, uses it’s own memory space.",
+    "Comment": "Reads the float from one of the input registers, which can also be accessed by a Field bus. Note, uses it’s own memory space.",
     "Parameters": [
       {
         "Label": "address",
@@ -2323,11 +2323,11 @@
     ]
   },
   {
-    "Name": "read_output_ﬂoat_register",
+    "Name": "read_output_float_register",
     "ReturnType": "Float",
-    "Return": "The value held by the register (ﬂoat)",
+    "Return": "The value held by the register (float)",
     "Deprecated": "",
-    "Comment": "Reads the ﬂoat from one of the output registers, which can also be accessed by a Field bus. Note, uses it’s own memory space.",
+    "Comment": "Reads the float from one of the output registers, which can also be accessed by a Field bus. Note, uses it’s own memory space.",
     "Parameters": [
       {
         "Label": "address",
@@ -2419,7 +2419,7 @@
       {
         "Label": "min_frequency",
         "Type": "Float",
-        "Comment": "The minimum frequency (ﬂoat) an input update is expected to arrive.",
+        "Comment": "The minimum frequency (float) an input update is expected to arrive.",
         "Default": ""
       },
       {
@@ -2467,7 +2467,7 @@
       {
         "Label": "f",
         "Type": "Float",
-        "Comment": "The relative signal level [0;1] (ﬂoat)",
+        "Comment": "The relative signal level [0;1] (float)",
         "Default": ""
       }
     ]
@@ -2593,7 +2593,7 @@
       {
         "Label": "f",
         "Type": "Float",
-        "Comment": "The relative signal level [0;1] (ﬂoat)",
+        "Comment": "The relative signal level [0;1] (float)",
         "Default": ""
       }
     ]
@@ -2719,11 +2719,11 @@
     ]
   },
   {
-    "Name": "socket_read_ascii_ﬂoat",
+    "Name": "socket_read_ascii_float",
     "ReturnType": "Array",
-    "Return": "A list of numbers read (list of ﬂoats, length=number+1)",
+    "Return": "A list of numbers read (list of floats, length=number+1)",
     "Deprecated": "",
-    "Comment": "Reads a number of ascii formatted ﬂoats from the socket. A maximum\r\nof 30 values can be read in one command.\r\n\r\nThe format of the numbers should be in parantheses, and seperated by \",\". An example list of four numbers could look like \"( 1.414 , 3.14159, 1.616, 0.0 )\".\r\n\r\nThe returned list contains the total numbers read, and then each number in succession. For example a read_ascii_ﬂoat on the example above would return [4, 1.414, 3.14159, 1.616, 0.0].\r\n\r\nA failed read or timeout will return the list with 0 as ﬁrst element and then \"Not a number (nan)\" in the following elements (ex. [0, nan, nan, nan] for a read of three numbers).",
+    "Comment": "Reads a number of ascii formatted floats from the socket. A maximum\r\nof 30 values can be read in one command.\r\n\r\nThe format of the numbers should be in parantheses, and seperated by \",\". An example list of four numbers could look like \"( 1.414 , 3.14159, 1.616, 0.0 )\".\r\n\r\nThe returned list contains the total numbers read, and then each number in succession. For example a read_ascii_float on the example above would return [4, 1.414, 3.14159, 1.616, 0.0].\r\n\r\nA failed read or timeout will return the list with 0 as ﬁrst element and then \"Not a number (nan)\" in the following elements (ex. [0, nan, nan, nan] for a read of three numbers).",
     "Parameters": [
       {
         "Label": "number",
@@ -2740,7 +2740,7 @@
       {
         "Label": "timeout",
         "Type": "Float",
-        "Comment": "The number of seconds until the read action times out (ﬂoat). A timeout of 0 or negative number indicates that the function should not return until a read is completed.",
+        "Comment": "The number of seconds until the read action times out (float). A timeout of 0 or negative number indicates that the function should not return until a read is completed.",
         "Default": "2"
       }
     ]
@@ -2767,7 +2767,7 @@
       {
         "Label": "timeout",
         "Type": "Float",
-        "Comment": "The number of seconds until the read action times out (ﬂoat). A timeout of 0 or negative number indicates that the function should not return until a read is completed.",
+        "Comment": "The number of seconds until the read action times out (float). A timeout of 0 or negative number indicates that the function should not return until a read is completed.",
         "Default": "2"
       }
     ]
@@ -2794,7 +2794,7 @@
       {
         "Label": "timeout",
         "Type": "Float",
-        "Comment": "The number of seconds until the read action times out (ﬂoat). A timeout of 0 or negative number indicates that the function should not return until a read is completed.",
+        "Comment": "The number of seconds until the read action times out (float). A timeout of 0 or negative number indicates that the function should not return until a read is completed.",
         "Default": "2"
       }
     ]
@@ -2815,7 +2815,7 @@
       {
         "Label": "timeout",
         "Type": "Float",
-        "Comment": "The number of seconds until the read action times out (ﬂoat). A timeout of 0 or negative number indicates that the function should not return until a read is completed.",
+        "Comment": "The number of seconds until the read action times out (float). A timeout of 0 or negative number indicates that the function should not return until a read is completed.",
         "Default": "2"
       }
     ]
@@ -2854,7 +2854,7 @@
       {
         "Label": "timeout",
         "Type": "Float",
-        "Comment": "The number of seconds until the read action times out (ﬂoat). A timeout of 0 or negative number indicates that the function should not return until a read is completed.",
+        "Comment": "The number of seconds until the read action times out (float). A timeout of 0 or negative number indicates that the function should not return until a read is completed.",
         "Default": "2"
       }
     ]
@@ -2992,11 +2992,11 @@
     ]
   },
   {
-    "Name": "write_output_ﬂoat_register",
+    "Name": "write_output_float_register",
     "ReturnType": "None",
     "Return": "",
     "Deprecated": "",
-    "Comment": "Writes the ﬂoat value into one of the output registers, which can also be accessed by a Field bus. Note, uses it’s own memory space.",
+    "Comment": "Writes the float value into one of the output registers, which can also be accessed by a Field bus. Note, uses it’s own memory space.",
     "Parameters": [
       {
         "Label": "address",
@@ -3007,7 +3007,7 @@
       {
         "Label": "value",
         "Type": "Float",
-        "Comment": "Value to set in the register (ﬂoat)",
+        "Comment": "Value to set in the register (float)",
         "Default": ""
       }
     ]

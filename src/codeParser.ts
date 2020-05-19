@@ -25,6 +25,8 @@ import { ReadLinesSync } from './utilities/readLines';
 import { isBlank } from './utilities/checkString';
 //Script 方法解析與工具
 import { ScriptMethod, type2Str, str2Type } from './scriptmethod';
+//路徑解析之工具
+import * as path from 'path';
 
 /**
  * 取出變數或方法名稱的 Regex 樣板
@@ -38,6 +40,14 @@ const paramPat = /\((.*?)\)/;
  * 最大的已讀取過的行之數量
  */
 const maxOldLineCount = 20;
+/**
+ * 搜尋檔案時，欲跳過不找的資料夾
+ */
+const ignoreDir: string[] = [ ".git", ".vscode" ];
+/**
+ * 搜尋檔案時，欲尋找的目標副檔名
+ */
+const tarExt: string[] = [ ".variables", ".script" ];
 
 /**
  * 解析文件註解並轉換為可用於 MethodParameter 的物件
@@ -353,6 +363,59 @@ function parseSignature(matchResult: RegExpExecArray | null, oldLines?: string[]
 }
 
 /**
+ * 對應副檔名的檔案集合
+ */
+class ExtensionDictionary {
+    [index: string]: {filePath: string, fileName: string}[];
+}
+
+/**
+ * 遞迴取出資料夾內的所有檔案
+ * @param dir 欲搜尋的路徑
+ * @param ignoreDir 欲忽略的資料夾
+ * @param tarExt 欲尋找的副檔名
+ * @param files 找到的檔案
+ */
+function getAllFiles(dir: string, ignoreDir: string[], tarExt: string[], files: ExtensionDictionary) {
+    /* 取得該層的檔案 */
+    const tmp = fs.readdirSync(dir);
+    /* 如果沒有檔案就離開吧 */
+    if (!tmp.length) {
+        return null;
+    }
+    /* 輪詢檢查是檔案還是路徑 */
+    tmp.forEach(
+        obj => {
+            /* 組裝路徑 */
+            const rsPath = path.resolve(dir, obj);
+            /* 取得 rsPath 是啥東西 */
+            const stt = fs.statSync(rsPath);
+            /* 如果是資料夾，遞迴取出內部檔案 */
+            if (stt && stt.isDirectory()) {
+                /* 確認不在 ignoreDir 裡面 */
+                if (!ignoreDir.find(d => obj === d)) {
+                    getAllFiles(rsPath, ignoreDir, tarExt, files);
+                }
+            } else {
+                /* 取得副檔名 */
+                const ext = path.extname(obj);
+                /* 如果副檔名有在清單內，紀錄之 */
+                if (tarExt.find(o => o === ext)) {
+                    /* 已經是檔案，副檔名也相同，先檢查有無開好索引 */
+                    if (!files[ext]) {
+                        /* 尚未開索引，直接新增一個 */
+                        files[ext] = [ {filePath: rsPath, fileName: obj} ];
+                    } else {
+                        /* 已有開好索引，push 進去即可 */
+                        files[ext].push({filePath: rsPath, fileName: obj});
+                    }
+                }
+            }
+        }
+    );
+}
+
+/**
  * 搜尋文字內容的所有方法與全域變數
  * @param document 欲解析的文件
  * @param keyword 當前使用者輸入的關鍵字
@@ -465,23 +528,20 @@ function getCompletionItemsFromVariables(filePath: fs.PathLike, fileName: fs.Pat
  */
 export function getCompletionItemsFromWorkspace(workspace: WorkspaceFolder, keyword: string, cmpItems: CompletionItem[], explored: string) {
     /* 取得資料夾內的所有檔案 */
-    const files = fs.readdirSync(workspace.uri.fsPath);
+    const files: ExtensionDictionary = new ExtensionDictionary();
+    getAllFiles(workspace.uri.fsPath, ignoreDir, tarExt, files);
     /* 取得 .script 檔案 */
-    const scripts = files
-        .filter(file => file.endsWith(".script") && (file !== explored.split(/.*[\/|\\]/)[1]))
-        .map(file => `${workspace.uri.fsPath}\\${file}`);
-    /* 輪詢所有檔案 */
-    scripts.forEach(
-        file => getCompletionItemsFromFile(file, keyword, cmpItems)
-    );
-    /* 取得資料夾內的 .variable 檔案 */
-    const variables = files
-        .filter(file => file.endsWith(".variables"))
-        .map(file => [`${workspace.uri.fsPath}\\${file}`, file]);
-    /* 輪詢所有檔案 */
-    variables.forEach(
-        file => getCompletionItemsFromVariables(file[0], file[1], keyword, cmpItems)
-    );
+    if (files[".script"] && files[".script"].length > 0) {
+        files[".script"].forEach(
+            file => getCompletionItemsFromFile(file.filePath, keyword, cmpItems)
+        );
+    }
+    /* 取得 .variable 檔案 */
+    if (files[".variables"] && files[".variables"].length > 0) {
+        files[".variables"].forEach(
+            file => getCompletionItemsFromVariables(file.filePath, file.fileName, keyword, cmpItems)
+        );
+    }
 }
 
 /**
@@ -609,31 +669,27 @@ function getHoverFromVariables(filePath: string, fileName: string, keyword: stri
  */
 export function getHoverFromWorkspace(workspace: WorkspaceFolder, keyword: string, explored: string): Hover | undefined {
     /* 取得資料夾內的所有檔案 */
-    const files = fs.readdirSync(workspace.uri.fsPath);
-    /* 取得 .variable 檔案。推測應該要優先於 global */
-    const variables = files
-        .filter(file => file.endsWith(".variables"))
-        .map(file => [`${workspace.uri.fsPath}\\${file}`, file]);
-    /* 輪詢所有檔案 */
+    const files: ExtensionDictionary = new ExtensionDictionary();
+    getAllFiles(workspace.uri.fsPath, ignoreDir, tarExt, files);
+    /* 取得 .variable 檔案 */
     let hov: Hover | undefined;
-    for (const file of variables) {
-        /* 搜尋檔案中是否有指定的關鍵字並取得其資訊 */
-        hov = getHoverFromVariables(file[0], file[1], keyword);
-        /* 如果有東西則離開迴圈 */
-        if (hov) {
-            break;
+    if (files[".variables"] && files[".variables"].length > 0) {
+        /* 輪詢所有檔案 */
+        for (const file of files[".variables"]) {
+            /* 搜尋檔案中是否有指定的關鍵字並取得其資訊 */
+            hov = getHoverFromVariables(file.filePath, file.fileName, keyword);
+            /* 如果有東西則離開迴圈 */
+            if (hov) {
+                break;
+            }
         }
     }
-    /* 如果 variable 找不到則找 script 檔案 */
-    if (!hov) {
-        /* 取得所有的 .script 檔案 */
-        const scripts = files
-            .filter(file => file.endsWith(".script") && (file !== explored.split(/.*[\/|\\]/)[1]))
-            .map(file => `${workspace.uri.fsPath}\\${file}`);
+    /* 如果 .variable 沒有找到，取得 .script 檔案 */
+    if (!hov && files[".script"] && files[".script"].length > 0) {
         /* 輪詢所有檔案 */
-        for (const file of scripts) {
+        for (const file of files[".script"]) {
             /* 搜尋檔案中是否有指定的關鍵字並取得其資訊 */
-            hov = getHoverFromFile(file, keyword);
+            hov = getHoverFromFile(file.filePath, keyword);
             /* 如果有東西則離開迴圈 */
             if (hov) {
                 break;
@@ -761,27 +817,25 @@ export function getLocationFromVariables(filePath: fs.PathLike, fileName: fs.Pat
  */
 export function getLocationFromWorkspace(workspace: WorkspaceFolder, keyword: string, explored: string): Location[] {
     /* 取得資料夾內的所有檔案 */
-    const files = fs.readdirSync(workspace.uri.fsPath);
+    const files: ExtensionDictionary = new ExtensionDictionary();
+    getAllFiles(workspace.uri.fsPath, ignoreDir, tarExt, files);
     /* 初始化變數 */
     let locColl: Location[] = [];
     /* 取得 .variables 檔案 */
-    const variables = files
-        .filter(file => file.endsWith(".variables"))
-        .map(file => [`${workspace.uri.fsPath}\\${file}`, file]);
-    /* 輪詢所有檔案 */
-    for (const file of variables) {
-        /* 尋找定義位置 */
-        getLocationFromVariables(file[0], file[1], keyword, locColl);
+    if (files[".variables"] && files[".variables"].length > 0) {
+        files[".variables"].forEach(
+            file => {
+                getLocationFromVariables(file.filePath, file.fileName, keyword, locColl);
+            }
+        );
     }
     /* 取得 .script 檔案 */
-    const scripts = files
-        .filter(file => file.endsWith(".script") && (file !== explored.split(/.*[\/|\\]/)[1]))
-        .map(file => `${workspace.uri.fsPath}\\${file}`);
-    
-    /* 輪詢所有檔案 */
-    for (const file of scripts) {
-        /* 尋找定義位置 */
-        getLocationFromFile(file, keyword, locColl);
+    if (files[".script"] && files[".script"].length > 0) {
+        files[".script"].forEach(
+            file => {
+                getLocationFromFile(file.filePath, keyword, locColl);
+            }
+        );
     }
     /* 回傳 */
     return locColl;
@@ -867,17 +921,19 @@ export function getSignatureFromFile(fileName: string, keyword: string): Signatu
  */
 export function getSignatureFromWorkspace(workspace: WorkspaceFolder, keyword: string, explored: string): SignatureHelp | undefined {
     /* 取得資料夾內的所有檔案 */
-    const files = fs.readdirSync(workspace.uri.fsPath)
-        .filter(file => file.endsWith(".script") && (file !== explored.split(/.*[\/|\\]/)[1]))
-        .map(file => `${workspace.uri.fsPath}\\${file}`);
-    /* 輪詢所有檔案 */
+    const files: ExtensionDictionary = new ExtensionDictionary();
+    const sigExt: string[] = [ ".script" ];
+    getAllFiles(workspace.uri.fsPath, ignoreDir, sigExt, files);
+    /* 取得 .script 檔案 */
     let sigHelp: SignatureHelp | undefined;
-    for (const file of files) {
-        /* 搜尋檔案中是否有指定的關鍵字並取得其資訊 */
-        sigHelp = getSignatureFromFile(file, keyword);
-        /* 如果有東西則離開迴圈 */
-        if (sigHelp) {
-            break;
+    if (files[".script"] && files[".script"].length > 0) {
+        for (const file of files[".script"]) {
+            /* 搜尋檔案中是否有指定的關鍵字並取得其資訊 */
+            sigHelp = getSignatureFromFile(file.filePath, keyword);
+            /* 如果有東西則離開迴圈 */
+            if (sigHelp) {
+                break;
+            }
         }
     }
     /* 回傳 */
