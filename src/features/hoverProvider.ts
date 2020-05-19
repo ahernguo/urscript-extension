@@ -5,8 +5,7 @@ import {
     HoverProvider,
     Position,
     TextDocument,
-    workspace,
-    Range
+    workspace
 } from 'vscode';
 //用於載入外部的方法集合
 import { ScriptMethod } from '../scriptmethod';
