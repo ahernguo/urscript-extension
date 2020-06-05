@@ -31,7 +31,8 @@
         ],
         "extensions": [
           ".script",
-          ".variables"
+          ".variables",
+          ".urscript"
         ],
         "configuration": "./language-configuration.json"
       }
