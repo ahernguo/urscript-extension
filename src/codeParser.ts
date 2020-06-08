@@ -47,7 +47,7 @@ const ignoreDir: string[] = [ ".git", ".vscode" ];
 /**
  * 搜尋檔案時，欲尋找的目標副檔名
  */
-const tarExt: string[] = [ ".variables", ".script" ];
+const tarExt: string[] = [ ".variables", ".script", ".urscript" ];
 
 /**
  * 解析文件註解並轉換為可用於 MethodParameter 的物件
@@ -542,6 +542,12 @@ export function getCompletionItemsFromWorkspace(workspace: WorkspaceFolder, keyw
             file => getCompletionItemsFromVariables(file.filePath, file.fileName, keyword, cmpItems)
         );
     }
+    /* 取得 .urscript 檔案 */
+    if (files[".urscript"] && files[".urscript"].length > 0) {
+        files[".urscript"].forEach(
+            file => getCompletionItemsFromFile(file.filePath, keyword, cmpItems)
+        );
+    }
 }
 
 /**
@@ -696,6 +702,14 @@ export function getHoverFromWorkspace(workspace: WorkspaceFolder, keyword: strin
             }
         }
     }
+    if (!hov && files[".urscript"] && files[".urscript"].length > 0) {
+        for (const file of files[".urscript"]) {
+            hov = getHoverFromFile(file.filePath, keyword);
+            if (hov) {
+                break;
+            }
+        }
+    }
     /* 回傳 */
     return hov;
 }
@@ -832,6 +846,14 @@ export function getLocationFromWorkspace(workspace: WorkspaceFolder, keyword: st
     /* 取得 .script 檔案 */
     if (files[".script"] && files[".script"].length > 0) {
         files[".script"].forEach(
+            file => {
+                getLocationFromFile(file.filePath, keyword, locColl);
+            }
+        );
+    }
+    /* 取得 .urscript 檔案 */
+    if (files[".urscript"] && files[".urscript"].length > 0) {
+        files[".urscript"].forEach(
             file => {
                 getLocationFromFile(file.filePath, keyword, locColl);
             }
