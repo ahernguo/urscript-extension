@@ -3,6 +3,10 @@ All notable changes to the "urscript" extension will be documented in this file.
 
 Goto [urscript-extension](https://github.com/ahernguo/urscript-extension) for more details.
 
+## 0.1.7 - 2020-06-08
+* FEATURE
+  * Supports `.urscript` extension ([#10](https://github.com/ahernguo/urscript-extension/pull/10))
+
 ## 0.1.6 - 2020-05-19
 * BUGFIXES
   * Features will search all `.variable` and `.script` files in the workspace (including subfolders)
