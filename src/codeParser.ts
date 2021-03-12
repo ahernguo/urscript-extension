@@ -1,4 +1,3 @@
-//用於 vscode 的名稱解析
 import {
     CompletionItem,
     CompletionItemKind,
@@ -17,54 +16,54 @@ import {
     Uri,
     WorkspaceFolder
 } from 'vscode';
-//用於檔案讀取的 FileStream 解析
+//reading file (FileStream)
 import * as fs from 'fs';
-//用於讀取每一行的解析
+//get each line in file
 import { ReadLinesSync } from './utilities/readLines';
-//檢查字串是否為空字串
+//check string whether empty or null
 import { isBlank } from './utilities/checkString';
-//Script 方法解析與工具
+//tools for Script
 import { ScriptMethod, type2Str, str2Type } from './scriptmethod';
-//路徑解析之工具
+//parsing for file path
 import * as path from 'path';
 
 /**
- * 取出變數或方法名稱的 Regex 樣板
+  * The regex pattern to get variable/method name
  */
 const namePat = /(\b(?<=def|thread|global).*(?=\(|=))|(\b(?<=global).+\b)/;
 /**
- * 取出參數內容的 Regex 樣板
+ * The regex pattern to get parameters that included in parentheses '(' and ')'
  */
 const paramPat = /\((.*?)\)/;
 /**
- * 最大的已讀取過的行之數量
+ * The maximum count to record each line parsed in the past
  */
 const maxOldLineCount = 20;
 /**
- * 搜尋檔案時，欲跳過不找的資料夾
+  * Ignore directory when searching files
  */
 const ignoreDir: string[] = [ ".git", ".vscode" ];
 /**
- * 搜尋檔案時，欲尋找的目標副檔名
+  * The file extension to search
  */
 const tarExt: string[] = [ ".variables", ".script", ".urscript" ];
 
 /**
- * 解析文件註解並轉換為可用於 MethodParameter 的物件
- * @param line 欲解析的文件行
+ * Parsing &#64;param comments and convert to MethdParameter object
+ * @param line the line to parsing
  */
 function parseDocParam(line: string) {
-    /* 將該行利用空白切開 */
+    /* split by space */
     const splitted = line
         .replace("@param", "")
         .trim()
         .split(" ");
-    /* 第一筆為參數名稱 */
+    /* 1st is the name of param */
     const first = splitted.shift();
     const label = first ? first : "";
-    /* 第二筆為類型 */
+    /* 2nd is the type of param */
     const type = str2Type(splitted.shift());
-    /* 之後的是註解 */
+    /* comments are after 3rd. Recombine to one line string */
     const comment = splitted.join(" ");
     return {
         "Label": label,
@@ -75,19 +74,19 @@ function parseDocParam(line: string) {
 }
 
 /**
- * 解析文件註解並轉換為描述 Return 之物件
- * @param line 欲解析的文件行
+ * Parsing &#64;returns comments and convert to Return object
+ * @param line the line to parsing
  */
 function parseDocReturn(line?: string) {
     if (line) {
-        /* 將該行利用空白切開 */
+        /* split by space */
         const splitted = line
             .replace("@returns", "")
             .trim()
             .split(" ");
-        /* 第一筆為類型 */
+        /* 1st is the type of return */
         const type = str2Type(splitted.shift());
-        /* 之後的是註解 */
+        /* comments are after 2nd. Recombine to one line string */
         const comment = splitted.join(" ");
         return {
             "ReturnType": type2Str(type),
@@ -97,42 +96,42 @@ function parseDocReturn(line?: string) {
 }
 
 /**
- * 從文字集合中尋找可顯示的註解
- * @param lines 欲查找的文字集合
- * @param name 此方法或變數的名稱
+  * Searching UrDoc in line collection
+ * @param lines the collection to search
+ * @param name the name of variable/method to search
  */
 function findDoc(name: string, lines?: string[]): ScriptMethod | undefined {
-    /* 確保 lines 有東西且最後一行是註解的結尾 */
+    /* ensure 'lines' not null and last line is "###" */
     if (lines && lines[lines.length - 1] === "###") {
-        /* 因 lines 是 Queue，故從後面往前找 '###' */
+        /* search start "###" of UrDoc from collection end to start */
         let startIndex = -1;
         let endIndex = lines.length - 1;
-        /* 由於一開始已檢查 lines[lines.length - 1] === '###'，故只要從 -2 開始找 start 即可 */
+        /* search start from 'len - 2'. because 'len - 1' already checked in L.105 */
         for (let idx = lines.length - 2; idx >= 0; idx--) {
             if (lines[idx] === "###") {
                 startIndex = idx;
                 break;
             }
         }
-        /* 如果都有找到，轉成 UrDoc */
+        /* get the block and convert to UrDoc if both "###" are found */
         if (startIndex > -1 && startIndex < endIndex) {
-            /* 移除 '#' 字號並去前後空白，留下有資料的物件即可 */
+            /* Trim '#' and space. just keep useful information  */
             const doc = lines
                 .slice(startIndex + 1, endIndex)
                 .map(l => l.replace(/#/g, '').trim());
-            /* 取出有 @param 的片段並組成參數 */
+            /* search the lines which containts '@param' and convert to MethodParameter object */
             const params = doc
                 .filter(l => l.startsWith("@param"))
                 .map(l => parseDocParam(l));
-            /* 取出 @returns 片段組成回傳資訊 */
+            /* search '@returns' and convert to Return object */
             const returns = parseDocReturn(
                 doc.find(l => l.startsWith("@returns"))
             );
-            /* 取出沒有 @param 的片段組成 name */
+            /* the parts without '@' are summary comment */
             const summary = doc
                 .filter(l => !l.startsWith("@"))
                 .join("  \n");
-            /* 組合成匿名物件 */
+            /* combine to UrDoc object */
             const info = {
                 "Name": name,
                 "ReturnType": returns ? returns.ReturnType : "None",
@@ -141,40 +140,40 @@ function findDoc(name: string, lines?: string[]): ScriptMethod | undefined {
                 "Comment": summary,
                 "Parameters": params
             };
-            /* 回傳物件 */
+            /* create ScriptMethod object and return it */
             return new ScriptMethod(info);
         }
     }
 }
 
 /**
- * 將 RegExpExecArray 轉成對應的 CompletionItems
- * @param matchResult 欲轉換的 Regex 比對結果
- * @param cmpItems 欲儲存的完成項目集合
- * @param oldLines 先前已讀過的行暫存
+ * Convert RegExpExecArray to CompletionItems
+ * @param matchResult the regex match results
+ * @param cmpItems the collection to store
+ * @param oldLines temporary past lines
  */
 function parseCmpItem(matchResult: RegExpExecArray | null, cmpItems: CompletionItem[], oldLines?: string[]) {
-    /* 如果沒東西，直接離開 */
+    /* exit if nothing matched */
     if (!matchResult || matchResult.length <= 0) {
         return;
     }
-    /* 有東西則輪詢將 Regex 結果轉成 CompletionItem */
+    /* convert result string to CompletionItem */
     matchResult.forEach(
         value => {
             if (value) {
-                /* 用 Regex 取得方法名稱 */
+                /* get method name */
                 const nameReg = namePat.exec(value);
-                /* 有成功找到，建立完成項目 */
+                /* convert it if successfully. Otherwise, just exit */
                 if (nameReg) {
-                    /* 去空白 */
+                    /* remove spaces and invisible char */
                     const name = nameReg[0].trim();
-                    /* 如果尚未被加入集合中，加入之 */
+                    /* it may repeat... so just add at first time searched */
                     if (!cmpItems.some(cmp => cmp.label === name)) {
-                        /* 建立要回傳的完成項目 */
+                        /* create CompletionItem and assign the keys which can let CompletionItem done(auto fill) */
                         const cmpItem = new CompletionItem(name);
                         cmpItem.commitCharacters = ["\t", " ", "\n"];
                         /*
-                            查看前面有沒有註解，目前預設應該要長成...
+                            search UrDoc in past lines. it should be like ...
 
                             ###
                             # get digital input
@@ -183,39 +182,39 @@ function parseCmpItem(matchResult: RegExpExecArray | null, cmpItems: CompletionI
                             ###
                         */
                         const doc = findDoc(name, oldLines);
-                        /* 如果有 doc 則加入 documentation */
+                        /* add documentation to show on tooltip window if UrDoc found */
                         if (doc) {
                             cmpItem.documentation = doc.Documentation;
                         }
-                        /* 依照不同項目撰寫說明 */
-                        if (/global/.test(value)) {         //變數
+                        /* add types on tooltip window */
+                        if (/global/.test(value)) {         //global show as variable
                             cmpItem.kind = CompletionItemKind.Variable;
                             cmpItem.insertText = name;
                             cmpItem.detail = `global ${name}`;
-                        } else if (/thread/.test(value)) {  //執行緒
+                        } else if (/thread/.test(value)) {  //thread show as variable
                             cmpItem.kind = CompletionItemKind.Variable;
                             cmpItem.insertText = `${name}()`;
                             cmpItem.detail = `thread ${name}`;
-                        } else {    //方法
+                        } else {    //method show as function
                             cmpItem.kind = CompletionItemKind.Function;
-                            /* 如果有 doc，直接用 doc 做即可 */
+                            /* using UrDoc to snippet action if UrDoc found. parse this line otherwise */
                             if (doc) {
                                 cmpItem.detail = doc.Label;
-                                cmpItem.insertText = new SnippetString(doc.Name); //讓使用者等等用 '(' 顯示簽章
-                                cmpItem.commitCharacters.push("(");
+                                cmpItem.insertText = new SnippetString(doc.Name);
+                                cmpItem.commitCharacters.push("("); //user can press '(' to let CompletionItem done (auto fill)
                             } else {
-                                /* 嘗試尋找參數內容 */
+                                /* get content in parenthneses */
                                 const paramReg = paramPat.exec(value);
-                                /* 如果有參數，列出來 */
+                                /* parse if found. Otherwise, just show the name of method */
                                 if (paramReg && paramReg.length > 1 && !isBlank(paramReg[1])) {
-                                    /* 將參數給拆出來 */
+                                    /* split by ',' */
                                     const param = paramReg[1].split(",").map(p => p.trim());
-                                    /* 組合 */
+                                    /* re-format the line. normalize the spaces */
                                     cmpItem.detail = `${name}(${param.join(", ")})`;
-                                    /* 計算 $1~$n */
+                                    /* calculate $1~$n for snippet. $0 as end of snippet location. $1 ~ $n will be changed if user press '↑', '↓' or ',' to show each parameter  */
                                     let signIdx = 1;
                                     const sign = param.map(p => `\${${signIdx++}:${p}}`);
-                                    /* 自動填入 */
+                                    /* combine it */
                                     cmpItem.insertText = new SnippetString(`${name}(${sign.join(", ")})$0`);
                                 } else {
                                     cmpItem.detail = `${name}`;
@@ -223,7 +222,7 @@ function parseCmpItem(matchResult: RegExpExecArray | null, cmpItems: CompletionI
                                 }
                             }
                         }
-                        /* 將找到的加入集合 */
+                        /* add to collection */
                         cmpItems.push(cmpItem);
                     }
                 }
@@ -233,27 +232,27 @@ function parseCmpItem(matchResult: RegExpExecArray | null, cmpItems: CompletionI
 }
 
 /**
- * 將 RegExpExecArray 轉成對應的 Hover
- * @param matchResult 欲轉換的 Regex 比對結果
- * @param oldLines 先前已讀過的行暫存
+ * Convert RegExpExecArray to Hover
+ * @param matchResult the regex match results
+ * @param oldLines temporary past lines
  */
 function parseHover(matchResult: RegExpExecArray | null, oldLines?: string[]): Hover | undefined {
-    /* 如果沒東西，直接離開 */
+    /* exit if nothing matched */
     if (!matchResult || matchResult.length <= 0) {
         return;
     }
-    /* 暫存搜尋的結果 */
+    /* make a temporary */
     const step = matchResult[0];
-    /* 用 Regex 取得方法名稱 */
+    /* get method name */
     const nameReg = namePat.exec(step);
-    /* 有成功找到，建立完成項目 */
+    /* create Hover if name was found. return null otherwise */
     if (nameReg) {
-        /* 取得內容並去除空白 */
+        /* trim spaces and invisible chars */
         const name = nameReg[0].trim();
-        /* 建立要儲存 Hover 內容的容器 */
+        /* initialize a new collection to store convert result */
         const items: (MarkdownString | { language: string, value: string })[] = [];
         /*
-            查看前面有沒有註解，目前預設應該要長成...
+            search UrDoc in past lines. it should be like ...
 
             ###
             # get digital input
@@ -262,7 +261,7 @@ function parseHover(matchResult: RegExpExecArray | null, oldLines?: string[]): H
             ###
          */
         const doc = findDoc(name, oldLines);
-        /* 建立第一列，方法或變數內容 */
+        /* first line. show type and name */
         if (/global/.test(step)) {
             items.push(
                 {
@@ -278,7 +277,7 @@ function parseHover(matchResult: RegExpExecArray | null, oldLines?: string[]): H
                 }
             );
         } else {
-            /* 如果有註解，直接利用 */
+            /* add directly if UrDoc found. otherwise, parse this line */
             if (doc) {
                 items.push(
                     {
@@ -287,13 +286,13 @@ function parseHover(matchResult: RegExpExecArray | null, oldLines?: string[]): H
                     }
                 );
             } else {
-                /* 提醒是使用者自訂的方法 */
+                /* add a notification that function was made by user */
                 items.push(new MarkdownString("*user function*"));
-                /* 嘗試尋找參數內容 */
+                /* get content in parentheses */
                 const paramReg = paramPat.exec(step);
-                /* 如果有參數，列出來 */
+                /* list if found. otherwise, just show the name */
                 if (paramReg && paramReg.length > 1) {
-                    /* 將參數給拆出來 */
+                    /* split and trim to avoid invisible chars */
                     const param = paramReg[1].split(",").map(p => p.trim());
                     items.push(new MarkdownString(`${name}(${param.join(", ")})`));
                 } else {
@@ -301,35 +300,35 @@ function parseHover(matchResult: RegExpExecArray | null, oldLines?: string[]): H
                 }
             }
         }
-        /* 最後面加入文件說明 */
+        /* add documentation if UrDoc found */
         if (doc) {
             items.push(doc.Documentation);
         }
-        /* 回傳 */
+        /* create a new Hover and return it */
         return new Hover(items);
     }
 }
 
 /**
- * 將 RegExpExecArray 轉成對應的 SignatureHelp
- * @param matchResult 欲轉換的 Regex 比對結果
- * @param oldLines 先前已讀過的行暫存
+ * Convert RegExpExecArray to SignatureHelp
+ * @param matchResult the regex match results
+ * @param oldLines temporary past lines
  */
 function parseSignature(matchResult: RegExpExecArray | null, oldLines?: string[]): SignatureHelp | undefined {
-    /* 如果沒東西，直接離開 */
+    /* exit if nothing matched */
     if (!matchResult || matchResult.length <= 0) {
         return;
     }
-    /* 暫存搜尋的結果 */
+    /* make a temporary  */
     const step = matchResult[0];
-    /* 用 Regex 取得方法名稱 */
+    /* get method name */
     const nameReg = namePat.exec(step);
-    /* 有成功找到，建立完成項目 */
+    /* create a SignatureHelp if found. return null otherwise */
     if (nameReg) {
-        /* 取得內容並去除空白 */
+        /* trim spaces and invisible chars */
         const name = nameReg[0].trim();
         /*
-            查看前面有沒有註解，目前預設應該要長成...
+            search UrDoc in past lines. it should be like ...
 
             ###
             # get digital input
@@ -338,11 +337,11 @@ function parseSignature(matchResult: RegExpExecArray | null, oldLines?: string[]
             ###
          */
         const doc = findDoc(name, oldLines);
-        /* 如果有找到，進行解析 */
+        /* parse UrDoc to SignatureHelp if found. Otherwise, return null */
         if (doc) {
-            /* 宣告簽章資訊 */
+            /* create a new information */
             const sigInfo = new SignatureInformation(doc.Label);
-            /* 建立 parameters */
+            /* convert UrDoc @param parts to information */
             const sigPara = doc.Parameters.map(
                 para => {
                     let paraInfo = new ParameterInformation(para.Label);
@@ -351,62 +350,62 @@ function parseSignature(matchResult: RegExpExecArray | null, oldLines?: string[]
                 }
             );
             sigInfo.parameters = sigPara;
-            /* 建立簽章提示 */
+            /* create a help and assign values */
             const sigHelp = new SignatureHelp();
             sigHelp.activeParameter = 0;
             sigHelp.activeSignature = 0;
             sigHelp.signatures = [sigInfo];
-            /* 回傳 */
+            /* return it */
             return sigHelp;
         }
     }
 }
 
 /**
- * 對應副檔名的檔案集合
+ * Store the files' path and name that mapped with file extension
  */
 class ExtensionDictionary {
-    [index: string]: {filePath: string, fileName: string}[];
+    [ext: string]: {filePath: string, fileName: string}[];
 }
 
 /**
- * 遞迴取出資料夾內的所有檔案
- * @param dir 欲搜尋的路徑
- * @param ignoreDir 欲忽略的資料夾
- * @param tarExt 欲尋找的副檔名
- * @param files 找到的檔案
+ * get all files in directory
+ * @param dir the directory to search
+ * @param ignoreDir ignore directory
+ * @param tarExt file ext to search
+ * @param files store found files
  */
 function getAllFiles(dir: string, ignoreDir: string[], tarExt: string[], files: ExtensionDictionary) {
-    /* 取得該層的檔案 */
+    /* search all files in directory */
     const tmp = fs.readdirSync(dir);
-    /* 如果沒有檔案就離開吧 */
+    /* return null if no files */
     if (!tmp.length) {
         return null;
     }
-    /* 輪詢檢查是檔案還是路徑 */
+    /* add to 'files' */
     tmp.forEach(
         obj => {
-            /* 組裝路徑 */
+            /* tmp just get the filename without directory name. so re-combine to absolutely path */
             const rsPath = path.resolve(dir, obj);
-            /* 取得 rsPath 是啥東西 */
+            /* get the attributes of the path. to see file? directory? or others */
             const stt = fs.statSync(rsPath);
-            /* 如果是資料夾，遞迴取出內部檔案 */
+            /* recursive to get inner files if this path is a directory. check name and ext if this path is a file */
             if (stt && stt.isDirectory()) {
-                /* 確認不在 ignoreDir 裡面 */
+                /* ensure not in ignore list */
                 if (!ignoreDir.find(d => obj === d)) {
                     getAllFiles(rsPath, ignoreDir, tarExt, files);
                 }
             } else {
-                /* 取得副檔名 */
+                /* get extension name of file */
                 const ext = path.extname(obj);
-                /* 如果副檔名有在清單內，紀錄之 */
+                /* record this file if 'tarExt' contains 'ext' */
                 if (tarExt.find(o => o === ext)) {
-                    /* 已經是檔案，副檔名也相同，先檢查有無開好索引 */
+                    /* add to collection */
                     if (!files[ext]) {
-                        /* 尚未開索引，直接新增一個 */
+                        /* first time searched. create new one */
                         files[ext] = [ {filePath: rsPath, fileName: obj} ];
                     } else {
-                        /* 已有開好索引，push 進去即可 */
+                        /* not first time. just push to end */
                         files[ext].push({filePath: rsPath, fileName: obj});
                     }
                 }
@@ -416,93 +415,95 @@ function getAllFiles(dir: string, ignoreDir: string[], tarExt: string[], files: 
 }
 
 /**
- * 搜尋文字內容的所有方法與全域變數
- * @param document 欲解析的文件
- * @param keyword 當前使用者輸入的關鍵字
- * @param cmpItems 欲儲存的完成項目集合
+ * search method or variable with specific keyword in current editor and convert to CompletionItem
+ * @param document the text of current editor
+ * @param keyword current user pressed keyword
+ * @param cmpItems the collection to store
  */
 export function getCompletionItemsFromDocument(document: TextDocument, keyword: string, cmpItems: CompletionItem[]) {
-    /* 建立 Regex Pattern */
+    /* create new regex to search keyword */
     const mthdPat = new RegExp(`\\b(def|thread|global)\\s+${keyword}.*(\\(.*\\):)*`, "ig");
-    /* 建立已讀取過的暫存區 */
+    /* create a new instance to store past lines */
     const oldLines: string[] = [];
-    /* 輪詢每一行 */
+    /* poll each line from up to down */
     for (let lineNo = 0; lineNo < document.lineCount; lineNo++) {
-        /* 取得當前的行 */
+        /* get one line */
         const line = document.lineAt(lineNo);
-        /* 轉成字串 */
+        /* trim spaces and invisible chars */
         const cur = line.text.trim();
-        /* 利用 Regex 尋找方法或變數名稱 */
+        /* trying to get keyword parts */
         const match = mthdPat.exec(cur);
-        /* 解析並加入集合 */
+        /* parse regex result. add to 'cmpItems' if found */
         parseCmpItem(match, cmpItems, oldLines);
-        /* 加入讀過的暫存區 */
+        /* if past line more than maximum count, drop one */
         if (oldLines.length > maxOldLineCount) {
             oldLines.shift();
         }
+        /* push to end of collection */
         oldLines.push(cur);
     }
 }
 
 /**
- * 搜尋檔案內容的所有方法與全域變數
- * @param fileName 欲搜尋的檔案路徑
- * @param keyword 當前使用者輸入的關鍵字
- * @param cmpItems 欲儲存的完成項目集合
+ * search method or variable with specific keyword in file and convert to CompletionItem
+ * @param fileName the file path to search. must be absolutely path.
+ * @param keyword current user pressed keyword
+ * @param cmpItems the collection to store
  */
 export function getCompletionItemsFromFile(fileName: fs.PathLike, keyword: string, cmpItems: CompletionItem[]) {
-    /* 建立 Regex Pattern */
+    /* create new regex to search keyword */
     const mthdPat = new RegExp(`\\b(def|thread|global)\\s+${keyword}.*(\\(.*\\):)*`, "ig");
-    /* 建立已讀取過的暫存區 */
+    /* create a new instance to store past lines */
     const oldLines: string[] = [];
-    /* 建立行讀取器 */
+    /* create a new reader to read each line */
     const lineReader = new ReadLinesSync(fileName);
-    /* 輪詢每一行 */
+    /* poll each line in file */
     for (const pkg of lineReader) {
-        /* 確保有讀到東西 */
+        /* ensure not null */
         if (pkg.line) {
-            /* 轉成字串 */
+            /* trim spaces and invisible chars */
             const cur = pkg.line.toString().trim();
-            /* 利用 Regex 尋找方法或變數名稱 */
+            /* trying to get keyword parts */
             const match = mthdPat.exec(cur);
-            /* 解析並加入集合 */
+            /* parse regex result. add to 'cmpItems' if found */
             parseCmpItem(match, cmpItems, oldLines);
-            /* 加入讀過的暫存區 */
+            /* if past line more than maximum count, drop one */
             if (oldLines.length > maxOldLineCount) {
                 oldLines.shift();
             }
+            /* push to end of collection */
             oldLines.push(cur);
         }
     }
 }
 
 /**
- * 搜尋檔案內容的全域變數
- * @param filePath 欲搜尋的檔案路徑(X://..//*.variable)
- * @param fileName 欲搜尋的檔案名稱(僅 *.variable)
- * @param keyword 當前使用者輸入的關鍵字
- * @param cmpItems 欲儲存的完成項目集合
+ * search variable with specific keyword in .variable file and convert to CompletionItem
+ * @param filePath the file path to search. must be absolutely path.
+ * @param fileName the file name to search. just '*.variable'
+ * @param keyword current user pressed keyword
+ * @param cmpItems the collection to store
  */
 function getCompletionItemsFromVariables(filePath: fs.PathLike, fileName: fs.PathLike, keyword: string, cmpItems: CompletionItem[]) {
-    /* 建立 Regex Pattern */
+    /* create new regex to search keyword */
     const namePat = new RegExp(`^${keyword}.*(?==)`, "ig");
     const valuePat = /(?<==)\s*.+/g;
-    /* 宣告等下要用的搜尋結果 */
+    /* create match results */
     let nameMatch: RegExpExecArray | null;
     let valueMatch: RegExpExecArray | null;
-    /* 建立行讀取器 */
+    /* create a new reader to read each line */
     const lineReader = new ReadLinesSync(filePath);
-    /* 輪詢每一行 */
+    /* poll each line in file */
     for (const pkg of lineReader) {
-        /* 確保有讀到東西 */
+        /* ensure not null */
         if (pkg.line) {
-            /* 轉成字串 */
+            /* trim spaces and invisible chars */
             const cur = pkg.line.toString().trim();
-            /* 利用 Regex 尋找名稱 */
+            /* search keyword parts with regex */
             while ((nameMatch = namePat.exec(cur))) {
-                /* 有找到東西，取出其數值片段並組合 */
+                /* get the interest block and convert it */
                 while ((valueMatch = valuePat.exec(cur))) {
-                    /* 建立完成項目 */
+                    /* create new item and assign values */
                     const cmpItem = new CompletionItem(nameMatch[0], CompletionItemKind.Variable);
                     cmpItem.commitCharacters = ["\t", " ", "\n"];
                     cmpItem.insertText = nameMatch[0];
@@ -510,7 +511,7 @@ function getCompletionItemsFromVariables(filePath: fs.PathLike, fileName: fs.Pat
                     cmpItem.documentation = new MarkdownString(
                         `*${fileName}*\n\n${nameMatch[0]} = \`${valueMatch[0]}\``
                     );
-                    /* 加入集合 */
+                    /* add to end of collection */
                     cmpItems.push(cmpItem);
                 }
             }
@@ -520,29 +521,29 @@ function getCompletionItemsFromVariables(filePath: fs.PathLike, fileName: fs.Pat
 }
 
 /**
- * 搜尋 Workspace 內的所有檔案方法與全域變數
- * @param workspace 欲搜尋的 Workspace 路徑
- * @param keyword 當前使用者輸入的關鍵字
- * @param cmpItems 欲儲存的完成項目集合
- * @param explored 已經探索過(要跳過)的檔案名稱
+ * search method or variable with specific keyword in workspace (vscode was opened directory) and convert to CompletionItem
+ * @param workspace the workspace folder to search
+ * @param keyword current user pressed keyword
+ * @param cmpItems the collection to store
+ * @param explored explored(ignore) file name. bacause current editor was searched.
  */
 export function getCompletionItemsFromWorkspace(workspace: WorkspaceFolder, keyword: string, cmpItems: CompletionItem[], explored: string) {
-    /* 取得資料夾內的所有檔案 */
+    /* get all files in workspace */
     const files: ExtensionDictionary = new ExtensionDictionary();
     getAllFiles(workspace.uri.fsPath, ignoreDir, tarExt, files);
-    /* 取得 .script 檔案 */
+    /* parse .script files */
     if (files[".script"] && files[".script"].length > 0) {
         files[".script"].forEach(
             file => getCompletionItemsFromFile(file.filePath, keyword, cmpItems)
         );
     }
-    /* 取得 .variable 檔案 */
+    /* parse .variable files */
     if (files[".variables"] && files[".variables"].length > 0) {
         files[".variables"].forEach(
             file => getCompletionItemsFromVariables(file.filePath, file.fileName, keyword, cmpItems)
         );
     }
-    /* 取得 .urscript 檔案 */
+    /* parse .urscript files */
     if (files[".urscript"] && files[".urscript"].length > 0) {
         files[".urscript"].forEach(
             file => getCompletionItemsFromFile(file.filePath, keyword, cmpItems)
@@ -551,106 +552,107 @@ export function getCompletionItemsFromWorkspace(workspace: WorkspaceFolder, keyw
 }
 
 /**
- * 搜尋檔案內容的指定關鍵字並轉換成滑鼠提示
- * @param document 欲解析的文件
- * @param fileName 欲搜尋的檔案路徑
- * @param keyword 當前使用者停留的關鍵字
- * @returns 滑鼠提示
+ * search method or variable with specific keyword in current editor and convert to Hover
+ * @param document the text of current editor
+ * @param keyword current user mouse hovered keyword
+ * @returns hover/tooltip. null when nothing matched
  */
 export function getHoverFromDocument(document: TextDocument, keyword: string): Hover | undefined {
-    /* 建立 Regex Pattern */
+    /* create new regex to search keyword */
     const mthdPat = new RegExp(`(\\b(def|thread)\\s+${keyword}\\(.*\\):)|(\\bglobal\\s+${keyword}\\b)`, "g");
-    /* 建立已讀取過的暫存區 */
+    /* create a new instance to store past lines */
     const oldLines: string[] = [];
-    /* 輪詢每一行 */
+    /* poll each line in file */
     let hov: Hover | undefined;
     for (let lineNo = 0; lineNo < document.lineCount; lineNo++) {
-        /* 轉成字串 */
+        /* trim spaces and invisible chars */
         const cur = document.lineAt(lineNo).text.trim();
-        /* 嘗試找出方法或變數 */
+        /* trying to get interest block by regex */
         const match = mthdPat.exec(cur);
-        /* 解析是否有符合的物件 */
+        /* convert to hover */
         hov = parseHover(match, oldLines);
-        /* 成功找到則離開迴圈 */
+        /* return if found */
         if (hov) {
             break;
         }
-        /* 加入讀過的暫存區 */
+        /* if more than maximum, drop one */
         if (oldLines.length > maxOldLineCount) {
             oldLines.shift();
         }
+        /* push to end of collection if not found */
         oldLines.push(cur);
     }
-    /* 回傳 */
+    /* return it */
     return hov;
 }
 
 /**
- * 搜尋檔案內容的指定關鍵字並轉換成滑鼠提示
- * @param fileName 欲搜尋的檔案路徑
- * @param keyword 當前使用者停留的關鍵字
- * @returns 滑鼠提示
+ * search method or variable with specific keyword in file and convert to Hover
+ * @param fileName the file path to search. must be absolutely path.
+ * @param keyword current user mouse hovered keyword
+ * @returns hover/tooltip. null when nothing matched
  */
 export function getHoverFromFile(fileName: string, keyword: string): Hover | undefined {
-    /* 建立 Regex Pattern */
+    /* create new regex to search keyword */
     const mthdPat = new RegExp(`(\\b(def|thread)\\s+${keyword}\\(.*\\):)|(\\bglobal\\s+${keyword}\\b)`, "g");
-    /* 建立已讀取過的暫存區 */
+    /* create a new instance to store past lines */
     const oldLines: string[] = [];
-    /* 建立讀取器 */
+    /* create a new reader to read each line */
     const lineReader = new ReadLinesSync(fileName);
-    /* 輪詢每一行 */
+    /* poll each line in file */
     let hov: Hover | undefined;
     for (const pkg of lineReader) {
-        /* 確保有讀到東西 */
+        /* ensure not null */
         if (pkg.line) {
-            /* 轉成字串 */
+            /* trim spaces and invisible chars */
             const cur = pkg.line.toString().trim();
-            /* 嘗試找出方法或變數 */
+            /* trying to get interest block by regex */
             const match = mthdPat.exec(cur);
-            /* 解析是否有符合的物件 */
+            /* convert to hover */
             hov = parseHover(match, oldLines);
-            /* 成功找到則離開迴圈 */
+            /* return if found */
             if (hov) {
                 break;
             }
-            /* 加入讀過的暫存區 */
+            /* if more than maximum, drop one */
             if (oldLines.length > maxOldLineCount) {
                 oldLines.shift();
             }
+            /* push to end of collection if not found */
             oldLines.push(cur);
         }
     }
-    /* 回傳 */
+    /* return it */
     return hov;
 }
 
 /**
- * 搜尋檔案內容的指定關鍵字並轉換成滑鼠提示
- * @param filePath 欲搜尋的檔案路徑(X://..//*.variable)
- * @param fileName 欲搜尋的檔案名稱(僅 *.variable)
- * @param keyword 當前使用者輸入的關鍵字
- * @returns 滑鼠提示
+ * search variable with specific keyword in .variable file and convert to Hover
+ * @param filePath the file path to search. must be absolutely path.
+ * @param fileName the file name to search. just '*.variable'
+ * @param keyword current user mouse hovered keyword
+ * @returns hover/tooltip. null when nothing matched
  */
 function getHoverFromVariables(filePath: string, fileName: string, keyword: string): Hover | undefined {
-    /* 建立 Regex Pattern */
+    /* create new regex to search keyword */
     const namePat = new RegExp(`^${keyword}(?==)`, "g");
     const valuePat = /(?<==)\s*.+/g;
-    /* 宣告等下要用的搜尋結果 */
+    /* create match results */
     let nameMatch: RegExpExecArray | null;
     let valueMatch: RegExpExecArray | null;
-    /* 建立行讀取器 */
+    /* create a new reader to read each line */
     const lineReader = new ReadLinesSync(filePath);
-    /* 輪詢每一行 */
+    /* poll each line in file */
     for (const pkg of lineReader) {
-        /* 確保有讀到東西 */
+        /* ensure not null */
         if (pkg.line) {
-            /* 轉成字串 */
+            /* trim spaces and invisible chars */
             const cur = pkg.line.toString().trim();
-            /* 利用 Regex 尋找名稱 */
+            /* search keyword parts with regex */
             while ((nameMatch = namePat.exec(cur))) {
-                /* 有找到東西，取出其數值片段並組合 */
+                /* get the interest block and convert it */
                 while ((valueMatch = valuePat.exec(cur))) {
-                    /* 建立要儲存 Hover 內容的容器 */
+                    /* create new markdown and information collection for Hover construct */
                     const items: (MarkdownString | { language: string, value: string })[] = [
                         new MarkdownString(`*${fileName}*`),
                         {
@@ -658,7 +660,7 @@ function getHoverFromVariables(filePath: string, fileName: string, keyword: stri
                             value: `global ${nameMatch[0]} = ${valueMatch[0]}`
                         }
                     ];
-                    /* 回傳 */
+                    /* return new Hover object */
                     return new Hover(items);
                 }
             }
@@ -667,74 +669,77 @@ function getHoverFromVariables(filePath: string, fileName: string, keyword: stri
 }
 
 /**
- * 搜尋 Workspace 內的所有檔案方法與全域變數
- * @param workspace 欲搜尋的 Workspace 路徑
- * @param keyword 當前使用者輸入的關鍵字
- * @param explored 已經探索過(要跳過)的檔案名稱
- * @returns 滑鼠提示
+ * search method or variable with specific keyword in workspace (vscode was opened directory) and convert to Hover
+ * @param workspace the workspace folder to search
+ * @param keyword current user mouse hovered keyword
+ * @param explored explored(ignore) file name. bacause current editor was searched.
+ * @returns hover/tooltip. null when nothing matched
  */
 export function getHoverFromWorkspace(workspace: WorkspaceFolder, keyword: string, explored: string): Hover | undefined {
-    /* 取得資料夾內的所有檔案 */
+    /* get all files in workspace */
     const files: ExtensionDictionary = new ExtensionDictionary();
     getAllFiles(workspace.uri.fsPath, ignoreDir, tarExt, files);
-    /* 取得 .variable 檔案 */
+    /* search .variable files */
     let hov: Hover | undefined;
     if (files[".variables"] && files[".variables"].length > 0) {
-        /* 輪詢所有檔案 */
+        /* poll files */
         for (const file of files[".variables"]) {
-            /* 搜尋檔案中是否有指定的關鍵字並取得其資訊 */
+            /* search interest parts and convert to hover */
             hov = getHoverFromVariables(file.filePath, file.fileName, keyword);
-            /* 如果有東西則離開迴圈 */
+            /* exit loop if found */
             if (hov) {
                 break;
             }
         }
     }
-    /* 如果 .variable 沒有找到，取得 .script 檔案 */
+    /* search .script files if .variable was not found */
     if (!hov && files[".script"] && files[".script"].length > 0) {
-        /* 輪詢所有檔案 */
+        /* poll files */
         for (const file of files[".script"]) {
-            /* 搜尋檔案中是否有指定的關鍵字並取得其資訊 */
+            /* search interest parts and convert to hover */
             hov = getHoverFromFile(file.filePath, keyword);
-            /* 如果有東西則離開迴圈 */
+            /* exit loop if found */
             if (hov) {
                 break;
             }
         }
     }
+    /* search .urscript files if .variable and .script were not found */
     if (!hov && files[".urscript"] && files[".urscript"].length > 0) {
+        /* poll files */
         for (const file of files[".urscript"]) {
+            /* search interest parts and convert to hover */
             hov = getHoverFromFile(file.filePath, keyword);
+            /* exit loop if found */
             if (hov) {
                 break;
             }
         }
     }
-    /* 回傳 */
+    /* return it */
     return hov;
 }
 
 /**
- * 搜尋檔案內容的指定關鍵字並轉換成定義位置
- * @param document 欲解析的文件
- * @param fileName 欲解析的檔案路徑
- * @param keyword 欲搜尋的關鍵字
- * @returns 定義位置
+ * search and locate method or variable with specific keyword in current editor
+ * @param document the text of current editor
+ * @param keyword current user mouse hovered keyword
+ * @returns the locations of keyword. it may be empty (len = 0) when nothing matched
  */
 export function getLocationFromDocument(document: TextDocument, keyword: string): Location[] {
-    /* 建立 Regex Pattern */
+    /* create new regex to search keyword */
     const mthdPat = new RegExp(`(\\b(def|thread)\\s+${keyword}\\(.*\\):)|(\\bglobal\\s+${keyword}\\b)`, "g");
     const namePat = /\b(?!def|thread|global)\w+/gm;
-    /* 宣告回傳變數 */
+    /* create collection for return */
     let locColl: Location[] = [];
-    /* 輪詢每一行，直至找到關鍵字 */
+    /* poll each line. until found keyword */
     for (let lineNo = 0; lineNo < document.lineCount; lineNo++) {
-        /* 迴圈尋找符合的方法 */
+        /* search method by regex */
         const match = mthdPat.exec(document.lineAt(lineNo).text);
         if (match) {
-            /* 用 Regex 取得方法名稱 */
+            /* get method name by regex */
             const nameReg = namePat.exec(match[0]);
-            /* 有成功找到，建立完成項目 */
+            /* create location if found */
             if (nameReg) {
                 const loc = new Location(
                     document.uri,
@@ -751,27 +756,27 @@ export function getLocationFromDocument(document: TextDocument, keyword: string)
 }
 
 /**
- * 搜尋檔案內容的指定關鍵字並轉換成定義位置
- * @param fileName 欲解析的檔案路徑
- * @param keyword 欲搜尋的關鍵字
- * @param locColl 欲存放定義位置的容器
+ * search and locate method or variable with specific keyword in file
+ * @param fileName the file path to search. must be absolutely path.
+ * @param keyword current user mouse hovered keyword
+ * @param locColl the collection to store locations of keyword
  */
 export function getLocationFromFile(fileName: fs.PathLike, keyword: string, locColl: Location[]) {
-    /* 建立 Regex Pattern */
+    /* create new regex to search keyword */
     const mthdPat = new RegExp(`(\\b(def|thread)\\s+${keyword}\\(.*\\):)|(\\bglobal\\s+${keyword}\\b)`, "g");
     const namePat = /\b(?!def|thread|global)\w+/gm;
-    /* 建立行讀取器 */
+    /* create a new reader to read each line */
     const lineReader = new ReadLinesSync(fileName);
-    /* 輪詢每一行，直至找到關鍵字 */
+    /* poll each line. until found keyword */
     for (const ret of lineReader) {
-        /* 確保有讀到資料 */
+        /* ensure not null */
         if (ret.line) {
-            /* 迴圈尋找符合的方法 */
+            /* search method by regex */
             const match = mthdPat.exec(ret.line.toString());
             if (match) {
-                /* 用 Regex 取得方法名稱 */
+                /* get method name by regex */
                 const nameReg = namePat.exec(match[0]);
-                /* 有成功找到，建立完成項目 */
+                /* create instance if found */
                 if (nameReg) {
                     const loc = new Location(
                         Uri.file(fileName.toString()),
@@ -788,28 +793,28 @@ export function getLocationFromFile(fileName: fs.PathLike, keyword: string, locC
 }
 
 /**
- * 搜尋檔案內容的指定關鍵字並轉換成定義位置
- * @param filePath 欲搜尋的檔案路徑(X://..//*.variable)
- * @param fileName 欲搜尋的檔案名稱(僅 *.variable)
- * @param keyword 欲搜尋的關鍵字
- * @param locColl 欲存放定義位置的容器
+ * search and locate variable with specific keyword in .variable file
+ * @param filePath the file path to search. must be absolutely path.
+ * @param fileName the file name to search. just '*.variable'
+ * @param keyword current user mouse hovered keyword
+ * @param locColl the collection to store locations of keyword
  */
 export function getLocationFromVariables(filePath: fs.PathLike, fileName: fs.PathLike, keyword: string, locColl: Location[]) {
-    /* 建立 Regex Pattern */
+    /* create new regex to search keyword */
     const namePat = new RegExp(`^${keyword}(?==)`, "g");
-    /* 宣告等下要用的搜尋結果 */
+    /* create match results */
     let nameMatch: RegExpExecArray | null;
-    /* 建立行讀取器 */
+    /* create a new reader to read each line */
     const lineReader = new ReadLinesSync(filePath);
-    /* 輪詢每一行 */
+    /* poll each line in file */
     for (const pkg of lineReader) {
-        /* 確保有讀到東西 */
+        /* ensure not null */
         if (pkg.line) {
-            /* 轉成字串 */
+            /* trim spaces and invisible chars */
             const cur = pkg.line.toString().trim();
-            /* 利用 Regex 尋找名稱 */
+            /* search keyword parts with regex */
             while ((nameMatch = namePat.exec(cur))) {
-                /* 組合資訊 */
+                /* create new location and assign values */
                 const loc = new Location(
                     Uri.file(filePath.toString()),
                     new Position(
@@ -824,18 +829,19 @@ export function getLocationFromVariables(filePath: fs.PathLike, fileName: fs.Pat
 }
 
 /**
- * 搜尋 Workspace 內的所有檔案，藉以找出定義位置
- * @param workspace 欲搜尋的 Workspace 路徑
- * @param keyword 當前使用者輸入的關鍵字
- * @param explored 已經探索過(要跳過)的檔案名稱
+ * search and locate method or variable with specific keyword in workspace (vscode was opened directory)
+ * @param workspace the workspace folder to search
+ * @param keyword current user mouse hovered keyword
+ * @param explored explored(ignore) file name. bacause current editor was searched.
+ * @returns the locations of keyword. it may be empty (len = 0) when nothing matched
  */
 export function getLocationFromWorkspace(workspace: WorkspaceFolder, keyword: string, explored: string): Location[] {
-    /* 取得資料夾內的所有檔案 */
+    /* get all files in workspace */
     const files: ExtensionDictionary = new ExtensionDictionary();
     getAllFiles(workspace.uri.fsPath, ignoreDir, tarExt, files);
-    /* 初始化變數 */
+    /* initialize collection to store found location */
     let locColl: Location[] = [];
-    /* 取得 .variables 檔案 */
+    /* get .variables files */
     if (files[".variables"] && files[".variables"].length > 0) {
         files[".variables"].forEach(
             file => {
@@ -843,7 +849,7 @@ export function getLocationFromWorkspace(workspace: WorkspaceFolder, keyword: st
             }
         );
     }
-    /* 取得 .script 檔案 */
+    /* get .script files */
     if (files[".script"] && files[".script"].length > 0) {
         files[".script"].forEach(
             file => {
@@ -851,7 +857,7 @@ export function getLocationFromWorkspace(workspace: WorkspaceFolder, keyword: st
             }
         );
     }
-    /* 取得 .urscript 檔案 */
+    /* get .urscript files */
     if (files[".urscript"] && files[".urscript"].length > 0) {
         files[".urscript"].forEach(
             file => {
@@ -859,136 +865,142 @@ export function getLocationFromWorkspace(workspace: WorkspaceFolder, keyword: st
             }
         );
     }
-    /* 回傳 */
+    /* return collection */
     return locColl;
 }
 
 /**
- * 搜尋檔案內容的指定關鍵字並轉換成簽章
- * @param document 欲解析的文件
- * @param fileName 欲搜尋的檔案路徑
- * @param keyword 當前使用者停留的關鍵字
+ * search method or variable with specific keyword in current editor and convert to as SignatureHelp
+ * @param document the text of current editor
+ * @param keyword current user mouse hovered keyword
+ * @returns signature info. it may be null when nothing matched
  */
 export function getSignatureFromDocument(document: TextDocument, keyword: string): SignatureHelp | undefined {
-    /* 建立 Regex Pattern */
+    /* create new regex to search keyword */
     const mthdPat = new RegExp(`\\bdef\\s+${keyword}\\(.*\\):`, "g");
-    /* 建立已讀取過的暫存區 */
+    /* create a new instance to store past lines */
     const oldLines: string[] = [];
-    /* 輪詢每一行 */
+    /* poll each line in file */
     let sigHelp: SignatureHelp | undefined;
     for (let lineNo = 0; lineNo < document.lineCount; lineNo++) {
-        /* 轉成字串 */
+        /* trim spaces and invisible chars */
         const cur = document.lineAt(lineNo).text.trim();
-        /* 嘗試找出方法或變數 */
+        /* trying to get interest block by regex */
         const match = mthdPat.exec(cur);
-        /* 解析是否有符合的物件 */
+        /* parsing to signature obejct */
         sigHelp = parseSignature(match, oldLines);
-        /* 成功找到則離開迴圈 */
+        /* return it if found */
         if (sigHelp) {
             break;
         }
-        /* 加入讀過的暫存區 */
+        /* if more than maximum limit, drop one */
         if (oldLines.length > maxOldLineCount) {
             oldLines.shift();
         }
+        /* add to the end of collection */
         oldLines.push(cur);
     }
-    /* 回傳 */
+    /* return it */
     return sigHelp;
 }
 
 /**
- * 搜尋檔案內容的指定關鍵字並轉換成簽章
- * @param fileName 欲搜尋的檔案路徑
- * @param keyword 當前使用者停留的關鍵字
+ * search method or variable with specific keyword in file and convert to SignatureHelp
+ * @param fileName the file path to search. must be absolutely path.
+ * @param keyword current user mouse hovered keyword
+ * @returns signature info. it may be null when nothing matched
  */
 export function getSignatureFromFile(fileName: string, keyword: string): SignatureHelp | undefined {
-    /* 建立 Regex Pattern */
+    /* create new regex to search keyword */
     const mthdPat = new RegExp(`\\bdef\\s+${keyword}\\(.*\\):`, "g");
-    /* 建立已讀取過的暫存區 */
+    /* create a new instance to store past lines */
     const oldLines: string[] = [];
-    /* 建立讀取器 */
+    /* create a new reader to read each line */
     const lineReader = new ReadLinesSync(fileName);
-    /* 輪詢每一行 */
+    /* poll each line in file */
     let sigHelp: SignatureHelp | undefined;
     for (const pkg of lineReader) {
-        /* 確保有讀到東西 */
+        /* ensure not null */
         if (pkg.line) {
-            /* 轉成字串 */
+            /* trim spaces and invisible chars */
             const cur = pkg.line.toString().trim();
-            /* 嘗試找出方法或變數 */
+            /* trying to get interest block by regex */
             const match = mthdPat.exec(cur);
-            /* 解析是否有符合的物件 */
+            /* parsing to signature obejct */
             sigHelp = parseSignature(match, oldLines);
-            /* 成功找到則離開迴圈 */
+            /* return it if found */
             if (sigHelp) {
                 break;
             }
-            /* 加入讀過的暫存區 */
+            /* if more than maximum limit, drop one */
             if (oldLines.length > maxOldLineCount) {
                 oldLines.shift();
             }
+            /* add to the end of collection */
             oldLines.push(cur);
         }
     }
-    /* 回傳 */
+    /* return it */
     return sigHelp;
 }
 
 /**
- * 搜尋 Workspace 內的所有檔案，並找出符合的簽章
- * @param workspace 欲搜尋的 Workspace 路徑
- * @param keyword 當前使用者輸入的關鍵字
- * @param explored 已經探索過(要跳過)的檔案名稱
+ * search method or variable with specific keyword in workspace (vscode was opened directory) and convert to SignatureHelp
+ * @param workspace the workspace folder to search
+ * @param keyword current user mouse hovered keyword
+ * @param explored explored(ignore) file name. bacause current editor was searched.
+ * @returns signature info. it may be null when nothing matched
  */
 export function getSignatureFromWorkspace(workspace: WorkspaceFolder, keyword: string, explored: string): SignatureHelp | undefined {
-    /* 取得資料夾內的所有檔案 */
+    /* get all files in workspace */
     const files: ExtensionDictionary = new ExtensionDictionary();
     const sigExt: string[] = [ ".script" ];
     getAllFiles(workspace.uri.fsPath, ignoreDir, sigExt, files);
-    /* 取得 .script 檔案 */
+    /* get .script files */
     let sigHelp: SignatureHelp | undefined;
     if (files[".script"] && files[".script"].length > 0) {
         for (const file of files[".script"]) {
-            /* 搜尋檔案中是否有指定的關鍵字並取得其資訊 */
+            /* search keyword and convert to signature */
             sigHelp = getSignatureFromFile(file.filePath, keyword);
-            /* 如果有東西則離開迴圈 */
+            /* return it if found */
             if (sigHelp) {
                 break;
             }
         }
     }
-    /* 回傳 */
+    /* return it */
     return sigHelp;
 }
 
 /**
- * 搜尋檔案內容的方法並轉換成符號
- * @param document 欲解析的文件
- * @returns 文件裡的所有符號
+ * search all method in current editor and convert to DocumentSymbol
+ * @param document the text of current editor
+ * @returns symbol collection. it may be empty (len = 0) when nothing matched
  */
 export function getSymbolsFromDocument(document: TextDocument): DocumentSymbol[] {
-    /* 建立 Regex Pattern */
+    /* create new regex to search keyword */
     const mthdPat = /^(?!=)(def|thread)\s+\w+\(.*\):/g;
     const namePat = /\b(?!def|thread)\w+(?=\()/gm;
     const paraPat = /\b(?!def|thread)\S+.+(?=:)/g;
-    /* 宣告等下要用的搜尋結果 */
+    /* create match results */
     let mthdMatch: RegExpExecArray | null;
     let nameMatch: RegExpExecArray | null;
     let paraMatch: RegExpExecArray | null;
-    /* 宣告回傳變數 */
+    /* create symbol results to store */
     let symColl: DocumentSymbol[] = [];
-    /* 輪詢每一行，直至找到關鍵字 */
+    /* poll each line */
     for (let lineNo = 0; lineNo < document.lineCount; lineNo++) {
-        /* 迴圈尋找符合的方法 */
+        /* get current line and make temporary variable */
         const text = document.lineAt(lineNo).text;
-        /* 輪詢內容  */
+        /* loop to get method name.
+           it may cause fail if you not make regex be end of result (no next available)
+           so I use 'while' here to ensure last time was nothing matched  */
         while ((mthdMatch = mthdPat.exec(text))) {
-            /* 取得名稱 */
+            /* get the name of method */
             while ((nameMatch = namePat.exec(mthdMatch[0]))) {
-                /* 找出名稱至參數內容 */
+                /* get parameters in parentheses */
                 while ((paraMatch = paraPat.exec(mthdMatch[0]))) {
-                    /* 成功找到，組合項目 */
+                    /* found. create a new symbol and assign values */
                     const sym = new DocumentSymbol(
                         nameMatch[0],
                         paraMatch[0],

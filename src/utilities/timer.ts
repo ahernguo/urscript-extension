@@ -1,21 +1,21 @@
 /**
- * 簡易計時器
+ * simple timer
  */
 export function timer() {
 
     /**
-     * 開始記錄之時間
+     * record the start (construct) time
      */
     const startTime = new Date().getTime();
 
     return {
-        /** 取得已經過的秒數 */
+        /** get elapsed time with seconds */
         get seconds() {
             const curTime = new Date().getTime();
             const subTime = (curTime - startTime) / 1000;
             return Math.ceil(subTime);
         },
-        /** 取得已經過的毫秒數 */
+        /** get elapsed time with milliseconds (ms) */
         get ms() {
             const curTime = new Date().getTime();
             return curTime - startTime;

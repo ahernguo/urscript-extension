@@ -1,51 +1,52 @@
-//用於 Documentation 的 Markdown 字串
+//for Documentation use
 import { MarkdownString } from 'vscode';
-//使用 TypeScript 的 JSON 解析功能來載入檔案
+//loading script functions that made by JSON
 import funcs from './functions.json';
-//檢查字串是否為空字串
+//check string is empty or null
 import { isBlank } from './utilities/checkString.js';
 
 /**
- * URScript 的變數類型
+ * Variable types of URScript
  */
 export enum Types {
     /**
-     * 空值
+     * none/null
      */
     None = 0x00,
     /**
-     * 布林值(Boolean)
+     * boolean. `true` or `false`
      */
     Bool = 0x01,
     /**
-     * 數值，包含整數(Integer)與浮點數(Float)
+     * number. contains `Int` and `Float`
      */
     Number = 0x06,
     /**
-     * 整數(Integer)
+     * integer. likes 0, 1, 2, ...
      */
     Int = 0x02,
     /**
-     * 浮點數(Float)
+     * float. likes 0.1, 2.3, 4.5, ...
      */
     Float = 0x04,
     /**
-     * 手臂點位陣列 [X, Y, Z, Rx, Ry, Rz]
+     * pose. [X, Y, Z, Rx, Ry, Rz]
      */
     Pose = 0x08,
     /**
-     * 數值陣列，包含整數陣列與浮點數陣列
+     * numeric collection. likes `Int[]` and `Float[]`
      */
     Array = 0x10,
     /**
-     * 字串
+     * string
      */
     String = 0x12
 }
 
 /**
- * 取得 Types 對應的字串
- * @param value 欲判斷的類型
+ * Convert `Types` to `string`
+ * @param value the `Types` to convert
+ * @returns responsed type string
  */
 export function type2Str(value: Types): string {
     switch (value) {
@@ -61,8 +62,9 @@ export function type2Str(value: Types): string {
 }
 
 /**
- * 將字串轉換為 Types
- * @param str 欲轉換的字串
+ * Convert `string` to `Types`
+ * @param str the `string` to convert
+ * @returns responsed types
  */
 export function str2Type(str: string | undefined): Types {
     if (str) {
@@ -83,24 +85,25 @@ export function str2Type(str: string | undefined): Types {
 }
 
 /**
- * 適用於 URScript 方法的簽章參數
+ * Parameter detail of function
  */
 export class MethodParameter {
 
-    /** 參數的名稱 */
+    /** parameter name */
     Label: string;
-    /** 參數的使用說明 */
+    /** comment for this parameter */
     Comment: string;
-    /** 參數的類型 */
+    /** type of this parameter */
     Type: Types;
-    /** 參數的預設數值 */
+    /** default value */
     Default: string;
-    /** 已根據 Label 與 Comment 所調整而成，可用於文件內容的 Markdown 字串 */
+    /** Markdown string for Documentation. Based on `Label` and `Comment`
+     */
     Documentation: MarkdownString;
 
     /**
-     * 建構簽章參數
-     * @param jsPara 由 JSON 檔案解析的 Parameter 物件
+     * construct for parameter
+     * @param jsPara the json object from function.json to parsing
      */
     constructor(jsPara: {
         "Label": string,
@@ -108,18 +111,18 @@ export class MethodParameter {
         "Comment": string,
         "Default": string
     }) {
-        /* 賦值 */
+        /* assign values */
         this.Label = jsPara.Label;
         this.Comment = jsPara.Comment;
         this.Default = jsPara.Default;
         this.Type = str2Type(jsPara.Type);
-        /* 組裝 Documentation */
+        /* create markdown string */
         const docStr = `${type2Str(this.Type)} **${this.Label}**\n> ${this.Comment}`;
         this.Documentation = new MarkdownString(docStr);
     }
 
     /**
-     * 取得此參數的對應字串，適用於引數字串
+     * gets the string of this parameter
      */
     public getParaStr(): string {
         if (isBlank(this.Default)) {
@@ -131,30 +134,30 @@ export class MethodParameter {
 }
 
 /**
- * 適用於 URScript 的方法，包含名稱、說明、回傳值以及簽章
+ * The package of URScript
  */
 export class ScriptMethod {
 
-    /** 方法的名稱 */
+    /** method/API name */
     Name: string;
-    /** 回傳值說明 */
+    /** comments for return */
     Return: string;
-    /** 回傳值的類型 */
+    /** return type */
     ReturnType: Types;
-    /** (空字串)尚未被取代 (字串)已被取代的相關說明 */
+    /** (null)not deprecated (not empty)comments for deprecated */
     Deprecated: string;
-    /** 方法的相關說明 */
+    /** comments for this method/API */
     Comment: string;
-    /** 簽章集合 */
+    /** collection of parameters/signatures (in parentheses) */
     Parameters: MethodParameter[];
-    /** 已根據 Return、Deprecated 與 Comment 所調整而成，可用於文件內容的 Markdown 字串 */
+    /** markdown string for Documentation. based on return, comment and parameters */
     Documentation: MarkdownString;
-    /** 包含簽章、回傳值的標籤 */
+    /** short tip for CompletionItem and Hover title. contains name, parameters/signatures and return */
     Label: string;
 
     /**
-     * 建構 URScript 方法
-     * @param jsMthd 由 JSON 檔案解析的 Method 物件
+     * construct a new method/API from json object
+     * @param jsMthd the json object from functions.json
      */
     constructor(jsMthd: {
         "Name": string,
@@ -169,15 +172,15 @@ export class ScriptMethod {
             "Default": string
         }[]
     }) {
-        /* 賦值 */
+        /* copy values */
         this.Name = jsMthd.Name;
         this.Return = jsMthd.Return;
         this.Deprecated = jsMthd.Deprecated;
         this.Comment = jsMthd.Comment;
         this.Parameters = jsMthd.Parameters.map(jsPara => new MethodParameter(jsPara));
         this.ReturnType = str2Type(jsMthd.ReturnType);
-        /* 組裝 Documentation */
-        //先用 docStr 來儲存 Return 與 Deprecated
+        /* combine Documentation */
+        //use 'docStr' to store 'return' and 'deprecated' information
         const docStr: string[] = [];
         if (!isBlank(this.Return)) {
             docStr.push(`- *Return*\n  > ${this.Return}`);
@@ -185,27 +188,27 @@ export class ScriptMethod {
         if (!isBlank(this.Deprecated)) {
             docStr.push(`- *Deprecated*\n  > ${this.Deprecated}`);
         }
-        //如果 docStr 有東西，則 Documentation = Comment + docStr
+        //Documentation = comment + docStr ... if 'docStr' not empty
         if (docStr.length > 0) {
             this.Documentation = new MarkdownString(
                 `${this.Comment}\n\n${docStr.join('\n\n')}`
             );
         } else {
-            //docStr 沒東西，則直接 Documentation = Comment
+            //Documentation = comment ... if 'docStr' is empty
             this.Documentation = new MarkdownString(this.Comment);
         }
-        /* 組裝 Label */
-        //將簽章內的標籤用逗號組裝起來
+        /* combine Label */
+        //join signatures by ','
         let paraStr = this.Parameters.map(para => para.getParaStr()).join(", ");
-        //標籤 = 名稱(簽章)
+        //label = name(signatures)
         this.Label = `${type2Str(this.ReturnType)} ${this.Name}(${paraStr})`;
     }
 }
 
 /**
- * 載入 functions.json 並取得其內容
+ * load 'functions.json' and parsing to ScriptMethod objects
  */
 export function createFunctions(): ScriptMethod[] {
-    /* 直接用 map 轉成 ScriptMethod */
+    /* using 'map' to poll each json object and parse it */
     return funcs.map(jsMthd => new ScriptMethod(jsMthd));
 }

@@ -1,11 +1,12 @@
 /**
- * 檢查字串是否為空
- * @param value 欲檢查的字串
+ * check the string is null, undefined or fill with spaces
+ * @param value the string to check
+ * @returns (true)empty   (false)not empty
  */
 export function isBlank(value: string): boolean {
-    /* 確認字串是否有東西 */
+    /* ensure value is not undefined and not empty */
     if (value && value !== '') {
-        /* 利用 Regex 檢查字串內是否都是空格 */
+        /* using regex to check content is only spaces? */
         return /^\s*$/.test(value);
     } else {
         return true;
