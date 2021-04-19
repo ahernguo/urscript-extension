@@ -8,6 +8,7 @@ Goto [urscript-extension](https://github.com/ahernguo/urscript-extension) for mo
   * Fix string or comment containing `end` cause an indent decrease([#12](https://github.com/ahernguo/urscript-extension/issues/12))
   * Fix hover item pop-up when string value is same as function
   * Fix recursive format when nested bracket
+  * Fix format error when using `*` or `/` before negative sign `-`
   * Correct `folding` and `indentationRules`
 
 ## `0.1.7` (08-Jun-2020)
