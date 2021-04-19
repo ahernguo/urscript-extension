@@ -169,6 +169,12 @@ class BracketPattern {
         /* separate content in brackets and add spaces between items */
         if (formatRange.length > 0) {
             for (const p of formatRange) {
+                /* if the range already formatted, skip it */
+                const repeated = editColl.some(e => (e.range.start.line === line.lineNumber)
+                    && ((e.range.start.character <= p.Start) || (p.End <= e.range.end.character)));
+                if (repeated) {
+                    continue;
+                }
                 /* get the string in brackets */
                 const subStr = line.text.substring(p.Start, p.End);
                 /* split with comma.
@@ -429,8 +435,8 @@ export class URScriptFormattingProvider
         new SignPattern("+", "\\+"),
         new SignPattern("--", "--"),
         new SignPattern("-", "-", [
-            /(\(|\[|,|=|return)\s*-/g,
-            /[eE]-\d+/g
+            /(\(|\[|,|=|return|\*|\/)\s*-/g,
+            /[eE]?-\d+/g
         ]),
         new SignPattern("*", "\\*"),
         new SignPattern("/", "\\/", [
@@ -477,7 +483,7 @@ export class URScriptFormattingProvider
      */
     private needIncreaseIndent(line: TextLine): boolean {
         /* using regex to check language keyword */
-        const match = line.text.match(/\b(def|thread|while|for|if|elif|else).*:/g);
+        const match = line.text.match(/^\s*(def|thread|while|for|if|elif|else).*:(\s*|\s*#.*)$/g);
         return match ? match.length > 0 : false;
     }
 
@@ -488,7 +494,7 @@ export class URScriptFormattingProvider
      */
     private needDecreaseIndent(line: TextLine): boolean {
         /* using regex to check language keyword */
-        const match = line.text.match(/\b((?<!\w)end(?!\w))|(elif.*:)|(else:)/g);
+        const match = line.text.match(/^\s*(end|(elif.+:)|else:)(\s*|\s*#.*)$/g);
         return match ? match.length > 0 : false;
     }
 
@@ -583,6 +589,11 @@ export class URScriptFormattingProvider
                     indent += options.tabSize;
                 }
             }
+            // txtEdit.forEach(
+            //     v => {
+            //         console.log(`range: '${v.range.start.line}(${v.range.start.character} to ${v.range.end.character})', text: '${v.newText}'`);
+            //     }
+            // );
             /* return the parts to format */
             return txtEdit;
         } catch (error) {

@@ -77,6 +77,12 @@ export class URScriptHoverProvider implements HoverProvider {
             let word = document.getText(wordRange);
             /* ensure not empty */
             if (!isBlank(word)) {
+                /* ensure not in string */
+                const line = document.lineAt(position);
+                const inStrMat = line.text.match(`\".*${word}.*\"`);
+                if (inStrMat) {
+                    return undefined;
+                }
                 /* search stored Hover item. check something matched? */
                 let matchHover = this.scriptHovItems.find(hovItem => hovItem.Name === word);
                 /* return if found */

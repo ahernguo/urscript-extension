@@ -21,14 +21,14 @@
     // 可折疊的程式碼區塊
     "folding": {
         "markers": {
-            "start": "\\b(def|thread|while|for|if|elif|else)\\b",
-            "end": "\\b(end)\\b"
+            "start": "^\\s*(def|thread|while|for|if|elif|else).*:(\\s*|\\s*#.*)$",
+            "end": "^\\s*(end|(elif.+:)|else:)(\\s*|\\s*#.*)$"
         }
     },
     // 自動添加 tab 縮排的規則
     "indentationRules": {
-        "increaseIndentPattern": "\\b(def|thread|while|for|if|elif|else).*:",
-        "decreaseIndentPattern": "\\b(end)\\b"
+        "increaseIndentPattern": "^\\s*(def|thread|while|for|if|elif|else).*:(\\s*|\\s*#.*)$",
+        "decreaseIndentPattern": "^\\s*(end|(elif.+:)|else:)(\\s*|\\s*#.*)$"
     },
     // 註解區塊
     "comments": {
