@@ -1,30 +1,30 @@
-//用於檔案載入與解析
+//using for file stream
 import * as fs from 'fs';
 
 /**
- * 讀取檔案並每次回傳一行的讀取器
+ * reading file and poll each line
  * 
- * 此內容改版自 [n-readlines](https://github.com/nacholibre/node-readlines)
+ * reference: [n-readlines](https://github.com/nacholibre/node-readlines)
  */
 export class ReadLinesSync implements Iterable<{ lineNo: number, line: Buffer | undefined }> {
 
-    /** 開啟檔案的 Token */
+    /** the token/handle of file stream */
     private fileToken?: number;
-    /** 指出是否已到達檔案結尾(End Of File) */
+    /** point whether reach the end of file */
     private eof: boolean;
-    /** 暫存區 */
+    /** buffer/cache when reading */
     private cache: Buffer[];
-    /** 當前的緩衝區索引 */
+    /** the index of current reading buffer */
     private pos: number;
-    /** 每次讀取的緩衝區大小 */
+    /** the size of reading a chunk */
     private readonly chunkSize: number;
-    /** 欲判斷的結尾符號 */
+    /** the char point to end of line */
     private endChar: number;
 
     /**
-     * 建構同步的行讀取器
-     * @param file 檔案路徑
-     * @param option 選項參數
+     * construct a new reader
+     * @param file the file path to read
+     * @param option reading options
      */
     constructor(file: fs.PathLike, option: { readChunk: number, endChar: number } = { readChunk: 1024, endChar: 0x0A }) {
         this.chunkSize = option.readChunk;
@@ -36,30 +36,30 @@ export class ReadLinesSync implements Iterable<{ lineNo: number, line: Buffer | 
     }
 
     /**
-     * 尋找緩衝區中指定資料之索引
-     * @param buf 欲尋找的緩衝區
-     * @param data 欲尋找的資料
+     * find the index of specific data in buffer
+     * @param buf the buffer to search
+     * @param data the data specified
      */
     private searchInBuffer(buf: Buffer, data: number): number {
         return buf.indexOf(data);
     }
 
     /**
-     * 將緩衝區內的資料依照結尾符號給分段拆出
-     * @param buf 欲解析的緩衝區資料
+     * get a slice in buffer according to the end of line character
+     * @param buf the buffer to slice
      */
     private extractLines(buf: Buffer): Buffer[] {
-        /* 初始化變數 */
-        let curPos = 0;             //Buffer內的位移索引
-        let lastEOL = 0;            //上一次出現的結尾符號索引
-        let line: Buffer;           //暫存上次的結尾到此次新結尾符號的資料
-        const lines: Buffer[] = []; //回傳的集合
+        /* variable initialize */
+        let curPos = 0;             //the position/index of buffer
+        let lastEOL = 0;            //the index of previous eol
+        let line: Buffer;           //temporarily store the data from last eol to new eol
+        const lines: Buffer[] = []; //the return buffer
 
-        /* 輪詢緩衝區內的資料，找出結尾符號 */
+        /* poll each data in buffer to find eol */
         while (true) {
-            /* 取得一筆資料 */
+            /* get latest data */
             let value = buf[curPos++];
-            /* 如果是結尾，加入要回傳的清單 */
+            /* add to result buffer when eol is found */
             if (value === this.endChar) {
                 line = buf.slice(lastEOL, curPos);
                 lines.push(line);
@@ -69,66 +69,66 @@ export class ReadLinesSync implements Iterable<{ lineNo: number, line: Buffer | 
             }
         }
 
-        /* 檢查是否有剩餘的項目 */
+        /* add the remaining buffer if no eol found but reach the end of file stream */
         line = buf.slice(lastEOL, curPos);
         if (line.length) {
             lines.push(line);
         }
 
-        /* 回傳 */
+        /* retuen found lines */
         return lines;
     }
 
     /**
-     * 嘗試從檔案讀取一行
-     * @param leftovers 上次剩餘的緩衝區
+     * trying to read one line
+     * @param leftovers the remaining buffer after last read
      */
     private readChunk(leftovers?: Buffer): number {
-        /* 初始化變數 */
-        let totalBytesRead = 0;         //總共已讀取多少字
-        let bytesRead = 0;              //當前緩衝區於結尾符號前共有多少字
-        let buf: Buffer;                //暫存當前緩衝區
-        const buffers: Buffer[] = [];   //累積的緩衝區，有可能大於 1024 字才出現結尾符號
+        /* variable initialize */
+        let totalBytesRead = 0;         //the count of how many bytes are read
+        let bytesRead = 0;              //the count of how many bytes before eol
+        let buf: Buffer;                //temporary buffer
+        const buffers: Buffer[] = [];   //the accumulated buffer. may larger than 1024.
 
-        /* 確保有開啟檔案 */
+        /* ensure open file successfully */
         if (this.fileToken) {
-            /* 無限迴圈直至沒讀到東西或有結尾符號就離開 */
+            /* loop to the end of stream or eol found */
             do {
-                /* 新增要存放的緩衝區 */
+                /* allocate a new buffer to read */
                 buf = Buffer.alloc(this.chunkSize);
-                /* 從檔案中依序讀取 */
+                /* read from file into buf */
                 bytesRead = fs.readSync(this.fileToken, buf, 0, this.chunkSize, this.pos);
-                /* 紀錄總共讀取多少了 */
+                /* store how many bytes are read in total */
                 totalBytesRead += bytesRead;
-                /* 位移 pos 索引 */
+                /* shift the reading index */
                 this.pos += bytesRead;
-                /* 將此段集合加入清單 */
+                /* add into buffers */
                 buffers.push(buf);
             } while (bytesRead && this.searchInBuffer(buf, this.endChar) === -1);
         }
 
-        /* 將所有找到的串在一起 */
+        /* combine all buffers that found */
         let data = Buffer.concat(buffers);
-        /* 如果提早結束，表示已經到達檔案尾聲 */
+        /* reach the end of file if length less than chunk */
         if (bytesRead < this.chunkSize) {
             this.eof = true;
-            data = data.slice(0, totalBytesRead);   //取出有資料的片段就好
+            data = data.slice(0, totalBytesRead);   //get the useful parts
         }
-        /* 如果順利找到換行符號，擷取之 */
+        /* get the slice if eol found */
         if (totalBytesRead) {
-            /* 把每一行給解出來 */
+            /* get a slice of one line */
             this.cache = this.extractLines(data);
-            /* 如果之前還有剩下的，將之加入 cache[0] */
+            /* add to cache[0] if remaining data exists */
             if (leftovers) {
                 this.cache[0] = Buffer.concat([leftovers, this.cache[0]]);
             }
         }
-        /* 回傳找到多少筆資料 */
+        /* return how many bytes are read. */
         return totalBytesRead;
     }
 
     /**
-     * 重設讀取器
+     * reset reader
      */
     public reset() {
         this.eof = false;
@@ -137,7 +137,7 @@ export class ReadLinesSync implements Iterable<{ lineNo: number, line: Buffer | 
     }
 
     /**
-     * 關閉讀取器
+     * close and release file token
      */
     public close() {
         if (this.fileToken) {
@@ -147,62 +147,62 @@ export class ReadLinesSync implements Iterable<{ lineNo: number, line: Buffer | 
     }
 
     /**
-     * 取得下一行資料
+     * get next line text
      */
     public getNextLine(): Buffer | undefined {
-        /* 如果沒有開啟檔案，直接離開 */
+        /* return null if file was not opened */
         if (!this.fileToken) {
             return undefined;
         }
-        /* 如果已經到達結尾或讀取失敗，回傳結果 */
+        /* return null if reach the end of file or read failed */
         if (this.eof && this.cache.length === 0) {
             return undefined;
         }
-        /* 初始旗標 */
+        /* make a temporary to store line */
         let line: Buffer | undefined;
-        /* 假設是一開始，直接讀取之 */
+        /* read a chunk from file if cache is empty */
         let bytesRead = 0;
         if (!this.cache.length) {
             bytesRead = this.readChunk();
         }
-        /* 若曾經有讀取過，或有上次的剩餘資料 */
+        /* get the line content if cached something  */
         if (this.cache.length) {
-            /* 如果曾經讀取過，取出第一筆(Dequeue) */
+            /* get first line in the cache (dequeue) */
             line = this.cache.shift();
             if (line) {
-                /* 檢查最後一字 */
+                /* gets and checks the last character */
                 const lastChar = line[line.length - 1];
-                /* 若不是結尾符號則繼續往後讀一次，表示當前 cache[0] 是上次剩餘的(leftovers) */
+                /* cache[0] is the remaining data if lastChar was not eol.
+                   read next chunk and concat remaining data */
                 if (lastChar !== this.endChar) {
                     bytesRead = this.readChunk(line);
-                    /* 若有成功讀到，Dequeue */
                     if (bytesRead) {
                         line = this.cache.shift();
                     }
                 }
             }
         }
-        /* 如果已經讀完了，關閉檔案 */
+        /* close file if reach the end of file */
         if (this.eof && this.cache.length === 0) {
             this.close();
         }
-        /* 如果有成功讀到結尾符號，擷取前面不含結尾符號的片段 */
+        /* get the slice without eol if found sucessfully */
         if (line && line[line.length - 1] === this.endChar) {
             line = line.slice(0, line.length - 1);
         }
-        /* 回傳 */
+        /* return the line */
         return line;
     }
 
     /**
-     * 取得迭代運算子
+     * get iterator
      */
     *[Symbol.iterator]() {
-        /* 宣告行號 */
+        /* declare for line numer */
         let lineNo = 0;
-        /* 輪詢每一行直至檔案讀取結束 */
+        /* poll each line until reach the end of file */
         while (!this.eof || this.cache.length > 0) {
-            /* 每次回傳當前的行號與行內容 */
+            /* yield the line number and content */
             yield { lineNo: lineNo++, line: this.getNextLine() };
         }
     }

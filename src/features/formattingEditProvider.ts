@@ -1,4 +1,3 @@
-//用於 vscode 的名稱解析
 import {
     DocumentRangeFormattingEditProvider,
     TextDocument,
@@ -11,22 +10,22 @@ import {
 } from "vscode";
 
 /**
- * 單行裡面的範圍
+ * range in single line
  */
 class InLineRange {
 
-    /** 起始索引 */
+    /** start index (zero based) */
     public Start: number;
-    /** 結尾索引 */
+    /** end index (zero based) */
     public End: number;
-    /** 由何種方式加入 ("b")括弧 ("s")符號 ("k")關鍵字 */
+    /** the string to add.  ("b")parenthese ("s")sign ("k")keyword */
     public AddBy: string;
 
     /**
-     * 建構行內範圍
-     * @param start 起始
-     * @param end 結尾
-     * @param by 由何種方式加入 ("b")括弧 ("s")符號 ("k")關鍵字
+     * construct a new range
+     * @param start start index
+     * @param end end index
+     * @param by the string to add.  ("b")parenthese ("s")sign ("k")keyword
      */
     constructor(start: number, end: number, by: string) {
         this.Start = start;
@@ -35,8 +34,8 @@ class InLineRange {
     }
 
     /**
-     * 判斷此索引是否在範圍內
-     * @param index 欲檢查的索引
+     * check the index is in range? (start <= index <= end)
+     * @param index the index to check
      */
     public InRange(index: number): boolean {
         return (this.Start <= index) && (index <= this.End);
@@ -44,32 +43,32 @@ class InLineRange {
 }
 
 /**
- * 括弧的排版樣板
+ * the template of bracket
  */
 class BracketPattern {
 
-    /** 起始括弧 */
+    /** the start sign of bracket */
     public StartSign: string;
-    /** 終止括弧 */
+    /** the end sign of bracket */
     public EndSign: string;
 
-    /** 排除字串的起始括弧 */
+    /** the regex to find start bracket */
     private StartPattern: RegExp;
-    /** 排除字串的結尾括弧 */
+    /** the regex to find end bracket */
     private EndPattern: RegExp;
-    /** 用於取得合法逗號的 Regex */
+    /** the regex to search comma parts */
     private static CommaPattern = /,(?=([^\"]*\"[^\"]*\")*[^\"]*$)/g;
 
     /**
-     * 建構括弧排版樣板
-     * @param start 起始括弧
-     * @param end 終止括弧
+     * construct a template of bracket
+     * @param start start bracket sign
+     * @param end end bracket sign
      */
     constructor(start: string, end: string) {
-        /* 塞入變數 */
+        /* assign sign */
         this.StartSign = start;
         this.EndSign = end;
-        /* 組裝 Regex */
+        /* create start and end regex */
         this.StartPattern = new RegExp(
             `\\${start}(?=([^\\"]*\\"[^\\"]*\\")*[^\\"]*$)`,
             "g"
@@ -81,12 +80,12 @@ class BracketPattern {
     }
 
     /**
-     * 針對指定的文字行進行排版，並將排版結果存入集合中
-     * @param editColl 欲儲存排版結果的集合
-     * @param editRange 已處理過的位置
-     * @param line 欲解析的文字行
-     * @param commentIndex 註解的位置
-     * @returns (0)已完全閉鎖 (1)只有起始括弧 (2)只有結尾括弧
+     * format a text line
+     * @param editColl the collection to store formatted result
+     * @param editRange the collection of range that already dealt
+     * @param line the text line to analyze
+     * @param commentIndex the index of comments
+     * @returns (0)both brackets are paired or no bracket found   (1)only start bracket found  (2)only end bracket found
      */
     public format(
         editColl: TextEdit[],
@@ -94,25 +93,38 @@ class BracketPattern {
         line: TextLine,
         commentIndex: number
     ): number {
-        /* 宣告回傳的括弧狀態 */
+        /* initial bracket state to (0) no bracket found */
         let bracketState = 0x00;
-        /* 宣告集合 */
+        /* create collections to store detail info.
+           the idea of bracket search is find all start/end sign in this line
+           and make a pair of latter start and former end. for example,
+           
+              ↓   ↓
+           abc(def(ghi))
+                      ↑↑
+
+           start indexes : 3, 7
+           end indexes : 11, 12
+           pair : (7,11) (3,12)
+
+           using end collection to ensure bracket are matched/paired state. */
         const pair: { Start: number, End: number }[] = [];
         const start: number[] = [];
         const end: { Index: number, Matched: boolean }[] = [];
-        /* 宣告暫存結果 */
+        /* make a variable to store results of regex */
         let match: RegExpExecArray | null;
-        /* 尋找起始括弧 */
+        /* search start bracket */
         while ((match = this.StartPattern.exec(line.text))) {
-            /* 如果此括弧在註解前面，則加入集合 */
+            /* add to result if start bracket index is before comment */
             if ((commentIndex < 0) || (match.index < commentIndex)) {
-                start.unshift(match.index); //倒置，越後面的括號要先判斷
+                start.unshift(match.index); //start bracket are reversed of collection. latter index is paired first.
             }
         }
-        /* 尋找結尾括弧 */
+        /* search end bracket */
         while ((match = this.EndPattern.exec(line.text))) {
-            /* 如果此括弧在註解前面，則加入集合 */
+            /* add to result if start bracket index is before comment */
             if ((commentIndex < 0) || (match.index < commentIndex)) {
+                /* end bracket are normal direction. former index is paired first */
                 end.push(
                     {
                         Index: match.index,
@@ -121,56 +133,63 @@ class BracketPattern {
                 );
             }
         }
-        /* 檢查括弧閉鎖狀態 */
+        /* no bracket in this line if both start and end equals zero */
         if (start.length === 0 && end.length === 0) {
-            return 0;   //沒有括弧
+            return 0;
         } else if (start.length > 0 && end.length === 0) {
-            return 1;   //只有起始、沒有結尾
+            return 1;   //only start bracket if one or more start brackets found but no end barcket
         } else if (start.length === 0 && end.length > 0) {
-            return 2;   //只有結尾、沒有起始
+            return 2;   //only end bracket if one or more end brackets found but no start bracket
         } else if (start.length > end.length) {
-            bracketState |= 0x01;   //開始比結束的多
+            bracketState |= 0x01;   //start is more than end
         } else if (start.length < end.length) {
-            bracketState |= 0x02;   //結束比開始的多
+            bracketState |= 0x02;   //end is more than start
         }
-        /* 找出括弧配對 */
+        /* start pairing */
         for (const idx of start) {
-            /* 找出最近的括弧 */
+            /* find end bracket that not matched and the index is bigger than start bracket  */
             const tarIdx = end.findIndex(kvp => !kvp.Matched && idx < kvp.Index);
-            /* 檢查是否有找到對應的括弧 */
+            /* if end bracket found, add to result */
             if (tarIdx > -1) {
-                /* 加入集合 */
+                /* add to result. the start index is the content next '(' */
                 pair.push(
                     {
                         Start: idx + 1,
                         End: end[tarIdx].Index
                     }
                 );
-                /* 標記為已配對，避免被重複搜尋 */
+                /* mark as matched. avoid repeat */
                 end[tarIdx].Matched = true;
             }
         }
-        /* 如果有在大括弧內，從 pair 中移除，避免重複排版 */
+        /* filter inner brackets. likes array index or parameters */
         const formatRange = pair.filter(
             p => !pair.some(o => (o.Start < p.Start) && (p.End < o.End))
         );
-        /* 依序將配對的內容拆開並加上空白 */
+        /* separate content in brackets and add spaces between items */
         if (formatRange.length > 0) {
             for (const p of formatRange) {
-                /* 取出括弧中間的內容 */
+                /* get the string in brackets */
                 const subStr = line.text.substring(p.Start, p.End);
-                /* 由於 line.text.split(this.CommaPattern) 會取得怪怪的元素，所以只好手動分割了!! */
+                /* split with comma.
+                
+                   according to regex will cache 'lastIndex' when 'g' was set.
+                   it must let regex search to 'nothing matched' (lastIndex === 0)
+                   so use 'while' here to ensure regex searched to the end of line and nothing matched.
+                   
+                   source: https://stackoverflow.com/questions/10229144/bug-with-regexp-in-javascript-when-do-global-search */
+
                 const strColl: string[] = [];
                 let lastIndex = 0;
                 while ((match = BracketPattern.CommaPattern.exec(subStr))) {
                     strColl.push(subStr.substring(lastIndex, match.index).trim());
                     lastIndex = BracketPattern.CommaPattern.lastIndex;
                 }
-                /* 補上最後一段(不會被 capture 到) */
+                /* add the content after lastIndex(comma) */
                 strColl.push(subStr.substr(lastIndex).trim());
-                /* 組合成字串 */
+                /* join each part with a sigle comma and space */
                 const param = strColl.join(", ");
-                /* 如果內容不同再進行排版 */
+                /* add to result collection if formatted result is different with origin string */
                 if (subStr !== param) {
                     editColl.push(
                         new TextEdit(
@@ -178,36 +197,36 @@ class BracketPattern {
                             param
                         )
                     );
-                    /* 補上紀錄 */
+                    /* store the range that formatted */
                     editRange.push(new InLineRange(p.Start, p.End, "b"));
                 }
             }
         }
-        /* 回傳 */
+        /* return the bracket state */
         return bracketState;
     }
 }
 
 /**
- * 符號的排版樣板
+ * the template of sign
  */
 class SignPattern {
 
-    /** 符號 */
+    /** the sign to format */
     public Sign: string;
-    /** 要排除的項目 */
+    /** the regex to indicate do not format */
     public Excludes: RegExp[] | undefined;
 
-    /** 排除於 String 之外的 Regex */
+    /** the regex to ensure sign was not in string */
     private NotStringPattern: RegExp;
-    /** 理想的符號樣板 */
+    /** the ideal sign. E.g. with spaces, bracket and others */
     private Ideal: string;
 
     /**
-     * 建構符號排版之樣板
-     * @param sign 符號
-     * @param pattern 符號的 Regex 字串
-     * @param exclude 欲排除的項目
+     * construct a new template of sign
+     * @param sign the sign to format
+     * @param pattern the regex string of sign. E.g. sign '\' should replace as '\\'
+     * @param exclude the regex to indicate do not format
      */
     constructor(sign: string, pattern: string, exclude?: RegExp[]) {
         this.Sign = sign;
@@ -217,11 +236,11 @@ class SignPattern {
     }
 
     /**
-     * 針對指定的文字行進行排版，並將排版結果存入集合中
-     * @param editColl 欲儲存排版結果的集合
-     * @param editRange 已處理過的位置
-     * @param line 欲解析的文字行
-     * @param commentIndex 註解的位置
+     * format a text line
+     * @param editColl the collection to store formatted result
+     * @param editRange the collection of range that already dealt
+     * @param line the text line to analyze
+     * @param commentIndex the index of comments
      */
     public format(
         editColl: TextEdit[],
@@ -229,26 +248,26 @@ class SignPattern {
         line: TextLine,
         commentIndex: number
     ) {
-        /* 檢查此行內是否有符合的項目 */
+        /* execute regex to get parts of sign that not in string */
         let index = 0;
         let match: RegExpExecArray | null;
         while ((match = this.NotStringPattern.exec(line.text))) {
-            /* 若符號在註解後面，直接往下一個繼續。此處是因為懶得用大 if 排版，所以才用 continue 😆 */
+            /* continue while loop when matched index was after comment */
             if (commentIndex > -1 && commentIndex < match.index) {
-                continue;   //不能 break !! 請看下方 260 行左右的註解
+                continue;   //do not use break. let regex be no result matched to reset it.
             }
-            /* 檢查是否已有處理過。符號與括號不衝突，故只要考慮非括弧的來源即可 */
+            /* check dealt? bracket is not conflict, so just check the range that dealt by SignPattern or KeywordPattern */
             index = match.index;
             const processed = editRange.some(r => r.AddBy !== "b" && r.InRange(index));
             if (processed) {
-                /* 有處理過了，那就往下一筆前進吧！ */
+                /* dealt, continue while loop */
                 continue;
             }
-            /* 如果有要過濾的，檢查之 */
+            /* check the match result is in excludes? */
             if (this.Excludes) {
                 const exclude = this.Excludes.some(
                     ex => {
-                        /* 檢查是否成立，一樣要整行都查過一遍！ */
+                        /* must check all line to ensure not in excludes */
                         let isExcluded = false;
                         let excludeResult: RegExpExecArray | null;
                         while ((excludeResult = ex.exec(line.text))) {
@@ -256,23 +275,19 @@ class SignPattern {
                                 (excludeResult.index <= match.index) &&
                                 (match.index <= (excludeResult.index + excludeResult[0].length))
                             ) {
-                                isExcluded = true;
-                                //此處不能下 break!!
-                                //如果提前離開，下次 ex 會 cache 在這一行，導致判斷錯誤
-                                //所以要讓它完整讀到 lastIndex === 0 才行，故直接讓他飄完吧！
-                                //來源: https://stackoverflow.com/questions/10229144/bug-with-regexp-in-javascript-when-do-global-search 
+                                isExcluded = true; //do not use break. let regex be no result matched to reset it.
                             }
                         }
-                        /* 回傳 */
+                        /* return status */
                         return isExcluded;
                     }
                 );
-                /* 如果需要被過濾，就往下一筆吧~ */
+                /* go next match if excluded */
                 if (exclude) {
                     continue;
                 }
             }
-            /* 如果取出的東西跟理想值不同，進行排版 */
+            /* add to result collection if the matched sign was different with ideal */
             if (match[0] !== this.Ideal) {
                 editColl.push(
                     new TextEdit(
@@ -286,7 +301,7 @@ class SignPattern {
                     )
                 );
             }
-            /* 加入已處理的範圍 */
+            /* store the range that dealt */
             editRange.push(
                 new InLineRange(
                     match.index,
@@ -299,27 +314,28 @@ class SignPattern {
 }
 
 /**
- * 關鍵字的排版樣板
+ * the template of keyword
  */
 class KeywordPattern {
-    /** 關鍵字 */
+    /** the keyword to format */
     Keyword: string;
-    /** 欲搜尋關鍵字的 Regex */
+    /** the regex to search keyword */
     Search: RegExp;
-    /** 欲取代成的內容 */
+    /** the string to replace keyword */
     Replace: string;
-    /** (true)全部取代 (false)只取代關鍵字 */
+    /** replace mode.  (true)replace all   (false)only keyword */
     ReplaceAll: boolean;
 
-    /** 關鍵字的索引位移，用於 capture 帶有非關鍵字時，跳脫判斷 */
+    /** the shift when keyword may have other characters after it. likes bracket, comma. */
     private Offset: number;
 
     /**
-     * 建構關鍵字樣板
-     * @param keyword 關鍵字
-     * @param search 搜尋關鍵字的 Regex
-     * @param replace 欲取代的樣式
-     * @param replaceAll 是否全部取代
+     * construct a new template of keyword
+     * @param keyword the keyword to format
+     * @param search the regex to search keyword
+     * @param replace the string to replace keyword
+     * @param replaceAll replace mode.  (true)replace all   (false)only keyword
+     * @param offset index shift with keyword
      */
     constructor(keyword: string, search: RegExp, replace: string, replaceAll: boolean, offset?: number) {
         this.Keyword = keyword;
@@ -330,11 +346,11 @@ class KeywordPattern {
     }
 
     /**
-     * 解析是否需要針對關鍵字進行排版
-     * @param editColl 欲儲存所有文字變更的集合
-     * @param editRange 已處理過的位置
-     * @param line 當前的文字行
-     * @param commentIndex 註解的位置
+     * format a text line
+     * @param editColl the collection to store formatted result
+     * @param editRange the collection of range that already dealt
+     * @param line the text line to analyze
+     * @param commentIndex the index of comments
      */
     public format(
         editColl: TextEdit[],
@@ -342,24 +358,24 @@ class KeywordPattern {
         line: TextLine,
         commentIndex: number
     ) {
-        /* 輪詢該行裡面的所有關鍵字 */
+        /* search the keyword in current line */
         let match: RegExpExecArray | null;
         while ((match = this.Search.exec(line.text))) {
-            /* 若關鍵字在註解後面，直接往下一個繼續。此處是因為懶得用大 if 排版，所以才用 continue 😆 */
+            /* continue while loop when matched index was after comment */
             if (commentIndex > -1 && commentIndex < match.index) {
-                continue;   //不能 break !! 請看 260 行左右的註解
+                continue;   //do not use break. let regex be no result matched to reset it.
             }
-            /* 如果找到的東西跟要取代的是一樣的，那就往下一個關鍵字繼續吧 */
+            /* contitnue when matched result was same as replace */
             const replace = this.ReplaceAll ? this.Replace : match[0].replace(this.Keyword, this.Replace);
             if (match[0] === replace) {
                 continue;
             }
-            /* 檢查是否已有處理過 */
+            /* check dealt? */
             const index = match.index + this.Offset;
             const processed = editRange.some(range => range.InRange(index));
-            /* 沒有處理過，進行處理並記錄，已處理就跳過吧~ */
+            /* add to collection when both BracketPattern and SignPattern are not deal */
             if (!processed) {
-                /* 排版 */
+                /* add to result collection */
                 editColl.push(
                     new TextEdit(
                         new Range(
@@ -371,7 +387,7 @@ class KeywordPattern {
                         replace
                     )
                 );
-                /* 紀錄位置 */
+                /* store the range that dealt */
                 editRange.push(
                     new InLineRange(
                         match.index,
@@ -385,19 +401,19 @@ class KeywordPattern {
 }
 
 /**
- * 適用於 URScript 的文件排版供應器
+ * the DocumentRangeFormatting provider for URScript
  */
 export class URScriptFormattingProvider
     implements DocumentRangeFormattingEditProvider {
 
-    /** 用於括弧排版的樣板集合 */
+    /** the collection of brackets to format */
     private BracketPatterns: BracketPattern[] = [
         new BracketPattern("(", ")"),
         new BracketPattern("[", "]")
     ];
 
-    /** 用於符號排版的樣板集合
-     * 請注意，此集合帶有「順序性」，回傳第一個符合者
+    /** the collection of signs to format.
+     * it is sequential! return first matched
      */
     private SignPatterns: SignPattern[] = [
         new SignPattern("==", "=="),
@@ -422,7 +438,7 @@ export class URScriptFormattingProvider
         ])
     ];
 
-    /** 關鍵字的排版 */
+    /** the collection of keywords to format */
     private KeywordPatterns: KeywordPattern[] = [
         new KeywordPattern("if", /\s+if(\()/g, "if ", false),
         new KeywordPattern("elif", /\s+elif(\()/g, "elif ", false),
@@ -434,9 +450,9 @@ export class URScriptFormattingProvider
     ];
 
     /**
-     * 取得當前的縮排空白數量
-     * @param line 欲計算空白數量的行
-     * @returns 空白的數量
+     * get indent count of line
+     * @param line the line to count
+     * @returns indent count (spaces)
      */
     private getIndent(line: TextLine): number {
         const match = line.text.match(/^\s*/g);
@@ -444,10 +460,10 @@ export class URScriptFormattingProvider
     }
 
     /**
-     * 修正當前的縮排空白數量
-     * @param editColl 欲儲存所有文字變更的集合
-     * @param line 當前的文字行
-     * @param count 正確的縮排空白數量
+     * fix the line with correct indent count (spaces)
+     * @param editColl the collection to store formatted result
+     * @param line the line to fix
+     * @param count the correct count of indent to fix
      */
     private setIndent(editColl: TextEdit[], line: TextLine, count: number) {
         const newText = `${" ".repeat(count)}${line.text.trim()}`;
@@ -455,30 +471,31 @@ export class URScriptFormattingProvider
     }
 
     /**
-     * 檢查當前行是否需要增加縮排數量 (從下一行起)
-     * @param line 欲檢查的文字行
-     * @returns (true)需增加縮排 (false)不需增加
+     * check necessary to add more indent count (applied on next line)
+     * @param line the line to check
+     * @returns (true)need add indent (false)not necessary
      */
     private needIncreaseIndent(line: TextLine): boolean {
+        /* using regex to check language keyword */
         const match = line.text.match(/\b(def|thread|while|for|if|elif|else).*:/g);
         return match ? match.length > 0 : false;
     }
 
     /**
-     * 檢查當前行是否需要減少縮排數量 (從下一行起)
-     * @param line 欲檢查的文字行
-     * @returns (true)要減少縮排數量 (false)不須減少
+     * check necessary to remove indent count (applied on next line)
+     * @param line the line to check
+     * @returns (true)need remove indent (false)not necessary
      */
     private needDecreaseIndent(line: TextLine): boolean {
-        /* 先用 Regex 檢查是否有指定的符號  */
+        /* using regex to check language keyword */
         const match = line.text.match(/\b((?<!\w)end(?!\w))|(elif.*:)|(else:)/g);
         return match ? match.length > 0 : false;
     }
 
     /**
-     * 檢查右側是否有多餘空白，如有則進行刪除
-     * @param editColl 欲儲存所有文字變更的集合
-     * @param line 當前的文字行
+     * check useless spaces in the end of line, trim it!
+     * @param editColl the collection to store formatted result
+     * @param line the line to check
      */
     private trimRight(editColl: TextEdit[], line: TextLine) {
         if (/\s$/.test(line.text)) {
@@ -487,12 +504,12 @@ export class URScriptFormattingProvider
     }
 
     /**
-     * 取得文件排版範圍的編輯項目
-     * @param document vscode 當前的文字編輯器
-     * @param range 欲排版的範圍
-     * @param options 排版選項
-     * @param token 指出是否取消動作的物件
-     * @returns 要更改的排版內容
+     * provide a formatting of current editor
+     * @param document current editor of vscode
+     * @param range the range to format
+     * @param options the formatting options from vscode (user)
+     * @param token the token to indicate cancellation
+     * @returns the collection of text, position and result that need to format
      */
     public async provideDocumentRangeFormattingEdits(
         document: TextDocument,
@@ -501,19 +518,19 @@ export class URScriptFormattingProvider
         token: CancellationToken
     ): Promise<TextEdit[]> {
         try {
-            /* 宣告回傳使用的 TextEdit 集合 */
+            /* initial the collection of format range */
             const txtEdit: TextEdit[] = [];
-            /* 縮排紀錄 */
+            /* initial the indent start from zero */
             let indent = 0;
-            /* 輪詢範圍內的每一行，若有符合的條件則調整之 */
+            /* poll each line in the editor range */
             for (let lineNo = range.start.line; lineNo <= range.end.line; lineNo++) {
-                /* 取得該行的資訊 */
+                /* get the text of specific lineNo */
                 const line = document.lineAt(lineNo);
-                /* 如果是空白則直接往下一行 */
+                /* continue when empty line */
                 if (line.text.length === 0) {
                     continue;
                 } else if (line.isEmptyOrWhitespace && line.text.length > 0) {
-                    /* 裡面全空白，將之刪除 */
+                    /* trim this line if all characters in this line is spaces */
                     const edit = new TextEdit(
                         new Range(
                             new Position(lineNo, 0),
@@ -521,44 +538,44 @@ export class URScriptFormattingProvider
                         ),
                         ""
                     );
-                    /* 加入集合 */
+                    /* add to result collection */
                     txtEdit.push(edit);
-                    /* 往下一筆前進 */
+                    /* go next line */
                     continue;
                 }
-                /* 如果此行是註解，直接檢查前面縮排就好。若是內容則判斷之 */
+                /* check all of this line is spaces and comment? */
                 const isCmt = /^\s*(#|\$).*/.test(line.text);
                 let brkStt = 0;
                 if (!isCmt) {
-                    /* 檢查是否有註解，如果有則取得其位置 */
+                    /* get the lineIndex of comment '#' sign */
                     const commentIndex = line.text.indexOf("#");
-                    /* 紀錄當前已改動的部分，避免重複排版 */
+                    /* initial the collection to store formatted range to avoid duplicated */
                     const editRange: InLineRange[] = [];
-                    /* 輪詢括弧樣板 */
+                    /* search the bracket parts that need format */
                     this.BracketPatterns.forEach(
                         pat => brkStt |= pat.format(txtEdit, editRange, line, commentIndex)
                     );
-                    /* 輪詢符號樣板 */
+                    /* search the sign parts that need format */
                     this.SignPatterns.forEach(
                         pat => pat.format(txtEdit, editRange, line, commentIndex)
                     );
-                    /* 輪詢關鍵字樣板 */
+                    /* search the keyword parts that need format */
                     this.KeywordPatterns.forEach(
                         pat => pat.format(txtEdit, editRange, line, commentIndex)
                     );
-                    /* 優先檢查是否是 end，因 end 也要往前減少縮排 */
+                    /* check 'end bracket' first. because it need to remove indent for next line */
                     if ((brkStt & 0x02) === 0x02 || this.needDecreaseIndent(line)) {
                         indent = indent >= options.tabSize ? indent - options.tabSize : 0;
                     }
                 }
-                /* 檢查當前縮排是否正確 */
+                /* check indent is correct? */
                 if (this.getIndent(line) !== indent) {
                     this.setIndent(txtEdit, line, indent);
                 } else {
-                    /* 因 setIndent 已會進行去頭去尾，故若左側縮排正確，再額外檢查右側多餘空白即可 */
+                    /* trim useless spaces in the end of line. the indent (start of this line) is checked on 'if' syntax */
                     this.trimRight(txtEdit, line);
                 }
-                /* 如果此行是方法或區塊，將 indent + 2 */
+                /* add indent when block or method in this line */
                 if (
                     !isCmt &&
                     ((brkStt & 0x01) === 0x01 || this.needIncreaseIndent(line))
@@ -566,7 +583,7 @@ export class URScriptFormattingProvider
                     indent += options.tabSize;
                 }
             }
-            /* 回傳 */
+            /* return the parts to format */
             return txtEdit;
         } catch (error) {
             return [];
@@ -574,12 +591,12 @@ export class URScriptFormattingProvider
     }
 
     /**
-     * 取得指定範圍的排版編輯項目
-     * @param document vscode 當前的文字編輯器
-     * @param position 當前文字插入點的位置
-     * @param ch 文字插入點的上一個字元
-     * @param options 排版選項
-     * @param token 指出是否取消動作的物件
+     * provide a formatting of current typed line. usually triggered with 'enter'
+     * @param document current editor of vscode
+     * @param position cursor position
+     * @param ch the last character before cursor position
+     * @param options the formatting options from vscode (user)
+     * @param token the token to indicate cancellation
      */
     public async provideOnTypeFormattingEdits(
         document: TextDocument,
@@ -589,36 +606,36 @@ export class URScriptFormattingProvider
         token: CancellationToken
     ): Promise<TextEdit[]> {
         try {
-            /* 宣告回傳使用的 TextEdit 集合 */
+            /* initial the collection of format range */
             const edits: TextEdit[] = [];
-            /* 取得該行的資訊 */
+            /* get the last typed line */
             const line =
                 ch === "\n"
                     ? document.lineAt(position.line - 1)
                     : document.lineAt(position);
-            /* 如果是空白則直接往離開 */
+            /* return null when the line is fill with spaces */
             if (line.isEmptyOrWhitespace) {
                 return [];
             }
-            /* 檢查是否有註解，如果有則取得其位置 */
+            /* get the index of comment '#' sign */
             const commentIndex = line.text.indexOf("#");
-            /* 紀錄當前已改動的部分，避免重複排版 */
+            /* initial the collection of format range */
             const editRange: InLineRange[] = [];
-            /* 輪詢括弧樣板 */
+            /* search the bracket parts that need format */
             this.BracketPatterns.forEach(
                 pat => pat.format(edits, editRange, line, commentIndex)
             );
-            /* 輪詢符號樣板 */
+            /* search the sign parts that need format */
             this.SignPatterns.forEach(
                 pat => pat.format(edits, editRange, line, commentIndex)
             );
-            /* 輪詢關鍵字樣板 */
+            /* search the keyword parts that need format */
             this.KeywordPatterns.forEach(
                 pat => pat.format(edits, editRange, line, commentIndex)
             );
-            /* 檢查右側是否有多餘的空白並刪除之 */
+            /* trim useless spaces in the end of line */
             this.trimRight(edits, line);
-            /* 回傳 */
+            /* return the parts that need format */
             return edits;
         } catch (error) {
             return [];

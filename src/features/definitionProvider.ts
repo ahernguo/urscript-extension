@@ -1,4 +1,3 @@
-//用於 vscode 的名稱解析
 import {
     CancellationToken,
     DefinitionProvider,
@@ -8,49 +7,50 @@ import {
     TextDocument,
     workspace
 } from "vscode";
-//用於解析程式碼以提供相關物件的解析
+//tools for search location
 import { getLocationFromWorkspace, getLocationFromDocument } from "../codeParser";
-//檢查字串是否為空字串
+//check string is null or empty
 import { isBlank } from "../utilities/checkString";
 
 /**
- * 適用於 URScript 的尋找定義供應器
+ * The Definition/Location provider for URScript
  */
 export class URScriptDefinitionProvider implements DefinitionProvider {
 
     /**
-     * 搜尋當前滑鼠停留的定義
-     * @param document vscode 當前的文字編輯器
-     * @param position 當前滑鼠的座標
-     * @param token 指出是否取消動作的物件
+     * search the location of keyword that cursor stayed
+     * @param document current editor of vscode
+     * @param position cursor position
+     * @param token the token to indicate cancellation
      */
     public async provideDefinition(document: TextDocument, position: Position, token: CancellationToken): Promise<Location | Location[] | LocationLink[] | undefined> {
         try {
-            /* 取得當前滑鼠所停留位置是否有字詞(前後為符號或空白則認定字詞)，如果有則取得其字詞範圍 */
+            /* get the word range that cursor pointed. 
+               E.g. 'abc|defghi' ('|' is the cursor) would get the range from 'a' to 'i' */
             let wordRange = document.getWordRangeAtPosition(position);
-            /* 如果滑鼠指到奇怪的地方，就不理他囉 */
+            /* return null if not a word */
             if (!wordRange) {
                 return undefined;
             }
-            /* 取得停留位置上的字詞 */
+            /* get the word from range */
             let word = document.getText(wordRange);
-            /* 如果有東西，則進行搜尋比對 */
+            /* ensure not empty */
             if (!isBlank(word)) {
-                /* 先從當前的文件找起 */
+                /* search current editor */
                 let locColl = getLocationFromDocument(document, word);
-                /* 當前文件找不到，往 Workspace 開找 */
+                /* if not found, search all files in workspace (if opened from a directory) */
                 if (locColl.length === 0 && workspace.workspaceFolders) {
-                    /* 輪詢各個資料夾 */
+                    /* poll each file in the workspace */
                     for (const fold of workspace.workspaceFolders) {
-                        /* 嘗試找出定義 */
+                        /* search file. except current editor that already searched. */
                         const wpLoc = getLocationFromWorkspace(fold, word, document.fileName);
-                        /* 如果有則離開並回傳 */
+                        /* add to the result list if something found */
                         if (wpLoc.length > 0) {
                             wpLoc.forEach(l => locColl.push(l));
                         }
                     }
                 }
-                /* 回傳 */
+                /* return the collection */
                 return locColl;
             }
         } catch (error) {

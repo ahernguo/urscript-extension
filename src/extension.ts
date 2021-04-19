@@ -1,96 +1,108 @@
 'use strict';
 // VSCode extensibility API
 import * as vscode from 'vscode';
-// Script 方法載入
+// tools for Script
 import { createFunctions } from './scriptmethod';
-// 自動完成項目
+// for CompletionItem
 import { URScriptCompletionItemProvider } from './features/completionItemProvider';
-// 滑鼠停留提示
+// for Hover
 import { URScriptHoverProvider } from './features/hoverProvider';
-// 簽章提示
+// for SignatureHelp
 import { URScriptSignatureHelpProvider, URScriptSignatureHelpProviderMetadata } from './features/signatureHelpProvider';
-// 排版功能
+// for Formatting
 import { URScriptFormattingProvider } from './features/formattingEditProvider';
-// 尋找定義
+// for Definition
 import { URScriptDefinitionProvider } from './features/definitionProvider';
-// 符號定義
+// for DocumentSymbol
 import { URScriptDocumentSymbolProvider } from './features/documentSymbolProvider';
 
 /**
- * 此套件的啟用方法。於切換至 URScript 語言時回呼此至此，由 package.json 內的 `activationEvents` 進行設定
- * @param context 欲處理的上下文
+ * The entry point of this extension when enabled. E.g. swithcing to 'URScript' language, open '.script' file, etc.
+ * Setting in 'activationEvents' in 'package.json'
+ * @param context context from vscode
  */
 export function activate(context: vscode.ExtensionContext) {
 
-    /* 更改 VSCode 環境 */
+    /* forcing to set environment. 
+       This is coding standard from company. You may change manually. */
     if (vscode.window.activeTextEditor) {
-        /* 啟用空白縮排、2 個空格 */
+        /* indent with 2 spaces (not tab) */
         vscode.window.activeTextEditor.options = {
             cursorStyle: vscode.window.activeTextEditor.options.cursorStyle,
             insertSpaces: true,
             tabSize: 2
         };
-        /* 將結尾符號改成 LF */
+        /* end of line char sets to '\n' */
         vscode.window.activeTextEditor.edit(
             builder => builder.setEndOfLine(vscode.EndOfLine.LF)
         );
     }
 
-    /* 載入 functions.json */
+    /* loading functions.json */
     const funcs = createFunctions();
     console.log("got %d script methods", funcs.length);
 
-    /* 自動完成項目 */
+    /* create CompletionItem.
+       showing tooltip for API, custom function or variable when coding.
+       triggered with '#' and '@' sign when typing UrDoc.
+       auto fill with 'tab' 'space' 'enter'.  */
     const cmpPvd = vscode.languages.registerCompletionItemProvider(
         'urscript',
         new URScriptCompletionItemProvider(funcs),
         '#', '@'
     );
 
-    /* 滑鼠停留提示 */
+    /* create Hover.
+       showing tooltip when mouse stay in a function or variable. */
     const hovPvd = vscode.languages.registerHoverProvider(
         'urscript',
         new URScriptHoverProvider(funcs)
     );
 
-    /* 簽章提示 */
+    /* create SignatureHelp.
+       showing function parameter info/detail when typing function parameters
+       triggered with '(' and ',' */
     const sigPvd = vscode.languages.registerSignatureHelpProvider(
         'urscript',
         new URScriptSignatureHelpProvider(funcs),
         new URScriptSignatureHelpProviderMetadata()
     );
 
-    /* 文件範圍排版 */
+    /* create DocumentRangeFormatting
+       format current editor with indent (follow vscode setting), trim spaces */
     const fmtPvd = vscode.languages.registerDocumentRangeFormattingEditProvider(
         'urscript',
         new URScriptFormattingProvider()
     );
 
-    /* 輸入時的自動排版 */
+    /* create OnTypeFormatting
+       format current line when 'enter' or ':' pressed. do indent, trim spaces */
     const typPvd = vscode.languages.registerOnTypeFormattingEditProvider(
         'urscript',
         new URScriptFormattingProvider(),
         '\n', ':'
     );
 
-    /* 尋找定義 */
+    /* create Definition
+       search all files in workspace with keyword which pointer stay  */
     const defPvd = vscode.languages.registerDefinitionProvider(
         'urscript',
         new URScriptDefinitionProvider()
     );
 
-    /* 文件符號 */
+    /* create DocumentSymbol
+       provide for 'Ctrl + Shift + O' / 'Ctrl + P → @' and outline window */
     const symPvd = vscode.languages.registerDocumentSymbolProvider(
         'urscript',
         new URScriptDocumentSymbolProvider()
     );
 
-    /* 加入上下文的訂閱器中 */
+    /* register providers from above */
     context.subscriptions.push(cmpPvd, hovPvd, sigPvd, fmtPvd, typPvd, defPvd, symPvd);
 }
 
 /**
- * 此套件的關閉方法。會於離開或手動禁用時回呼至此
+ * terminal callback when close or disabled
  */
 export function deactivate() {
 }
