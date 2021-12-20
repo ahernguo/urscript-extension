@@ -3,6 +3,10 @@ All notable changes to the "urscript" extension will be documented in this file.
 
 Goto [urscript-extension](https://github.com/ahernguo/urscript-extension) for more details.
 
+## `0.1.9` (20-Dec-2021)
+* BUGFIXES
+  * Correct the misspelling of `ﬁ` in _functions.json_ to `fi`.
+
 ## `0.1.8` (19-Apr-2021)
 * BUGFIXES
   * Fix string or comment containing `end` cause an indent decrease([#12](https://github.com/ahernguo/urscript-extension/issues/12))

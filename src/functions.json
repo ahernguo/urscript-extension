@@ -1364,7 +1364,7 @@
       {
         "Label": "l",
         "Type": "Array",
-        "Comment": "The list of bools to be converted to an integer. The bool at index 0 is evaluated as the least signiﬁcant bit. `False` represents a zero and `True` represents a one. If the list is empty this function returns 0. If the list contains more than 32 bools, the function returns the signed integer value of the ﬁrst 32 bools in the list",
+        "Comment": "The list of bools to be converted to an integer. The bool at index 0 is evaluated as the least significant bit. `False` represents a zero and `True` represents a one. If the list is empty this function returns 0. If the list contains more than 32 bools, the function returns the signed integer value of the first 32 bools in the list",
         "Default": ""
       }
     ]
@@ -1447,7 +1447,7 @@
   {
     "Name": "integer_to_binary_list",
     "ReturnType": "Array",
-    "Return": "A list of 32 bools, where False represents a zero and True represents a one. The bool at index 0 is the least signiﬁcant bit.",
+    "Return": "A list of 32 bools, where False represents a zero and True represents a one. The bool at index 0 is the least significant bit.",
     "Deprecated": "",
     "Comment": "Returns the binary representation of x\r\n\r\nReturns a list of bools as the binary representation of the signed integer value x.",
     "Parameters": [
@@ -1656,7 +1656,7 @@
     "ReturnType": "Pose",
     "Return": "resulting pose (spatial vector)",
     "Deprecated": "",
-    "Comment": "Pose transformation\r\n\r\nThe ﬁrst argument, p_from, is used to transform the second argument, p_from_to, and the result is then returned. This means that the result is the resulting pose, when starting at the coordinate system of p_from, and then in that coordinate system moving p_from_to.\r\n\r\nThis function can be seen in two different views. Either the function transforms, that is translates and rotates, p_from_to by the parameters of p_from. Or the function is used to get the resulting pose, when ﬁrst making a move of p_from and then from there, a move of p_from_to.\r\n\r\nIf the poses were regarded as transformation matrices, it would look like:\r\n\r\n```\r\nT_world->to = T_world->from * T_from->to\r\nT_x->to = T_x->from * T_from->to\r\n```",
+    "Comment": "Pose transformation\r\n\r\nThe first argument, p_from, is used to transform the second argument, p_from_to, and the result is then returned. This means that the result is the resulting pose, when starting at the coordinate system of p_from, and then in that coordinate system moving p_from_to.\r\n\r\nThis function can be seen in two different views. Either the function transforms, that is translates and rotates, p_from_to by the parameters of p_from. Or the function is used to get the resulting pose, when first making a move of p_from and then from there, a move of p_from_to.\r\n\r\nIf the poses were regarded as transformation matrices, it would look like:\r\n\r\n```\r\nT_world->to = T_world->from * T_from->to\r\nT_x->to = T_x->from * T_from->to\r\n```",
     "Parameters": [
       {
         "Label": "p_from",
@@ -1719,7 +1719,7 @@
   {
     "Name": "rotvec2rpy",
     "ReturnType": "Array",
-    "Return": "The RPY vector (Vector3d) in radians, describing a roll-pitch-yaw sequence of extrinsic rotations about the X-Y-Z axes, (corresponding to intrinsic rotations about the Z-Y'-X\" axes). In matrix form the RPY vector is deﬁned as `Rrpy = Rz(yaw)Ry(pitch)Rx(roll)`.",
+    "Return": "The RPY vector (Vector3d) in radians, describing a roll-pitch-yaw sequence of extrinsic rotations about the X-Y-Z axes, (corresponding to intrinsic rotations about the Z-Y'-X\" axes). In matrix form the RPY vector is defined as `Rrpy = Rz(yaw)Ry(pitch)Rx(roll)`.",
     "Deprecated": "",
     "Comment": "eturns RPY vector corresponding to rotation_vector\r\n\r\nReturns the RPY vector corresponding to `rotation_vector` where the rotation vector is the axis of rotation with a length corresponding to the angle of rotation in radians.",
     "Parameters": [
@@ -1741,7 +1741,7 @@
       {
         "Label": "rpy_vector",
         "Type": "Array",
-        "Comment": "The RPY vector (Vector3d) in radians, describing a roll-pitch-yaw sequence of extrinsic rotations about the X-Y-Z axes, (corresponding to intrinsic rotations about the Z-Y'-X\" axes). In matrix form the RPY vector is deﬁned as `Rrpy = Rz(yaw)Ry(pitch)Rx(roll)`.",
+        "Comment": "The RPY vector (Vector3d) in radians, describing a roll-pitch-yaw sequence of extrinsic rotations about the X-Y-Z axes, (corresponding to intrinsic rotations about the Z-Y'-X\" axes). In matrix form the RPY vector is defined as `Rrpy = Rz(yaw)Ry(pitch)Rx(roll)`.",
         "Default": ""
       }
     ]
@@ -1843,11 +1843,11 @@
     ]
   },
   {
-    "Name": "get_conﬁgurable_digital_in",
+    "Name": "get_configurable_digital_in",
     "ReturnType": "Bool",
     "Return": "boolean, The signal level.",
     "Deprecated": "",
-    "Comment": "Get conﬁgurable digital input signal level\r\n\r\nSee also `get_standard_digital_in` and `get_tool_digital_in`.",
+    "Comment": "Get configurable digital input signal level\r\n\r\nSee also `get_standard_digital_in` and `get_tool_digital_in`.",
     "Parameters": [
       {
         "Label": "n",
@@ -1858,11 +1858,11 @@
     ]
   },
   {
-    "Name": "get_conﬁgurable_digital_out",
+    "Name": "get_configurable_digital_out",
     "ReturnType": "Bool",
     "Return": "boolean, The signal level.",
     "Deprecated": "",
-    "Comment": "Get conﬁgurable digital output signal level\r\n\r\nSee also `get_standard_digital_out` and `get_tool_digital_out`.",
+    "Comment": "Get configurable digital output signal level\r\n\r\nSee also `get_standard_digital_out` and `get_tool_digital_out`.",
     "Parameters": [
       {
         "Label": "n",
@@ -1907,7 +1907,7 @@
     "ReturnType": "Bool",
     "Return": "boolean, either True or False",
     "Deprecated": "",
-    "Comment": "Reads the current value of a speciﬁc Euromap67 input signal. See [Supports](http://universal-robots.com/support) for signal speciﬁcations.",
+    "Comment": "Reads the current value of a specific Euromap67 input signal. See [Supports](http://universal-robots.com/support) for signal specifications.",
     "Parameters": [
       {
         "Label": "port_number",
@@ -1922,7 +1922,7 @@
     "ReturnType": "Bool",
     "Return": "A boolean, either True or False",
     "Deprecated": "",
-    "Comment": "Reads the current value of a speciﬁc Euromap67 output signal. This means the value that is sent from the robot to the injection moulding machine.\r\n\r\nSee [Supports](http://universal-robots.com/support) for signal speciﬁcations.",
+    "Comment": "Reads the current value of a specific Euromap67 output signal. This means the value that is sent from the robot to the injection moulding machine.\r\n\r\nSee [Supports](http://universal-robots.com/support) for signal specifications.",
     "Parameters": [
       {
         "Label": "port_number",
@@ -2074,7 +2074,7 @@
       {
         "Label": "signal_address",
         "Type": "Int",
-        "Comment": "An integer specifying the address of the either the coil or the register that this new signal should reﬂect. Consult the conﬁguration of the modbus unit for this information.",
+        "Comment": "An integer specifying the address of the either the coil or the register that this new signal should reﬂect. Consult the configuration of the modbus unit for this information.",
         "Default": ""
       },
       {
@@ -2092,7 +2092,7 @@
       {
         "Label": "sequential_mode",
         "Type": "Bool",
-        "Comment": "Setting to True forces the modbus client to wait for a response before sending the next request. This mode is required by some ﬁeldbus units (Optional).",
+        "Comment": "Setting to True forces the modbus client to wait for a response before sending the next request. This mode is required by some fieldbus units (Optional).",
         "Default": "False"
       }
     ]
@@ -2102,7 +2102,7 @@
     "ReturnType": "None",
     "Return": "",
     "Deprecated": "",
-    "Comment": "Deletes the signal identiﬁed by the supplied signal name.",
+    "Comment": "Deletes the signal identified by the supplied signal name.",
     "Parameters": [
       {
         "Label": "signal_name",
@@ -2117,7 +2117,7 @@
     "ReturnType": "Int",
     "Return": "An integer or a boolean. For digital signals: True or False. For register signals: The register value expressed as an unsigned integer.",
     "Deprecated": "",
-    "Comment": "Reads the current value of a speciﬁc signal.",
+    "Comment": "Reads the current value of a specific signal.",
     "Parameters": [
       {
         "Label": "signal_name",
@@ -2138,7 +2138,7 @@
     "ReturnType": "None",
     "Return": "",
     "Deprecated": "",
-    "Comment": "Sends a command speciﬁed by the user to the modbus unit located on the speciﬁed IP address. Cannot be used to request data, since the response will not be received. The user is responsible for supplying data which is meaningful to the supplied function code. The builtin function takes care of constructing the modbus frame, so the user should not be concerned with the length of the command.",
+    "Comment": "Sends a command specified by the user to the modbus unit located on the specified IP address. Cannot be used to request data, since the response will not be received. The user is responsible for supplying data which is meaningful to the supplied function code. The builtin function takes care of constructing the modbus frame, so the user should not be concerned with the length of the command.",
     "Parameters": [
       {
         "Label": "IP",
@@ -2192,7 +2192,7 @@
     "ReturnType": "None",
     "Return": "",
     "Deprecated": "",
-    "Comment": "Sets the output register signal identiﬁed by the given name to the given\r\nvalue.",
+    "Comment": "Sets the output register signal identified by the given name to the given\r\nvalue.",
     "Parameters": [
       {
         "Label": "signal_name",
@@ -2219,7 +2219,7 @@
     "ReturnType": "None",
     "Return": "",
     "Deprecated": "",
-    "Comment": "Sets the output digital signal identiﬁed by the given name to the given value.",
+    "Comment": "Sets the output digital signal identified by the given name to the given value.",
     "Parameters": [
       {
         "Label": "signal_name",
@@ -2385,7 +2385,7 @@
   {
     "Name": "rpc_factory",
     "ReturnType": "Number",
-    "Return": "A RPC handle with a connection to the speciﬁed server using the designated RPC backend. If the server is not available the function and program will fail. Any function that is made available on the server can be called using this instance. For example \"bool isTargetAvailable(int number, ...)\" would be \"proxy.isTargetAvailable(var_1, ...)\", whereby any number of arguments are supported (denoted by the ...).",
+    "Return": "A RPC handle with a connection to the specified server using the designated RPC backend. If the server is not available the function and program will fail. Any function that is made available on the server can be called using this instance. For example \"bool isTargetAvailable(int number, ...)\" would be \"proxy.isTargetAvailable(var_1, ...)\", whereby any number of arguments are supported (denoted by the ...).",
     "Deprecated": "",
     "Comment": "Creates a new Remote Procedure Call (RPC) handle. Please read the subsection ef{Remote Procedure Call (RPC)} for a more detailed description of RPCs.",
     "Parameters": [
@@ -2408,12 +2408,12 @@
     "ReturnType": "None",
     "Return": "",
     "Deprecated": "",
-    "Comment": "This function will activate a watchdog for a particular input variable to the RTDE. When the watchdog did not receive an input update for the speciﬁed variable in the time period speciﬁed by min_frequency (Hz), the corresponding action will be taken. All watchdogs are removed on program stop.",
+    "Comment": "This function will activate a watchdog for a particular input variable to the RTDE. When the watchdog did not receive an input update for the specified variable in the time period specified by min_frequency (Hz), the corresponding action will be taken. All watchdogs are removed on program stop.",
     "Parameters": [
       {
         "Label": "variable_name",
         "Type": "String",
-        "Comment": "Input variable name (string), as speciﬁed by the RTDE interface",
+        "Comment": "Input variable name (string), as specified by the RTDE interface",
         "Default": ""
       },
       {
@@ -2473,11 +2473,11 @@
     ]
   },
   {
-    "Name": "set_conﬁgurable_digital_out",
+    "Name": "set_configurable_digital_out",
     "ReturnType": "None",
     "Return": "",
     "Deprecated": "",
-    "Comment": "Set conﬁgurable digital output signal level\r\n\r\nSee also `set_standard_digital_out` and `set_tool_digital_out`.",
+    "Comment": "Set configurable digital output signal level\r\n\r\nSee also `set_standard_digital_out` and `set_tool_digital_out`.",
     "Parameters": [
       {
         "Label": "n",
@@ -2519,7 +2519,7 @@
     "ReturnType": "None",
     "Return": "",
     "Deprecated": "",
-    "Comment": "Sets the value of a speciﬁc Euromap67 output signal. This means the value that is sent from the robot to the injection moulding machine.\r\n\r\nSee [Supports](http://universal-robots.com/support) for signal speciﬁcations.",
+    "Comment": "Sets the value of a specific Euromap67 output signal. This means the value that is sent from the robot to the injection moulding machine.\r\n\r\nSee [Supports](http://universal-robots.com/support) for signal specifications.",
     "Parameters": [
       {
         "Label": "port_number",
@@ -2540,7 +2540,7 @@
     "ReturnType": "None",
     "Return": "",
     "Deprecated": "",
-    "Comment": "Sets whether an Euromap67 output signal must preserve its state from a program, or it must be set either high or low when a program is not running.\r\n\r\nSee [Supports](http://universal-robots.com/support) for signal speciﬁcations.",
+    "Comment": "Sets whether an Euromap67 output signal must preserve its state from a program, or it must be set either high or low when a program is not running.\r\n\r\nSee [Supports](http://universal-robots.com/support) for signal specifications.",
     "Parameters": [
       {
         "Label": "port_number",
@@ -2723,7 +2723,7 @@
     "ReturnType": "Array",
     "Return": "A list of numbers read (list of floats, length=number+1)",
     "Deprecated": "",
-    "Comment": "Reads a number of ascii formatted floats from the socket. A maximum\r\nof 30 values can be read in one command.\r\n\r\nThe format of the numbers should be in parantheses, and seperated by \",\". An example list of four numbers could look like \"( 1.414 , 3.14159, 1.616, 0.0 )\".\r\n\r\nThe returned list contains the total numbers read, and then each number in succession. For example a read_ascii_float on the example above would return [4, 1.414, 3.14159, 1.616, 0.0].\r\n\r\nA failed read or timeout will return the list with 0 as ﬁrst element and then \"Not a number (nan)\" in the following elements (ex. [0, nan, nan, nan] for a read of three numbers).",
+    "Comment": "Reads a number of ascii formatted floats from the socket. A maximum\r\nof 30 values can be read in one command.\r\n\r\nThe format of the numbers should be in parantheses, and seperated by \",\". An example list of four numbers could look like \"( 1.414 , 3.14159, 1.616, 0.0 )\".\r\n\r\nThe returned list contains the total numbers read, and then each number in succession. For example a read_ascii_float on the example above would return [4, 1.414, 3.14159, 1.616, 0.0].\r\n\r\nA failed read or timeout will return the list with 0 as first element and then \"Not a number (nan)\" in the following elements (ex. [0, nan, nan, nan] for a read of three numbers).",
     "Parameters": [
       {
         "Label": "number",
@@ -2803,8 +2803,8 @@
     "Name": "socket_read_line",
     "ReturnType": "String",
     "Return": "One line string",
-    "Deprecated": "The socket_read_stringreplaces this function. Set ﬂag \"interpret_escape\" to \"True\" to enable the use of escape sequences \"\\n\" \"\\r\" and \"\\t\" as a preﬁx or sufﬁx.",
-    "Comment": "Reads the socket buffer until the ﬁrst \"\\r\\n\" (carriage return and newline) characters or just the \"\\n\" (newline) character, and returns the data as a string. The returned string will not contain the \"\\n\" nor the \"\\r\\n\" characters.\r\n\r\nReturns (for example) \"reply from the server:\", if there is a timeout or the reply is invalid, an empty line is returned (\"\"). You can test if the line is empty with an if-statement.",
+    "Deprecated": "The socket_read_stringreplaces this function. Set ﬂag \"interpret_escape\" to \"True\" to enable the use of escape sequences \"\\n\" \"\\r\" and \"\\t\" as a prefix or suffix.",
+    "Comment": "Reads the socket buffer until the first \"\\r\\n\" (carriage return and newline) characters or just the \"\\n\" (newline) character, and returns the data as a string. The returned string will not contain the \"\\n\" nor the \"\\r\\n\" characters.\r\n\r\nReturns (for example) \"reply from the server:\", if there is a timeout or the reply is invalid, an empty line is returned (\"\"). You can test if the line is empty with an if-statement.",
     "Parameters": [
       {
         "Label": "socket_name",
@@ -2825,7 +2825,7 @@
     "ReturnType": "String",
     "Return": "String",
     "Deprecated": "",
-    "Comment": "Reads all data from the socket and returns the data as a string.\r\n\r\nReturns (for example) \"reply from the server:\\n Hello World\". if there is a timeout or the reply is invalid, an empty string is returned (\"\"). You can test if the string is empty with an if-statement.\r\n\r\n```\r\nif (string_from_server):\r\n  popup(\"the string is not empty\")\r\nend\r\n```\r\n\r\nThe optional parameters \"preﬁx\" and \"sufﬁx\", can be used to express what is extracted from the socket. The \"preﬁx\" speciﬁes the start of the substring (message) extracted from the socket. The data up to the end of the \"preﬁx\" will be ignored and removed from the socket. The \"sufﬁx\" speciﬁes the end of the substring (message) extracted from the socket. Any remaining data on the socket, after the \"sufﬁx\", will be preserved.\r\n\r\nBy using the \"preﬁx\" and \"sufﬁx\" it is also possible send multiple string to the controller at once, because the sufﬁx deﬁnes where the message ends. E.g. sending \">hello<>world<\" and calling this script function with the preﬁx=\">\" and sufﬁx=\"<\".\r\n\r\nNote that leading spaces in the preﬁx and sufﬁx strings are ignored in the current software and may cause communication errors in future releases.\r\n\r\nThe optional parameter \"interpret_escape\" can be used to allow the use of escape sequences \"\\n\", \"\\t\" and \"\\r\" as part of the preﬁx or sufﬁx.",
+    "Comment": "Reads all data from the socket and returns the data as a string.\r\n\r\nReturns (for example) \"reply from the server:\\n Hello World\". if there is a timeout or the reply is invalid, an empty string is returned (\"\"). You can test if the string is empty with an if-statement.\r\n\r\n```\r\nif (string_from_server):\r\n  popup(\"the string is not empty\")\r\nend\r\n```\r\n\r\nThe optional parameters \"prefix\" and \"suffix\", can be used to express what is extracted from the socket. The \"prefix\" specifies the start of the substring (message) extracted from the socket. The data up to the end of the \"prefix\" will be ignored and removed from the socket. The \"suffix\" specifies the end of the substring (message) extracted from the socket. Any remaining data on the socket, after the \"suffix\", will be preserved.\r\n\r\nBy using the \"prefix\" and \"suffix\" it is also possible send multiple string to the controller at once, because the suffix defines where the message ends. E.g. sending \">hello<>world<\" and calling this script function with the prefix=\">\" and suffix=\"<\".\r\n\r\nNote that leading spaces in the prefix and suffix strings are ignored in the current software and may cause communication errors in future releases.\r\n\r\nThe optional parameter \"interpret_escape\" can be used to allow the use of escape sequences \"\\n\", \"\\t\" and \"\\r\" as part of the prefix or suffix.",
     "Parameters": [
       {
         "Label": "socket_name",
@@ -2836,13 +2836,13 @@
       {
         "Label": "prefix",
         "Type": "String",
-        "Comment": "Deﬁnes a preﬁx (string)",
+        "Comment": "Defines a prefix (string)",
         "Default": "''"
       },
       {
         "Label": "suffix",
         "Type": "String",
-        "Comment": "Deﬁnes a sufﬁx (string)",
+        "Comment": "Defines a suffix (string)",
         "Default": "''"
       },
       {
@@ -3118,16 +3118,16 @@
     ]
   },
   {
-    "Name": "set_conﬁgurable_digital_input_action",
+    "Name": "set_configurable_digital_input_action",
     "ReturnType": "None",
     "Return": "",
     "Deprecated": "",
-    "Comment": "Using this method sets the selected conﬁgurable digital input register to either a \"default\" or \"freedrive\" action.\r\n\r\nSee also:\r\n* `set_input_actions_to_default`\r\n* `set_standard_digital_input_action`\r\n* `set_tool_digital_input_action`\r\n* `set_gp_boolean_input_action`",
+    "Comment": "Using this method sets the selected configurable digital input register to either a \"default\" or \"freedrive\" action.\r\n\r\nSee also:\r\n* `set_input_actions_to_default`\r\n* `set_standard_digital_input_action`\r\n* `set_tool_digital_input_action`\r\n* `set_gp_boolean_input_action`",
     "Parameters": [
       {
         "Label": "port",
         "Type": "Int",
-        "Comment": "The conﬁgurable digital input port number. (integer)",
+        "Comment": "The configurable digital input port number. (integer)",
         "Default": ""
       },
       {
@@ -3164,15 +3164,15 @@
     "ReturnType": "None",
     "Return": "",
     "Deprecated": "",
-    "Comment": "Using this method sets the input actions of all standard, conﬁgurable, tool, and gp_boolean input registers to \"default\" action.\r\n\r\nSee also:\r\n\r\n* `set_standard_digital_input_action`\r\n* `set_configurable_digital_input_action`\r\n* `set_tool_digital_input_action`\r\n* `set_gp_boolean_input_action`",
+    "Comment": "Using this method sets the input actions of all standard, configurable, tool, and gp_boolean input registers to \"default\" action.\r\n\r\nSee also:\r\n\r\n* `set_standard_digital_input_action`\r\n* `set_configurable_digital_input_action`\r\n* `set_tool_digital_input_action`\r\n* `set_gp_boolean_input_action`",
     "Parameters": []
   },
   {
-    "Name": "set_runstate_conﬁgurable_digital_output_to_value",
+    "Name": "set_runstate_configurable_digital_output_to_value",
     "ReturnType": "None",
     "Return": "",
     "Deprecated": "",
-    "Comment": "Sets the output signal levels depending on the state of the program (running or stopped).\r\n\r\nExample: Set conﬁgurable digital output 5 to high when program is not running.\r\n\r\n```\r\nset_runstate_configurable_digital_output_to_value(5, 2)\r\n```",
+    "Comment": "Sets the output signal levels depending on the state of the program (running or stopped).\r\n\r\nExample: Set configurable digital output 5 to high when program is not running.\r\n\r\n```\r\nset_runstate_configurable_digital_output_to_value(5, 2)\r\n```",
     "Parameters": [
       {
         "Label": "outputId",
