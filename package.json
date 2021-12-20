@@ -67,6 +67,7 @@
     "@types/node": "^8.10.59",
     "tslint": "^5.20.1",
     "typescript": "^2.6.1",
-    "vscode": "^1.1.36"
+    "vscode": "^1.1.36",
+    "json-schema": "^0.4.0"
   }
 }
