@@ -48,10 +48,19 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
                 cmpItem.commitCharacters = ['(', ')', ':', '\t', '\n', ' '];
                 /* documentation = comments + (return/deprecated) */
                 cmpItem.documentation = mthd.Documentation;
+                /* set sort priority to lower ('m' means 'method').
+                   let keyword 'k' higher than this. */
+                cmpItem.sortText = 'm';
                 /* return CompletionItem */
                 return cmpItem;
             }
         );
+        /* [#20](https://github.com/ahernguo/urscript-extension/issues/20) Request for 'end' completion. */
+        let endCompItem = new CompletionItem('end', CompletionItemKind.Keyword);
+        endCompItem.insertText = new SnippetString('end');
+        endCompItem.commitCharacters = ['\t', '\n', ' '];
+        endCompItem.sortText = 'k';    //set first priority. 'k' means 'keyword'
+        this.scriptCmpItems.push(endCompItem);
     }
 
     /**
