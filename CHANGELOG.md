@@ -3,6 +3,10 @@ All notable changes to the "urscript" extension will be documented in this file.
 
 Goto [urscript-extension](https://github.com/ahernguo/urscript-extension) for more details.
 
+## `0.1.10` (08-May-2022)
+* FEATURE
+  * Add `end` to completion list with high priority ([#20](https://github.com/ahernguo/urscript-extension/issues/20))
+
 ## `0.1.9` (20-Dec-2021)
 * BUGFIXES
   * Correct the misspelling of `ﬁ` in _functions.json_ to `fi`.
