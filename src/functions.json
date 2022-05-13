@@ -1716,6 +1716,69 @@
     "Comment": "Random Number",
     "Parameters": []
   },
+
+  {
+    "Name": "request_boolean_from_primary_client",
+    "ReturnType": "Bool",
+    "Return": "User input True/False",
+    "Deprecated": "",
+    "Comment": "Displays a popup requesting the user to choose a state. The Text is displayed",
+    "Parameters": [
+      {
+        "Label": "Text",
+        "Type": "String",
+        "Comment": "The Text to be displayed",
+        "Default": ""
+      }
+    ]
+  },
+
+  {
+    "Name": "request_float_from_primary_client",
+    "ReturnType": "Float",
+    "Return": "User input float value",
+    "Deprecated": "",
+    "Comment": "Displays a popup requesting the user to input a float value. The Text is displayed",
+    "Parameters": [
+      {
+        "Label": "Text",
+        "Type": "String",
+        "Comment": "The Text to be displayed",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "request_integer_from_primary_client",
+    "ReturnType": "Integer",
+    "Return": "User input integer value",
+    "Deprecated": "",
+    "Comment": "Displays a popup requesting the user to input an integer value. The Text is displayed",
+    "Parameters": [
+      {
+        "Label": "Text",
+        "Type": "String",
+        "Comment": "The Text to be displayed",
+        "Default": ""
+      }
+    ]
+  },  
+  {
+    "Name": "request_string_from_primary_client",
+    "ReturnType": "String",
+    "Return": "User input string value",
+    "Deprecated": "",
+    "Comment": "Displays a popup requesting the user to input a string. The Text is displayed",
+    "Parameters": [
+      {
+        "Label": "Text",
+        "Type": "String",
+        "Comment": "The Text to be displayed",
+        "Default": ""
+      }
+    ]
+  },
+
   {
     "Name": "rotvec2rpy",
     "ReturnType": "Array",

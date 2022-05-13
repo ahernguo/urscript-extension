@@ -3,6 +3,13 @@ All notable changes to the "urscript" extension will be documented in this file.
 
 Goto [urscript-extension](https://github.com/ahernguo/urscript-extension) for more details.
 
+## `0.1.11` (12-May-2022)
+* FEATURE
+  * Added request_integer_from_primary_client()
+  * Added request_float_from_primary_client()
+  * Added request_string_from_primary_client()
+  * Added request_boolean_from_primary_client()
+
 ## `0.1.10` (08-May-2022)
 * FEATURE
   * Add `end` to completion list with high priority ([#20](https://github.com/ahernguo/urscript-extension/issues/20))
