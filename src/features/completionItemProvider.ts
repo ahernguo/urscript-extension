@@ -116,8 +116,16 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
                             const param = paramReg[1]
                                 .split(',')
                                 .map(
-                                    p =>
-                                        `# @param ${p.trim()} \${${index++}|bool,int,float,number,array,pose,string|} \${${index++}:${p.trim()}}`
+                                    p => {
+                                        if (/=.+/.test(p)) {
+                                            const pnReg = /.*(?==)/.exec(p);
+                                            if (pnReg) {
+                                                return `# @param ${pnReg[0].trim()} \${${index++}|bool,int,float,number,array,pose,string|} \${${index++}:${pnReg[0].trim()}}`;
+                                            }
+                                        } else {
+                                            return `# @param ${p.trim()} \${${index++}|bool,int,float,number,array,pose,string|} \${${index++}:${p.trim()}}`;
+                                        }
+                                    }
                                 );
                             /* combine to snippet. first part is summary comment. next followed is parameters (one as one line) */
                             cmpItem.insertText = new SnippetString(

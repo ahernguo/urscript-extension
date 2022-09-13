@@ -30,7 +30,7 @@ import * as path from 'path';
 /**
   * The regex pattern to get variable/method name
  */
-const namePat = /(\b(?<=def|thread|global).*(?=\(|=))|(\b(?<=global).+\b)/;
+const namePat = /(\b(?<=(def|thread)\s+).*(?=\())|(\b(?<=global\s+).+(?==))|(\b(?<=global\s+).+\b)/;
 /**
  * The regex pattern to get parameters that included in parentheses '(' and ')'
  */
@@ -51,8 +51,9 @@ const tarExt: string[] = [ ".variables", ".script", ".urscript" ];
 /**
  * Parsing &#64;param comments and convert to MethdParameter object
  * @param line the line to parsing
+ * @param target the method or variable line declared
  */
-function parseDocParam(line: string) {
+function parseDocParam(line: string, target: string) {
     /* split by space */
     const splitted = line
         .replace("@param", "")
@@ -62,14 +63,21 @@ function parseDocParam(line: string) {
     const first = splitted.shift();
     const label = first ? first : "";
     /* 2nd is the type of param */
-    const type = str2Type(splitted.shift());
+    const typeStr = splitted.shift();
+    const type = str2Type(typeStr);
     /* comments are after 3rd. Recombine to one line string */
     const comment = splitted.join(" ");
+    /* check there contains default value */
+    const defReg = target.match(`(?<=\\b${label}\\s*=)([^,)]+)`);
+    let defStr = "";
+    if (defReg) {
+        defStr = defReg[0].trim();
+    }
     return {
         "Label": label,
         "Type": type2Str(type),
         "Comment": comment,
-        "Default": ""
+        "Default": defStr
     };
 }
 
@@ -98,9 +106,10 @@ function parseDocReturn(line?: string) {
 /**
   * Searching UrDoc in line collection
  * @param lines the collection to search
+ * @param target the method or variable name to search
  * @param name the name of variable/method to search
  */
-function findDoc(name: string, lines?: string[]): ScriptMethod | undefined {
+function findDoc(name: string, target: string, lines?: string[]): ScriptMethod | undefined {
     /* ensure 'lines' not null and last line is "###" */
     if (lines && lines[lines.length - 1] === "###") {
         /* search start "###" of UrDoc from collection end to start */
@@ -122,7 +131,7 @@ function findDoc(name: string, lines?: string[]): ScriptMethod | undefined {
             /* search the lines which containts '@param' and convert to MethodParameter object */
             const params = doc
                 .filter(l => l.startsWith("@param"))
-                .map(l => parseDocParam(l));
+                .map(l => parseDocParam(l, target));
             /* search '@returns' and convert to Return object */
             const returns = parseDocReturn(
                 doc.find(l => l.startsWith("@returns"))
@@ -181,7 +190,7 @@ function parseCmpItem(matchResult: RegExpExecArray | null, cmpItems: CompletionI
                             # @returns bool input level
                             ###
                         */
-                        const doc = findDoc(name, oldLines);
+                        const doc = findDoc(name, value, oldLines);
                         /* add documentation to show on tooltip window if UrDoc found */
                         if (doc) {
                             cmpItem.documentation = doc.Documentation;
@@ -260,7 +269,7 @@ function parseHover(matchResult: RegExpExecArray | null, oldLines?: string[]): H
             # @returns bool input level
             ###
          */
-        const doc = findDoc(name, oldLines);
+        const doc = findDoc(name, step, oldLines);
         /* first line. show type and name */
         if (/global/.test(step)) {
             items.push(
@@ -336,7 +345,7 @@ function parseSignature(matchResult: RegExpExecArray | null, oldLines?: string[]
             # @returns bool input level
             ###
          */
-        const doc = findDoc(name, oldLines);
+        const doc = findDoc(name, step, oldLines);
         /* parse UrDoc to SignatureHelp if found. Otherwise, return null */
         if (doc) {
             /* create a new information */

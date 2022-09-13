@@ -131,6 +131,18 @@ export class MethodParameter {
             return `${type2Str(this.Type)} ${this.Label} = ${this.Default}`;
         }
     }
+
+    /**
+     * gets the string show on hover
+     * @returns string to show
+     */
+    public getParaDocStr(): string {
+        if (isBlank(this.Default)) {
+            return `  - \`${this.Label}\` (*${type2Str(this.Type)}*)  \n    ${this.Comment}`;
+        } else {
+            return `  - \`${this.Label}\` (*${type2Str(this.Type)}*) = ${this.Default}  \n    ${this.Comment}`;
+        }
+    }
 }
 
 /**
@@ -182,11 +194,15 @@ export class ScriptMethod {
         /* combine Documentation */
         //use 'docStr' to store 'return' and 'deprecated' information
         const docStr: string[] = [];
+        if (this.Parameters.length > 0) {
+            let paraDetail = this.Parameters.map(para => para.getParaDocStr()).join("\n");
+            docStr.push(`- ***Parameters***\n${paraDetail}`);
+        }
         if (!isBlank(this.Return)) {
-            docStr.push(`- *Return*\n  > ${this.Return}`);
+            docStr.push(`- ***Return***  \n  ${this.Return}`);
         }
         if (!isBlank(this.Deprecated)) {
-            docStr.push(`- *Deprecated*\n  > ${this.Deprecated}`);
+            docStr.push(`- ***Deprecated***\n  > ${this.Deprecated}`);
         }
         //Documentation = comment + docStr ... if 'docStr' not empty
         if (docStr.length > 0) {
