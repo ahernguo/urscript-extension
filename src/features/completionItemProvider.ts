@@ -120,10 +120,10 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
                                         if (/=.+/.test(p)) {
                                             const pnReg = /.*(?==)/.exec(p);
                                             if (pnReg) {
-                                                return `# @param ${pnReg[0].trim()} \${${index++}|bool,int,float,number,array,pose,string|} \${${index++}:${pnReg[0].trim()}}`;
+                                                return `# @param ${pnReg[0].trim()} \${${index++}|bool,int,float,number,array,pose,string,struct|} \${${index++}:${pnReg[0].trim()}}`;
                                             }
                                         } else {
-                                            return `# @param ${p.trim()} \${${index++}|bool,int,float,number,array,pose,string|} \${${index++}:${p.trim()}}`;
+                                            return `# @param ${p.trim()} \${${index++}|bool,int,float,number,array,pose,string,struct|} \${${index++}:${p.trim()}}`;
                                         }
                                     }
                                 );
@@ -158,7 +158,7 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
                     '@param `name` `type` your comments'
                 );
                 paramCmpItem.insertText = new SnippetString(
-                    '# @param ${1:name} ${2|bool,int,float,number,array,pose,string|} ${0:comments}'
+                    '# @param ${1:name} ${2|bool,int,float,number,array,pose,string,struct|} ${0:comments}'
                 );
                 /* add @returns */
                 const returnCmpItem = new CompletionItem('@returns', CompletionItemKind.Snippet);
@@ -171,7 +171,7 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
                     '@returns `type` your comments'
                 );
                 returnCmpItem.insertText = new SnippetString(
-                    '# @returns ${1|void,bool,int,float,number,array,pose,string|} ${0:comments}'
+                    '# @returns ${1|void,bool,int,float,number,array,pose,string,struct|} ${0:comments}'
                 );
                 /* return parts of UrDoc of CompletionItem */
                 return new CompletionList([paramCmpItem, returnCmpItem], false);
