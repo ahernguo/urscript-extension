@@ -40,7 +40,11 @@ export enum Types {
     /**
      * string
      */
-    String = 0x12
+    String = 0x12,
+    /**
+     * struct
+     */
+    Struct = 0x30
 }
 
 /**
@@ -57,6 +61,7 @@ export function type2Str(value: Types): string {
         case Types.Number: return 'number';
         case Types.Pose: return 'pose';
         case Types.String: return 'string';
+        case Types.Struct: return 'struct';
         default: return 'void';
     }
 }
@@ -77,6 +82,7 @@ export function str2Type(str: string | undefined): Types {
             case 'number': return Types.Number;
             case 'pose': return Types.Pose;
             case 'string': return Types.String;
+            case 'struct': return Types.Struct;
             default: return Types.None;
         }
     } else {

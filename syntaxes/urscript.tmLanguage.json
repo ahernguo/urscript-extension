@@ -72,7 +72,7 @@
                         {
                             "name": "comment.block.documentation.urscript",
                             "begin": "(@param)\\s+(\\w+)",
-                            "end": "(none|void|bool|number|int|float|array|pose|string)",
+                            "end": "(none|void|bool|number|int|float|array|pose|string|struct)",
                             "beginCaptures": {
                                 "1": {
                                     "name": "entity.name.tag.urscript"
@@ -90,7 +90,7 @@
                         {
                             "name": "comment.block.documentation.urscript",
                             "begin": "(@returns)",
-                            "end": "(none|void|bool|number|int|float|array|pose|string)",
+                            "end": "(none|void|bool|number|int|float|array|pose|string|struct)",
                             "beginCaptures": {
                                 "1": {
                                     "name": "entity.name.tag.urscript"
@@ -198,7 +198,7 @@
             "patterns": [
                 {
                     "name": "support.other.urscript",
-                    "begin": "^(void|bool|int|float|number|array|pose|string)\\s",
+                    "begin": "^(void|bool|int|float|number|array|pose|string|struct)\\s",
                     "end": "$",
                     "beginCaptures": {
                         "1": {
@@ -208,7 +208,7 @@
                     "patterns": [
                         {
                             "name": "entity.name.type.urscript",
-                            "match": "(none|void|bool|number|int|float|array|pose|string)"
+                            "match": "(none|void|bool|number|int|float|array|pose|string|struct)"
                         },
                         {
                             "name": "entity.name.function.urscript",
