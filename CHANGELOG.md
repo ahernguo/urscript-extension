@@ -3,6 +3,10 @@ All notable changes to the "urscript" extension will be documented in this file.
 
 Goto [urscript-extension](https://github.com/ahernguo/urscript-extension) for more details.
 
+## `0.1.13` (06-Jan-2023)
+* FEATURE
+  * Initial support for upcoming struct type ([#24](https://github.com/ahernguo/urscript-extension/pull/24))
+
 ## `0.1.12` (14-Sep-2022)
 * BUGFIXES
   * Fix incorrect regex to catch method name ([#22](https://github.com/ahernguo/urscript-extension/issues/22))
