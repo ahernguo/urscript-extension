@@ -117,6 +117,27 @@
     ]
   },
   {
+    "Name": "encoder_unwind_delta_tick_count",
+    "ReturnType": "Float",
+    "Return": "The unwound delta_tick_count (float)",
+    "Deprecated": "",
+    "Comment": "Returns the delta_tick_count. Unwinds in case encoder wraps around the range. If no wrapping has happened the given delta_tick_count is returned without any modification.",
+    "Parameters": [
+      {
+        "Label": "encoder_index",
+        "Type": "Int",
+        "Comment": "Index of the encoder to query. Must be either 0 or 1.",
+        "Default": ""
+      },
+      {
+        "Label": "delta_tick_count",
+        "Type": "Float",
+        "Comment": "The delta (difference between two) tick count to unwind (float) (current-start)",
+        "Default": ""
+      }
+    ]
+  },
+  {
     "Name": "end_force_mode",
     "ReturnType": "None",
     "Return": "",
