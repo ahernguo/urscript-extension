@@ -48,7 +48,7 @@ export enum Types {
     /**
      * matrix
      */
-    Matrix = 0x20,     
+    Matrix = 0x20     
 }
 
 /**
