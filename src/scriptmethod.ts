@@ -44,7 +44,11 @@ export enum Types {
     /**
      * struct
      */
-    Struct = 0x30
+    Struct = 0x30, 
+    /**
+     * matrix
+     */
+    Matrix = 0x20     
 }
 
 /**
@@ -62,6 +66,7 @@ export function type2Str(value: Types): string {
         case Types.Pose: return 'pose';
         case Types.String: return 'string';
         case Types.Struct: return 'struct';
+        case Types.Matrix: return 'matrix';
         default: return 'void';
     }
 }
@@ -83,6 +88,7 @@ export function str2Type(str: string | undefined): Types {
             case 'pose': return Types.Pose;
             case 'string': return Types.String;
             case 'struct': return Types.Struct;
+            case 'matrix': return Types.Matrix;
             default: return Types.None;
         }
     } else {
