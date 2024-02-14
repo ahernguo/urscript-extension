@@ -1,0 +1,1570 @@
+[
+  {
+    "Name": "enable_external_ft_sensor",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "use ft_rtde_input_enable function",
+    "Comment": "This function is used for enabling and disabling the use of external F/T measurements in the controller. Be aware that the following function is impacted:\r\n\r\n* force_mode\r\n\r\n* screw_driving\r\n\r\n* freedrive_mode\r\n\r\nThe RTDE interface shall be used for feeding F/T measurements into the real-time control loop of the robot using input variable external_force_torque of type VECTOR6D. If no other RTDE watchdog has been configured (using script function rtde_set_watchdog), a default watchdog will be set to a 10Hz minimum update frequency when the external F/T sensor functionality is enabled. If the update frequency is not met the robot program will pause.",
+    "Parameters": [
+      {
+        "Label": "enable",
+        "Type": "Bool",
+        "Comment": "enable or disable feature",
+        "Default": ""
+      },
+      {
+        "Label": "sensor_mass",
+        "Type": "Float",
+        "Comment": "mass of the sensor[kg]",
+        "Default": "0.0"
+      },
+      {
+        "Label": "sensor_measuring_offset",
+        "Type": "Array",
+        "Comment": "[x, y, z] measuring offset of the sensor in meters relative to the tool flange frame[m]",
+        "Default": "[0.0, 0.0, 0.0]"
+      },
+      {
+        "Label": "sensor_cog",
+        "Type": "Array",
+        "Comment": "[x, y, z] center of gravity of the sensor in meters relative to the tool flange frame[m]",
+        "Default": "[0.0, 0.0, 0.0]"
+      }              
+    ]
+  },
+  {
+    "Name": "ft_rtde_input_enable",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "This function is used for enabling and disabling the use of external F/T measurements in the controller. Be aware that the following function is impacted:\r\n\r\n* force_mode\r\n\r\n* screw_driving\r\n\r\n* freedrive_mode\r\n\r\nThe RTDE interface shall be used for feeding F/T measurements into the real-time control loop of the robot using input variable external_force_torque of type VECTOR6D. If no other RTDE watchdog has been configured (using script function rtde_set_watchdog), a default watchdog will be set to a 10Hz minimum update frequency when the external F/T sensor functionality is enabled. If the update frequency is not met the robot program will pause.",
+    "Parameters": [
+      {
+        "Label": "enable",
+        "Type": "Bool",
+        "Comment": "enable or disable feature",
+        "Default": ""
+      },
+      {
+        "Label": "sensor_mass",
+        "Type": "Float",
+        "Comment": "mass of the sensor[kg]",
+        "Default": "0.0"
+      },
+      {
+        "Label": "sensor_measuring_offset",
+        "Type": "Array",
+        "Comment": "[x, y, z] measuring offset of the sensor in meters relative to the tool flange frame[m]",
+        "Default": "[0.0, 0.0, 0.0]"
+      },
+      {
+        "Label": "sensor_cog",
+        "Type": "Array",
+        "Comment": "[x, y, z] center of gravity of the sensor in meters relative to the tool flange frame[m]",
+        "Default": "[0.0, 0.0, 0.0]"
+      }              
+    ]
+  },    
+  {
+    "Name": "get_analog_in",
+    "ReturnType": "Float",
+    "Return": "float, The signal level in Amperes, or Volts",
+    "Deprecated": "The `get_standard_analog_in` and `get_tool_analog_in` replace this function. Ports 2-3 should be changed to 0-1 for the latter function. This function might be removed in the next major release.",
+    "Comment": "Get analog input signal level",
+    "Parameters": [
+      {
+        "Label": "n",
+        "Type": "Int",
+        "Comment": "The number (id) of the input, integer: [0:3]",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "get_analog_out",
+    "ReturnType": "Float",
+    "Return": "float, The signal level in Amperes, or Volts",
+    "Deprecated": "The `get_standard_analog_out` replaces this function. This function might be removed in the next major release",
+    "Comment": "Get analog output signal level",
+    "Parameters": [
+      {
+        "Label": "n",
+        "Type": "Int",
+        "Comment": "The number (id) of the output, integer: [0:1]",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "get_configurable_digital_in",
+    "ReturnType": "Bool",
+    "Return": "boolean, The signal level.",
+    "Deprecated": "",
+    "Comment": "Get configurable digital input signal level\r\n\r\nSee also `get_standard_digital_in` and `get_tool_digital_in`.",
+    "Parameters": [
+      {
+        "Label": "n",
+        "Type": "Int",
+        "Comment": "The number (id) of the input, integer: [0:7]",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "get_configurable_digital_out",
+    "ReturnType": "Bool",
+    "Return": "boolean, The signal level.",
+    "Deprecated": "",
+    "Comment": "Get configurable digital output signal level\r\n\r\nSee also `get_standard_digital_out` and `get_tool_digital_out`.",
+    "Parameters": [
+      {
+        "Label": "n",
+        "Type": "Int",
+        "Comment": "The number (id) of the output, integer: [0:7]",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "get_digital_in",
+    "ReturnType": "Bool",
+    "Return": "boolean, The signal level.",
+    "Deprecated": "The `get_standard_digital_in` and `get_tool_digital_in` replace this function. Ports 8-9 should be changed to 0-1 for the latter function. This function might be removed in the next major release.",
+    "Comment": "Get digital input signal level",
+    "Parameters": [
+      {
+        "Label": "n",
+        "Type": "Int",
+        "Comment": "The number (id) of the input, integer: [0:9]",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "get_digital_out",
+    "ReturnType": "Bool",
+    "Return": "boolean, The signal level.",
+    "Deprecated": "The `get_standard_digital_out` and `get_tool_digital_out` replace this function. Ports 8-9 should be changed to 0-1 for the latter function. This function might be removed in the next major release",
+    "Comment": "Get digital output signal level",
+    "Parameters": [
+      {
+        "Label": "n",
+        "Type": "Int",
+        "Comment": "The number (id) of the output, integer: [0:9]",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "get_ﬂag",
+    "ReturnType": "Bool",
+    "Return": "Boolean, The stored bit.",
+    "Deprecated": "",
+    "Comment": "Flags behave like internal digital outputs. They keep information between program runs.",
+    "Parameters": [
+      {
+        "Label": "n",
+        "Type": "Int",
+        "Comment": "The number (id) of the ﬂag, intereger: [0:32]",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "get_standard_analog_in",
+    "ReturnType": "Float",
+    "Return": "float, The signal level in Amperes, or Volts",
+    "Deprecated": "",
+    "Comment": "Get standard analog input signal level\r\n\r\nSee also `get_tool_analog_in`.",
+    "Parameters": [
+      {
+        "Label": "n",
+        "Type": "Int",
+        "Comment": "The number (id) of the input, integer: [0:1]",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "get_standard_analog_out",
+    "ReturnType": "Float",
+    "Return": "float, The signal level in Amperes, or Volts",
+    "Deprecated": "",
+    "Comment": "Get standard analog output signal level",
+    "Parameters": [
+      {
+        "Label": "n",
+        "Type": "Int",
+        "Comment": "The number (id) of the output, integer: [0:1]",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "get_standard_digital_in",
+    "ReturnType": "Bool",
+    "Return": "boolean, The signal level.",
+    "Deprecated": "",
+    "Comment": "Get standard digital input signal level\r\n\r\nSee also `get_configurable_digital_in` and `get_tool_digital_in`.",
+    "Parameters": [
+      {
+        "Label": "n",
+        "Type": "Int",
+        "Comment": "The number (id) of the input, integer: [0:7]",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "get_standard_digital_out",
+    "ReturnType": "Bool",
+    "Return": "boolean, The signal level.",
+    "Deprecated": "",
+    "Comment": "Get standard digital output signal level\r\n\r\nSee also `get_configurable_digital_out` and `get_tool_digital_out`.",
+    "Parameters": [
+      {
+        "Label": "n",
+        "Type": "Int",
+        "Comment": "The number (id) of the output, integer: [0:7]",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "get_tool_analog_in",
+    "ReturnType": "Float",
+    "Return": "float, The signal level in Amperes, or Volts",
+    "Deprecated": "",
+    "Comment": "Get tool analog input signal level\r\n\r\nSee also `get_standard_analog_in`.",
+    "Parameters": [
+      {
+        "Label": "n",
+        "Type": "Int",
+        "Comment": "The number (id) of the input, integer: [0:1]",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "get_tool_digital_in",
+    "ReturnType": "Bool",
+    "Return": "boolean, The signal level.",
+    "Deprecated": "",
+    "Comment": "Get tool digital input signal level\r\n\r\nSee also `get_configurable_digital_in` and `get_standard_digital_in`.",
+    "Parameters": [
+      {
+        "Label": "n",
+        "Type": "Int",
+        "Comment": "The number (id) of the input, integer: [0:1]",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "get_tool_digital_out",
+    "ReturnType": "Bool",
+    "Return": "boolean, The signal level.",
+    "Deprecated": "",
+    "Comment": "Get tool digital output signal level\r\n\r\nSee also `get_standard_digital_out` and `get_configurable_digital_out`.",
+    "Parameters": [
+      {
+        "Label": "n",
+        "Type": "Int",
+        "Comment": "The number (id) of the output, integer: [0:1]",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "modbus_add_signal",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Adds a new modbus signal for the controller to supervise. Expects no response.",
+    "Parameters": [
+      {
+        "Label": "IP",
+        "Type": "String",
+        "Comment": "A string specifying the IP address of the modbus unit to which the modbus signal is connected.",
+        "Default": ""
+      },
+      {
+        "Label": "slave_number",
+        "Type": "Int",
+        "Comment": "An integer normally not used and set to 255, but is a free choice between 0 and 255.",
+        "Default": ""
+      },
+      {
+        "Label": "signal_address",
+        "Type": "Int",
+        "Comment": "An integer specifying the address of the either the coil or the register that this new signal should reﬂect. Consult the configuration of the modbus unit for this information.",
+        "Default": ""
+      },
+      {
+        "Label": "signal_type",
+        "Type": "Int",
+        "Comment": "An integer specifying the type of signal to add. 0 = digital input, 1 = digital output, 2 = register input and 3 = register output.",
+        "Default": ""
+      },
+      {
+        "Label": "signal_name",
+        "Type": "String",
+        "Comment": "A string uniquely identifying the signal. If a string is supplied which is equal to an already added signal, the new signal will replace the old one. The length of the string cannot exceed 20 characters.",
+        "Default": ""
+      },
+      {
+        "Label": "sequential_mode",
+        "Type": "Bool",
+        "Comment": "Setting to True forces the modbus client to wait for a response before sending the next request. This mode is required by some fieldbus units (Optional).",
+        "Default": "False"
+      }
+    ]
+  },
+  {
+    "Name": "modbus_add_rw_signal",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Adds a new modbus signal for the controller to supervise. This function will use the function code 23. The read and write addresses can overlap. Until the first set_output_register() command the function code will be 3, after the call it will switch to 23.",
+    "Parameters": [
+      {
+        "Label": "IP",
+        "Type": "String",
+        "Comment": "A string specifying the IP address of the modbus unit to which the modbus  signal is connected. The IP can not be empty.",
+        "Default": ""
+      },
+      {
+        "Label": "slave_number",
+        "Type": "Int",
+        "Comment": "An integer normally not used and set to 255, but is a free choice between 0 and 255.",
+        "Default": ""
+      },
+      {
+        "Label": "read_address",
+        "Type": "Int",
+        "Comment": "An integer specifying the address of the first register that this new signal should read from.",
+        "Default": ""
+      },
+      {
+        "Label": "read_register_count",
+        "Type": "Int",
+        "Comment": "Number of registers to read [1-123].",
+        "Default": ""
+      },      
+      {
+        "Label": "write_address",
+        "Type": "Int",
+        "Comment": "An integer specifying the address of the first register that this new signal should write to.",
+        "Default": ""
+      },
+      {
+        "Label": "write_register_count",
+        "Type": "Int",
+        "Comment": "Number of registers to write [1-123].",
+        "Default": ""
+      },      
+      {
+        "Label": "signal_name",
+        "Type": "String",
+        "Comment": "A string uniquely identifying the signal. If a string is supplied which is equal to an already added signal, the new signal will replace the old one. The length of the string cannot exceed 20 characters. The signal name cannot be empty.",
+        "Default": ""
+      },
+      {
+        "Label": "sequential_mode",
+        "Type": "Bool",
+        "Comment": "Setting to True forces the modbus client to wait for a response before sending the next request. This mode is required by some fieldbus units (Optional).",
+        "Default": "False"
+      }
+    ]
+  },  
+  {
+    "Name": "modbus_delete_signal",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Deletes the signal identified by the supplied signal name.",
+    "Parameters": [
+      {
+        "Label": "signal_name",
+        "Type": "String",
+        "Comment": "A string equal to the name of the signal that should be deleted.",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "modbus_get_signal_status",
+    "ReturnType": "Int",
+    "Return": "An integer or a boolean. For digital signals: True or False. For register signals: The register value expressed as an unsigned integer.",
+    "Deprecated": "",
+    "Comment": "Reads the current value of a specific signal.",
+    "Parameters": [
+      {
+        "Label": "signal_name",
+        "Type": "String",
+        "Comment": "A string equal to the name of the signal for which the value should be gotten.",
+        "Default": ""
+      },
+      {
+        "Label": "is_secondary_program",
+        "Type": "Bool",
+        "Comment": "A boolean for internal use only. Must be set to `False`.",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "modbus_send_custom_command",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Sends a command specified by the user to the modbus unit located on the specified IP address. Cannot be used to request data, since the response will not be received. The user is responsible for supplying data which is meaningful to the supplied function code. The builtin function takes care of constructing the modbus frame, so the user should not be concerned with the length of the command.",
+    "Parameters": [
+      {
+        "Label": "IP",
+        "Type": "String",
+        "Comment": "A string specifying the IP address locating the modbus unit to which the custom command should be send.",
+        "Default": ""
+      },
+      {
+        "Label": "slave_number",
+        "Type": "Int",
+        "Comment": "An integer specifying the slave number to use for the custom command.",
+        "Default": ""
+      },
+      {
+        "Label": "function_code",
+        "Type": "Int",
+        "Comment": "An integer specifying the function code for the custom command.",
+        "Default": ""
+      },
+      {
+        "Label": "data",
+        "Type": "Array",
+        "Comment": "An array of integers in which each entry must be a valid byte (0-255) value.",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "modbus_set_digital_input_action",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Sets the selected digital input signal to either a `\"default\"` or `\"freedrive\"` action.",
+    "Parameters": [
+      {
+        "Label": "signal_name",
+        "Type": "String",
+        "Comment": "A string identifying a digital input signal that was previously added.",
+        "Default": ""
+      },
+      {
+        "Label": "action",
+        "Type": "String",
+        "Comment": "The type of action. The action can either be `\"default\"` or `\"freedrive\"`. (string)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "modbus_set_output_register",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Sets the output register signal identified by the given name to the given\r\nvalue.",
+    "Parameters": [
+      {
+        "Label": "signal_name",
+        "Type": "String",
+        "Comment": "A string identifying an output register signal that in advance has been added.",
+        "Default": ""
+      },
+      {
+        "Label": "register_value",
+        "Type": "Int",
+        "Comment": "An integer which must be a valid word (0-65535) value.",
+        "Default": ""
+      },
+      {
+        "Label": "is_secondary_program",
+        "Type": "Bool",
+        "Comment": "A boolean for interal use only. Must be set to `False`.",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "modbus_set_output_signal",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Sets the output digital signal identified by the given name to the given value.",
+    "Parameters": [
+      {
+        "Label": "signal_name",
+        "Type": "String",
+        "Comment": "A string identifying an output digital signal that in advance has been added.",
+        "Default": ""
+      },
+      {
+        "Label": "digital_value",
+        "Type": "Bool",
+        "Comment": "A boolean to which value the signal will be set.",
+        "Default": ""
+      },
+      {
+        "Label": "is_secondary_program",
+        "Type": "Bool",
+        "Comment": "A boolean for interal use only. Must be set to `False`.",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "modbus_set_signal_update_frequency",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Sets the frequency with which the robot will send requests to the Modbus controller to either read or write the signal value.",
+    "Parameters": [
+      {
+        "Label": "signal_name",
+        "Type": "String",
+        "Comment": "A string identifying an output digital signal that in advance has been added.",
+        "Default": ""
+      },
+      {
+        "Label": "update_frequency",
+        "Type": "Int",
+        "Comment": "An integer in the range 0-125 specifying the update frequency in Hz.",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "modbus_get_error",
+    "ReturnType": "Int",
+    "Return": "0 = No error, Device errors\r\n\r\n1 = Device error - illegal function code\r\n\r\n2 = Device error - illegal data access\r\n\r\n3 = Device error - illegal data value\r\n\r\n4 = Device error - server failure\r\n\r\n5 = Device error - acknowledge exception\r\n\r\n6 = Device error - server busy",
+    "Deprecated": "",
+    "Comment": "Returns the current error state of the signal.",
+    "Parameters": [
+      {
+        "Label": "signal_name",
+        "Type": "String",
+        "Comment": "A string equal to the name of the signal. The signal name can not be empty.",
+        "Default": ""
+      },
+      {
+        "Label": "error_source",
+        "Type": "Int",
+        "Comment": "Selects the type of the returned error. \r\n\r\n0 = combined\r\n\r\n1 = device error\r\n\r\n2 = connection error",
+        "Default": "0"
+      }
+    ]
+  },  
+  {
+    "Name": "modbus_get_time_since_signal_invalid",
+    "ReturnType": "Number",
+    "Return": "Time in seconds since the signal is in a communication or device error.",
+    "Deprecated": "",
+    "Comment": "Returns the time in seconds since the signal is invalid (has communication or device error).For input signals function tells how long ago was last time when signal value was successfully read from remote device. For output signals function tells how long ago was last time when signal value was successfully written to remote device.",
+    "Parameters": [
+      {
+        "Label": "signal_name",
+        "Type": "String",
+        "Comment": "A string equal to the name of the signal. The signal name can not be empty.",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "modbus_get_time_since_signal_invalid",
+    "ReturnType": "",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Request an update of the signal regardless of the used frequency.",
+    "Parameters": [
+      {
+        "Label": "signal_name",
+        "Type": "String",
+        "Comment": "A string equal to the name of the signal. The signal name can not be empty.",
+        "Default": ""
+      }
+    ]
+  },  
+  {
+    "Name": "modbus_reset_connection",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Tear down, and reconnect all signals to remote device. By default it will block as long as there are errors in the connection.",
+    "Parameters": [
+      {
+        "Label": "connection_id",
+        "Type": "String",
+        "Comment": "A string specifying the IP address of the modbus unit to which the modbus signal is connected. The IP can not be empty.",
+        "Default": ""
+      },
+      {
+        "Label": "is_blocking=",
+        "Type": "Bool",
+        "Comment": "enable or disable if the call shall be blocking",
+        "Default": "True"
+      }      
+    ]
+  },
+  {
+    "Name": "modbus_set_signal_watchdog",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Set tolerance for modbus errors (both communication, and device exceptions) as minimum time between valid device responses. No error will be thrown within the watchdog time. If needed, the modus_get_error() or the modbus_get_time_since_signal_invalid() can be used to detected that the signal is in an error state before the watchdog expires.Default signal timeout is 2 seconds.",
+    "Parameters": [
+      {
+        "Label": "signal_name",
+        "Type": "String",
+        "Comment": "A string identifying an output digital signal that in advance has been added. Can not be empty.",
+        "Default": ""
+      },
+      {
+        "Label": "new_timeout_in_sec",
+        "Type": "Float",
+        "Comment": "A number in range 0-300 representing seconds.",
+        "Default": ""
+      }      
+    ]
+  },  
+  {
+    "Name": "read_input_boolean_register",
+    "ReturnType": "Bool",
+    "Return": "The boolean value held by the register (`True`, `False`)",
+    "Deprecated": "",
+    "Comment": "Reads the boolean from one of the input registers, which can also be accessed by a Field bus. Note, uses it’s own memory space.",
+    "Parameters": [
+      {
+        "Label": "address",
+        "Type": "Int",
+        "Comment": "Address of the register (0:127)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "read_input_float_register",
+    "ReturnType": "Float",
+    "Return": "The value held by the register (float)",
+    "Deprecated": "",
+    "Comment": "Reads the float from one of the input registers, which can also be accessed by a Field bus. Note, uses it’s own memory space.",
+    "Parameters": [
+      {
+        "Label": "address",
+        "Type": "Int",
+        "Comment": "Address of the register (0:47)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "read_input_integer_register",
+    "ReturnType": "Int",
+    "Return": "The value held by the register [-2,147,483,648 : 2,147,483,647]",
+    "Deprecated": "",
+    "Comment": "Reads the integer from one of the input registers, which can also be accessed by a Field bus. Note, uses it’s own memory space.",
+    "Parameters": [
+      {
+        "Label": "address",
+        "Type": "Int",
+        "Comment": "Address of the register (0:47)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "read_output_boolean_register",
+    "ReturnType": "Bool",
+    "Return": "The boolean value held by the register (`True`, `False`)",
+    "Deprecated": "",
+    "Comment": "Reads the boolean from one of the output registers, which can also be accessed by a Field bus. Note, uses it’s own memory space.",
+    "Parameters": [
+      {
+        "Label": "address",
+        "Type": "Int",
+        "Comment": "Address of the register (0:127)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "read_output_float_register",
+    "ReturnType": "Float",
+    "Return": "The value held by the register (float)",
+    "Deprecated": "",
+    "Comment": "Reads the float from one of the output registers, which can also be accessed by a Field bus. Note, uses it’s own memory space.",
+    "Parameters": [
+      {
+        "Label": "address",
+        "Type": "Int",
+        "Comment": "Address of the register (0:47)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "read_output_integer_register",
+    "ReturnType": "Int",
+    "Return": "The int value held by the register [-2,147,483,648 : 2,147,483,647]",
+    "Deprecated": "",
+    "Comment": "Reads the integer from one of the output registers, which can also be accessed by a Field bus. Note, uses it’s own memory space.",
+    "Parameters": [
+      {
+        "Label": "address",
+        "Type": "Int",
+        "Comment": "Address of the register (0:47)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "read_port_bit",
+    "ReturnType": "Bool",
+    "Return": "The value held by the port (`True`, `False`)",
+    "Deprecated": "",
+    "Comment": "Reads one of the ports, which can also be accessed by Modbus clients",
+    "Parameters": [
+      {
+        "Label": "address",
+        "Type": "Int",
+        "Comment": "Address of the port (See portmap on Support site, page \"UsingModbusServer\" )",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "read_port_register",
+    "ReturnType": "Int",
+    "Return": "The signed integer value held by the port (-32768 : 32767)",
+    "Deprecated": "",
+    "Comment": "Reads one of the ports, which can also be accessed by Modbus clients",
+    "Parameters": [
+      {
+        "Label": "address",
+        "Type": "Int",
+        "Comment": "Address of the port (See portmap on Support site, page \"UsingModbusServer\" )",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "rpc_factory",
+    "ReturnType": "Number",
+    "Return": "A RPC handle with a connection to the specified server using the designated RPC backend. If the server is not available the function and program will fail. Any function that is made available on the server can be called using this instance. For example \"bool isTargetAvailable(int number, ...)\" would be \"proxy.isTargetAvailable(var_1, ...)\", whereby any number of arguments are supported (denoted by the ...).",
+    "Deprecated": "",
+    "Comment": "Creates a new Remote Procedure Call (RPC) handle. Please read the subsection ef{Remote Procedure Call (RPC)} for a more detailed description of RPCs.",
+    "Parameters": [
+      {
+        "Label": "type",
+        "Type": "String",
+        "Comment": "The type of RPC backed to use. Currently only the `\"xmlrpc\"` protocol is available.",
+        "Default": ""
+      },
+      {
+        "Label": "url",
+        "Type": "String",
+        "Comment": "The URL to the RPC server. Currently two protocols are supported: pstream and http.\r\n\r\nThe pstream URL looks like `\"<ip-address>:<port>\"`, for instance \"127.0.0.1:8080\" to make a local connection on port 8080.\r\n\r\nA http URL generally looks like `\"http://<ip-address>:<port>/<path>\"`, whereby the `<path>` depends on the setup of the http server. In the example given above a connection to a local Python webserver on port 8080 is made, which expects XMLRPC calls to come in on the path \"RPC2\".",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "rtde_set_watchdog",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "This function will activate a watchdog for a particular input variable to the RTDE. When the watchdog did not receive an input update for the specified variable in the time period specified by min_frequency (Hz), the corresponding action will be taken. All watchdogs are removed on program stop.",
+    "Parameters": [
+      {
+        "Label": "variable_name",
+        "Type": "String",
+        "Comment": "Input variable name (string), as specified by the RTDE interface",
+        "Default": ""
+      },
+      {
+        "Label": "min_frequency",
+        "Type": "Float",
+        "Comment": "The minimum frequency (float) an input update is expected to arrive.",
+        "Default": ""
+      },
+      {
+        "Label": "action",
+        "Type": "String",
+        "Comment": "Optional: Either \"ignore\", \"pause\" or \"stop\" the program on a violation of the minimum frequency. The default action is \"pause\".",
+        "Default": "\"pause\""
+      }
+    ]
+  },
+  {
+    "Name": "set_analog_inputrange",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "The `set_standard_analog_input_domain` and  `set_tool_analog_input_domain` replace this function. Ports 2-3 should be changed to 0-1 for the latter function. This function might be removed in the next major release.",
+    "Comment": "Set range of analog inputs\r\n\r\nPort 0 and 1 is in the controller box, 2 and 3 is in the tool connector.",
+    "Parameters": [
+      {
+        "Label": "port",
+        "Type": "Int",
+        "Comment": "analog input port number, 0,1 = controller, 2,3 = tool",
+        "Default": ""
+      },
+      {
+        "Label": "range",
+        "Type": "Int",
+        "Comment": "Controller analog input range 0: 0-5V (maps automatically onto range 2) and range 2: 0-10V.",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "set_analog_out",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "The `set_standard_analog_out` replaces this function. This function might be removed in the next major release.",
+    "Comment": "Set analog output signal level",
+    "Parameters": [
+      {
+        "Label": "n",
+        "Type": "Int",
+        "Comment": "The number (id) of the output, integer: [0:1]",
+        "Default": ""
+      },
+      {
+        "Label": "f",
+        "Type": "Float",
+        "Comment": "The relative signal level [0;1] (float)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "set_configurable_digital_out",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Set configurable digital output signal level\r\n\r\nSee also `set_standard_digital_out` and `set_tool_digital_out`.",
+    "Parameters": [
+      {
+        "Label": "n",
+        "Type": "Int",
+        "Comment": "The number (id) of the output, integer: [0:7]",
+        "Default": ""
+      },
+      {
+        "Label": "b",
+        "Type": "Bool",
+        "Comment": "The signal level. (boolean)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "set_digital_out",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "The `set_standard_digital_out` and `set_tool_digital_out` replace this function. Ports 8-9 should be changed to 0-1 for the latter function. This function might be removed in the next major release.",
+    "Comment": "Set digital output signal level",
+    "Parameters": [
+      {
+        "Label": "n",
+        "Type": "Int",
+        "Comment": "The number (id) of the output, integer: [0:9]",
+        "Default": ""
+      },
+      {
+        "Label": "b",
+        "Type": "Bool",
+        "Comment": "The signal level. (boolean)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "set_ﬂag",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Flags behave like internal digital outputs. They keep information between program runs.",
+    "Parameters": [
+      {
+        "Label": "n",
+        "Type": "Int",
+        "Comment": "The number (id) of the ﬂag, integer: [0:32]",
+        "Default": ""
+      },
+      {
+        "Label": "b",
+        "Type": "Bool",
+        "Comment": "The stored bit. (boolean)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "set_standard_analog_out",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Set standard analog output signal level",
+    "Parameters": [
+      {
+        "Label": "n",
+        "Type": "Int",
+        "Comment": "The number (id) of the output, integer: [0:1]",
+        "Default": ""
+      },
+      {
+        "Label": "f",
+        "Type": "Float",
+        "Comment": "The relative signal level [0;1] (float)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "set_standard_digital_out",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Set standard digital output signal level\r\n\r\nSee also `set_configurable_digital_out` and `set_tool_digital_out`.",
+    "Parameters": [
+      {
+        "Label": "n",
+        "Type": "Int",
+        "Comment": "The number (id) of the output, integer: [0:7]",
+        "Default": ""
+      },
+      {
+        "Label": "b",
+        "Type": "Bool",
+        "Comment": "The signal level. (boolean)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "set_tool_digital_out",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Set tool digital output signal level\r\n\r\nSee also `set_configurable_digital_out` and `set_standard_digital_out`.",
+    "Parameters": [
+      {
+        "Label": "n",
+        "Type": "Int",
+        "Comment": "The number (id) of the output, integer: [0:1]",
+        "Default": ""
+      },
+      {
+        "Label": "b",
+        "Type": "Bool",
+        "Comment": "The signal level. (boolean)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "set_tool_communication",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "This function will activate or deactivate the ’Tool Communication Interface’ (TCI). The TCI will enable communication with a external tool via the robots analog inputs hereby avoiding external wiring.",
+    "Parameters": [
+      {
+        "Label": "enabled",
+        "Type": "Bool",
+        "Comment": ": Boolean to enable or disable the TCI. Valid values: True (enable), False(disable)",
+        "Default": ""
+      },
+      {
+        "Label": "baud_rate",
+        "Type": "Int",
+        "Comment": "The used baud rate (int). Valid values: 9600, 19200, 38400, 57600, 115200, 1000000, 2000000, 5000000.",
+        "Default": ""
+      },
+      {
+        "Label": "parity",
+        "Type": "Int",
+        "Comment": "The used parity (int). Valid values: 0 (none), 1 (odd), 2 (even).",
+        "Default": ""
+      },
+      {
+        "Label": "stop_bits",
+        "Type": "Int",
+        "Comment": "The number of stop bits (int). Valid values: 1, 2",
+        "Default": ""
+      },
+      {
+        "Label": "rx_idle_chars",
+        "Type": "Int",
+        "Comment": "Amount of chars the RX unit in the tool should wait before marking a message as over / sending it to the PC (float). Valid values: min=1.0 max=40.0.",
+        "Default": ""
+      },
+      {
+        "Label": "tx_idle_chars",
+        "Type": "Int",
+        "Comment": "Amount of chars the TX unit in the tool should wait before starting a new transmission since last activity on bus (float). Valid values: min=0.0 max=40.0.",
+        "Default": ""
+      }
+    ]
+  }, 
+  {
+    "Name": "set_tool_digital_output_mode",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Sets the output mode of the tool output pin.",
+    "Parameters": [
+      {
+        "Label": "n",
+        "Type": "Int",
+        "Comment": "The number (id) of the output, integer: [0:1]",
+        "Default": ""
+      },
+      {
+        "Label": "mode",
+        "Type": "Int",
+        "Comment": "1=Sinking/NPN\r\n\r\n2=Sourcing/PNP\r\n\r\n3=Push-Pull",
+        "Default": ""
+      }      
+    ]
+  },  
+  {
+    "Name": "set_tool_output_mode",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Sets the tool digital output mode.",
+    "Parameters": [
+      {
+        "Label": "mode",
+        "Type": "Int",
+        "Comment": "1=power (dual pin) mode",
+        "Default": ""
+      }      
+    ]
+  },  
+  {
+    "Name": "set_tool_voltage",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Sets the voltage level for the power supply that delivers power to the connector plug in the tool ﬂange of the robot. The votage can be 0, 12 or 24 volts.",
+    "Parameters": [
+      {
+        "Label": "voltage",
+        "Type": "Int",
+        "Comment": "The voltage (as an integer) at the tool connector, integer: 0, 12 or 24.",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "socket_close",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Closes TCP/IP socket communication\r\n\r\nCloses down the socket connection to the server.",
+    "Parameters": [
+      {
+        "Label": "socket_name",
+        "Type": "String",
+        "Comment": "Name of socket (string)",
+        "Default": "\"socket_0\""
+      }
+    ]
+  },
+  {
+    "Name": "socket_get_var",
+    "ReturnType": "Int",
+    "Return": "an integer from the server (int), 0 is the timeout value",
+    "Deprecated": "",
+    "Comment": "Reads an integer from the server\r\n\r\nSends the message `\"GET <name>\\n\"` through the socket, expects the response `\"<name> <int>\\n\"` within 2 seconds. Returns 0 after timeout",
+    "Parameters": [
+      {
+        "Label": "name",
+        "Type": "String",
+        "Comment": "Variable name (string)",
+        "Default": ""
+      },
+      {
+        "Label": "socket_name",
+        "Type": "String",
+        "Comment": "Name of socket (string)",
+        "Default": "\"socket_0\""
+      }
+    ]
+  },
+  {
+    "Name": "socket_open",
+    "ReturnType": "Bool",
+    "Return": "`False` if failed, `True` if connection succesfully established",
+    "Deprecated": "",
+    "Comment": "Open TCP/IP ethernet communication socket\r\n\r\nAttempts to open a socket connection, times out after 2 seconds.",
+    "Parameters": [
+      {
+        "Label": "address",
+        "Type": "String",
+        "Comment": "Server address (string)",
+        "Default": ""
+      },
+      {
+        "Label": "port",
+        "Type": "Int",
+        "Comment": "Port number (int)",
+        "Default": ""
+      },
+      {
+        "Label": "socket_name",
+        "Type": "String",
+        "Comment": "Name of socket (string)",
+        "Default": "\"socket_0\""
+      }
+    ]
+  },
+  {
+    "Name": "socket_read_ascii_float",
+    "ReturnType": "Array",
+    "Return": "A list of numbers read (list of floats, length=number+1)",
+    "Deprecated": "",
+    "Comment": "Reads a number of ascii formatted floats from the socket. A maximum\r\nof 30 values can be read in one command.\r\n\r\nThe format of the numbers should be in parantheses, and seperated by \",\". An example list of four numbers could look like \"( 1.414 , 3.14159, 1.616, 0.0 )\".\r\n\r\nThe returned list contains the total numbers read, and then each number in succession. For example a read_ascii_float on the example above would return [4, 1.414, 3.14159, 1.616, 0.0].\r\n\r\nA failed read or timeout will return the list with 0 as first element and then \"Not a number (nan)\" in the following elements (ex. [0, nan, nan, nan] for a read of three numbers).",
+    "Parameters": [
+      {
+        "Label": "number",
+        "Type": "Int",
+        "Comment": "The number of variables to read (int)",
+        "Default": ""
+      },
+      {
+        "Label": "socket_name",
+        "Type": "String",
+        "Comment": "Name of socket (string)",
+        "Default": "\"socket_0\""
+      },
+      {
+        "Label": "timeout",
+        "Type": "Float",
+        "Comment": "The number of seconds until the read action times out (float). A timeout of 0 or negative number indicates that the function should not return until a read is completed.",
+        "Default": "2"
+      }
+    ]
+  },
+  {
+    "Name": "socket_read_binary_integer",
+    "ReturnType": "Array",
+    "Return": "A list of numbers read (list of ints, length=number+1)",
+    "Deprecated": "",
+    "Comment": "Reads a number of 32 bit integers from the socket. Bytes are in network byte order. A maximum of 30 values can be read in one command.\r\n\r\nReturns (for example) [3,100,2000,30000], if there is a timeout or the reply is invalid, [0,-1,-1,-1] is returned, indicating that 0 integers have been read",
+    "Parameters": [
+      {
+        "Label": "number",
+        "Type": "Int",
+        "Comment": "The number of variables to read (int)",
+        "Default": ""
+      },
+      {
+        "Label": "socket_name",
+        "Type": "String",
+        "Comment": "Name of socket (string)",
+        "Default": "\"socket_0\""
+      },
+      {
+        "Label": "timeout",
+        "Type": "Float",
+        "Comment": "The number of seconds until the read action times out (float). A timeout of 0 or negative number indicates that the function should not return until a read is completed.",
+        "Default": "2"
+      }
+    ]
+  },
+  {
+    "Name": "socket_read_byte_list",
+    "ReturnType": "Array",
+    "Return": "A list of numbers read (list of ints, length=number+1)",
+    "Deprecated": "",
+    "Comment": "Reads a number of bytes from the socket. A maximum of 30 values can be read in one command.\r\n\r\nReturns (for example) [3,100,200,44], if there is a timeout or the reply is invalid, [0,-1,-1,-1] is returned, indicating that 0 bytes have been read",
+    "Parameters": [
+      {
+        "Label": "number",
+        "Type": "Int",
+        "Comment": "The number of bytes to read (int)",
+        "Default": ""
+      },
+      {
+        "Label": "socket_name",
+        "Type": "String",
+        "Comment": "Name of socket (string)",
+        "Default": "\"socket_0\""
+      },
+      {
+        "Label": "timeout",
+        "Type": "Float",
+        "Comment": "The number of seconds until the read action times out (float). A timeout of 0 or negative number indicates that the function should not return until a read is completed.",
+        "Default": "2"
+      }
+    ]
+  },
+  {
+    "Name": "socket_read_line",
+    "ReturnType": "String",
+    "Return": "One line string",
+    "Deprecated": "The socket_read_stringreplaces this function. Set ﬂag \"interpret_escape\" to \"True\" to enable the use of escape sequences \"\\n\" \"\\r\" and \"\\t\" as a prefix or suffix.",
+    "Comment": "Reads the socket buffer until the first \"\\r\\n\" (carriage return and newline) characters or just the \"\\n\" (newline) character, and returns the data as a string. The returned string will not contain the \"\\n\" nor the \"\\r\\n\" characters.\r\n\r\nReturns (for example) \"reply from the server:\", if there is a timeout or the reply is invalid, an empty line is returned (\"\"). You can test if the line is empty with an if-statement.",
+    "Parameters": [
+      {
+        "Label": "socket_name",
+        "Type": "String",
+        "Comment": "Name of socket (string)",
+        "Default": "\"socket_0\""
+      },
+      {
+        "Label": "timeout",
+        "Type": "Float",
+        "Comment": "The number of seconds until the read action times out (float). A timeout of 0 or negative number indicates that the function should not return until a read is completed.",
+        "Default": "2"
+      }
+    ]
+  },
+  {
+    "Name": "socket_read_string",
+    "ReturnType": "String",
+    "Return": "String",
+    "Deprecated": "",
+    "Comment": "Reads all data from the socket and returns the data as a string.\r\n\r\nReturns (for example) \"reply from the server:\\n Hello World\". if there is a timeout or the reply is invalid, an empty string is returned (\"\"). You can test if the string is empty with an if-statement.\r\n\r\n```\r\nif (string_from_server):\r\n  popup(\"the string is not empty\")\r\nend\r\n```\r\n\r\nThe optional parameters \"prefix\" and \"suffix\", can be used to express what is extracted from the socket. The \"prefix\" specifies the start of the substring (message) extracted from the socket. The data up to the end of the \"prefix\" will be ignored and removed from the socket. The \"suffix\" specifies the end of the substring (message) extracted from the socket. Any remaining data on the socket, after the \"suffix\", will be preserved.\r\n\r\nBy using the \"prefix\" and \"suffix\" it is also possible send multiple string to the controller at once, because the suffix defines where the message ends. E.g. sending \">hello<>world<\" and calling this script function with the prefix=\">\" and suffix=\"<\".\r\n\r\nNote that leading spaces in the prefix and suffix strings are ignored in the current software and may cause communication errors in future releases.\r\n\r\nThe optional parameter \"interpret_escape\" can be used to allow the use of escape sequences \"\\n\", \"\\t\" and \"\\r\" as part of the prefix or suffix.",
+    "Parameters": [
+      {
+        "Label": "socket_name",
+        "Type": "String",
+        "Comment": "Name of socket (string)",
+        "Default": "\"socket_0\""
+      },
+      {
+        "Label": "prefix",
+        "Type": "String",
+        "Comment": "Defines a prefix (string)",
+        "Default": "''"
+      },
+      {
+        "Label": "suffix",
+        "Type": "String",
+        "Comment": "Defines a suffix (string)",
+        "Default": "''"
+      },
+      {
+        "Label": "interpret_escape",
+        "Type": "Bool",
+        "Comment": "Enables the interpretation of escape sequences (bool)",
+        "Default": "False"
+      },
+      {
+        "Label": "timeout",
+        "Type": "Float",
+        "Comment": "The number of seconds until the read action times out (float). A timeout of 0 or negative number indicates that the function should not return until a read is completed.",
+        "Default": "2"
+      }
+    ]
+  },
+  {
+    "Name": "socket_send_byte",
+    "ReturnType": "Bool",
+    "Return": "a boolean value indicating whether the send operation was successful",
+    "Deprecated": "",
+    "Comment": "Sends a byte to the server\r\n\r\nSends the byte <value> through the socket. Expects no response. Can be used to send special ASCII characters: 10 is newline, 2 is start of text, 3 is end of text.",
+    "Parameters": [
+      {
+        "Label": "value",
+        "Type": "Int",
+        "Comment": "The number to send (byte)",
+        "Default": ""
+      },
+      {
+        "Label": "socket_name",
+        "Type": "String",
+        "Comment": "Name of socket (string)",
+        "Default": "\"socket_0\""
+      }
+    ]
+  },
+  {
+    "Name": "socket_send_int",
+    "ReturnType": "Bool",
+    "Return": "a boolean value indicating whether the send operation was successful",
+    "Deprecated": "",
+    "Comment": "Sends an int (int32_t) to the server\r\n\r\nSends the int <value> through the socket. Send in network byte order. Expects no response.",
+    "Parameters": [
+      {
+        "Label": "value",
+        "Type": "Int",
+        "Comment": "The number to send (int)",
+        "Default": ""
+      },
+      {
+        "Label": "socket_name",
+        "Type": "String",
+        "Comment": "Name of socket (string)",
+        "Default": "\"socket_0\""
+      }
+    ]
+  },
+  {
+    "Name": "socket_send_line",
+    "ReturnType": "Bool",
+    "Return": "a boolean value indicating whether the send operation was successful",
+    "Deprecated": "",
+    "Comment": "Sends a string with a newline character to the server - useful for communicating with the UR dashboard server\r\n\r\nSends the string <str> through the socket in ASCII coding. Expects no response.",
+    "Parameters": [
+      {
+        "Label": "str",
+        "Type": "String",
+        "Comment": "The string to send (ascii)",
+        "Default": ""
+      },
+      {
+        "Label": "socket_name",
+        "Type": "String",
+        "Comment": "Name of socket (string)",
+        "Default": "\"socket_0\""
+      }
+    ]
+  },
+  {
+    "Name": "socket_send_string",
+    "ReturnType": "Bool",
+    "Return": "a boolean value indicating whether the send operation was successful",
+    "Deprecated": "",
+    "Comment": "Sends a string to the server\r\n\r\nSends the string <str> through the socket in ASCII coding. Expects no response.",
+    "Parameters": [
+      {
+        "Label": "str",
+        "Type": "String",
+        "Comment": "The string to send (ascii)",
+        "Default": ""
+      },
+      {
+        "Label": "socket_name",
+        "Type": "String",
+        "Comment": "Name of socket (string)",
+        "Default": "\"socket_0\""
+      }
+    ]
+  },
+  {
+    "Name": "socket_set_var",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Sends an integer to the server\r\n\r\nSends the message \"SET <name> <value>\\n\" through the socket. Expects no response.",
+    "Parameters": [
+      {
+        "Label": "name",
+        "Type": "String",
+        "Comment": "Variable name (string)",
+        "Default": ""
+      },
+      {
+        "Label": "value",
+        "Type": "Int",
+        "Comment": "The number to send (int)",
+        "Default": ""
+      },
+      {
+        "Label": "socket_name",
+        "Type": "String",
+        "Comment": "Name of socket (string)",
+        "Default": "\"socket_0\""
+      }
+    ]
+  },
+  {
+    "Name": "write_output_boolean_register",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Writes the boolean value into one of the output registers, which can also be accessed by a Field bus. Note, uses it’s own memory space.",
+    "Parameters": [
+      {
+        "Label": "address",
+        "Type": "Int",
+        "Comment": "Address of the register (0:127)",
+        "Default": ""
+      },
+      {
+        "Label": "value",
+        "Type": "Bool",
+        "Comment": "Value to set in the register (`True`, `False`)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "write_output_float_register",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Writes the float value into one of the output registers, which can also be accessed by a Field bus. Note, uses it’s own memory space.",
+    "Parameters": [
+      {
+        "Label": "address",
+        "Type": "Int",
+        "Comment": "Address of the register (0:47)",
+        "Default": ""
+      },
+      {
+        "Label": "value",
+        "Type": "Float",
+        "Comment": "Value to set in the register (float)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "write_output_integer_register",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Writes the integer value into one of the output registers, which can also be accessed by a Field bus. Note, uses it’s own memory space.",
+    "Parameters": [
+      {
+        "Label": "address",
+        "Type": "Int",
+        "Comment": "Address of the register (0:47)",
+        "Default": ""
+      },
+      {
+        "Label": "value",
+        "Type": "Int",
+        "Comment": "Value to set in the register [-2,147,483,648 : 2,147,483,647]",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "write_port_bit",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Writes one of the ports, which can also be accessed by Modbus clients",
+    "Parameters": [
+      {
+        "Label": "address",
+        "Type": "Int",
+        "Comment": "Address of the port (See portmap on Support site, page \"UsingModbusServer\" )",
+        "Default": ""
+      },
+      {
+        "Label": "value",
+        "Type": "Bool",
+        "Comment": "Value to be set in the register (`True`, `False`)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "write_port_register",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Writes one of the ports, which can also be accessed by Modbus clients",
+    "Parameters": [
+      {
+        "Label": "address",
+        "Type": "Int",
+        "Comment": "Address of the port (See portmap on Support site, page \"UsingModbusServer\" )",
+        "Default": ""
+      },
+      {
+        "Label": "value",
+        "Type": "Int",
+        "Comment": "Value to be set in the port (0 : 65536) or (-32768 : 32767)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "zero_ftsensor",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Zeroes the TCP force/torque measurement from the builtin force/torque sensor by subtracting the current measurement from the subsequent.",
+    "Parameters": []
+  },  
+  {
+    "Name": "set_euromap_output",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Sets the value of a specific Euromap67 output signal. This means the value that is sent from the robot to the injection moulding machine.\r\n\r\nSee [Supports](http://universal-robots.com/support) for signal specifications.",
+    "Parameters": [
+      {
+        "Label": "port_number",
+        "Type": "Int",
+        "Comment": "An integer specifying one of the available Euromap67 output signals.",
+        "Default": ""
+      },
+      {
+        "Label": "signal_value",
+        "Type": "Bool",
+        "Comment": "A boolean, either `True` or `False`",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "set_euromap_runstate_dependent_choice",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Sets whether an Euromap67 output signal must preserve its state from a program, or it must be set either high or low when a program is not running.\r\n\r\nSee [Supports](http://universal-robots.com/support) for signal specifications.",
+    "Parameters": [
+      {
+        "Label": "port_number",
+        "Type": "Int",
+        "Comment": "An integer specifying a Euromap67 output signal.",
+        "Default": ""
+      },
+      {
+        "Label": "runstate_choice",
+        "Type": "Int",
+        "Comment": "An integer:\r\n\r\n* `0` preserve program state\r\n* `1` set low when a program is not running\r\n* `2` set high when a program is not running",
+        "Default": ""
+      }
+    ]
+  },  
+  {
+    "Name": "get_euromap_input",
+    "ReturnType": "Bool",
+    "Return": "boolean, either True or False",
+    "Deprecated": "",
+    "Comment": "Reads the current value of a specific Euromap67 input signal. See [Supports](http://universal-robots.com/support) for signal specifications.",
+    "Parameters": [
+      {
+        "Label": "port_number",
+        "Type": "Int",
+        "Comment": "An integer specifying one of the available Euromap67 input signals.",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "get_euromap_output",
+    "ReturnType": "Bool",
+    "Return": "A boolean, either True or False",
+    "Deprecated": "",
+    "Comment": "Reads the current value of a specific Euromap67 output signal. This means the value that is sent from the robot to the injection moulding machine.\r\n\r\nSee [Supports](http://universal-robots.com/support) for signal specifications.",
+    "Parameters": [
+      {
+        "Label": "port_number",
+        "Type": "Int",
+        "Comment": "An integer specifying one of the available Euromap67 output signals",
+        "Default": ""
+      }
+    ]
+  }  
+]

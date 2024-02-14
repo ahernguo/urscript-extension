@@ -1,0 +1,931 @@
+[
+  {
+    "Name": "conveyor_pulse_decode",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "This function is replaced by `encoder_enable_pulse_decode` and it should therefore not be used moving forward.",
+    "Comment": "Tells the robot controller to treat digital inputs number A and B as pulses for a conveyor encoder. Only digital input 0, 1, 2 or 3 can be used.",
+    "Parameters": [
+      {
+        "Label": "type",
+        "Type": "Int",
+        "Comment": "An integer determining how to treat the inputs on A and B.\r\n`0` is no encoder, pulse decoding is disabled.\r\n`1` is quadrature encoder, input A and B must be square waves with 90 degree offset. Direction of the conveyor can be determined.\r\n`2` is rising and falling edge on single input (A).\r\n`3` is rising edge on single input (A).\r\n`4` is falling edge on single input (A).\r\nThe controller can decode inputs at up to 40kHz",
+        "Default": ""
+      },
+      {
+        "Label": "A",
+        "Type": "Int",
+        "Comment": "Encoder input A pin. Must be 0-3.",
+        "Default": ""
+      },
+      {
+        "Label": "B",
+        "Type": "Int",
+        "Comment": "Encoder input B pin. Must be 0-3.",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "encoder_enable_pulse_decode",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Sets up an encoder hooked up to the pulse decoder of the controller.",
+    "Parameters": [
+      {
+        "Label": "encoder_index",
+        "Type": "Int",
+        "Comment": "Index of the encoder to define. Must be either 0 or 1.",
+        "Default": ""
+      },
+      {
+        "Label": "decoder_type",
+        "Type": "Int",
+        "Comment": "An integer determining how to treat the inputs on A and B.\r\n`0` is no encoder, pulse decoding is disabled.\r\n`1` is quadrature encoder, input A and B must be square waves with 90 degree offset. Direction of the conveyor can be determined.\r\n`2` is rising and falling edge on single input (A).\r\n`3` is rising edge on single input (A).\r\n`4` is falling edge on single input (A).\r\nThe controller can decode inputs at up to 40kHz",
+        "Default": ""
+      },
+      {
+        "Label": "A",
+        "Type": "Int",
+        "Comment": "Encoder input A pin. Must be 0-3.",
+        "Default": ""
+      },
+      {
+        "Label": "B",
+        "Type": "Int",
+        "Comment": "Encoder input B pin. Must be 0-3.",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "encoder_enable_set_tick_count",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Sets up an encoder expecting to be updated with tick counts via the\r\nfunction `encoder_set_tick_count`",
+    "Parameters": [
+      {
+        "Label": "encoder_index",
+        "Type": "Int",
+        "Comment": "Index of the encoder to define. Must be either 0 or 1.",
+        "Default": ""
+      },
+      {
+        "Label": "range_id",
+        "Type": "Int",
+        "Comment": "decoder_index: Range of the encoder (integer). Needed to handle wrapping nicely.\r\n`0` is a 32 bit signed encoder, range [-2147483648 ; 2147483647]\r\n`1` is a 8 bit unsigned encoder, range [0 ; 255]\r\n`2` is a 16 bit unsigned encoder, range [0 ; 65535]\r\n`3` is a 24 bit unsigned encoder, range [0 ; 16777215]\r\n`4` is a 32 bit unsigned encoder, range [0 ; 4294967295]",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "encoder_get_tick_count",
+    "ReturnType": "Float",
+    "Return": "The conveyor encoder tick count (float)",
+    "Deprecated": "",
+    "Comment": "Returns the tick count of the designated encoder.",
+    "Parameters": [
+      {
+        "Label": "encoder_index",
+        "Type": "Int",
+        "Comment": "Index of the encoder to query. Must be either 0 or 1.",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "encoder_set_tick_count",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Tells the robot controller the tick count of the encoder. This function is\r\nuseful for absolute encoders (e.g. MODBUS).",
+    "Parameters": [
+      {
+        "Label": "encoder_index",
+        "Type": "Int",
+        "Comment": "Index of the encoder to define. Must be either 0 or 1.",
+        "Default": ""
+      },
+      {
+        "Label": "count",
+        "Type": "Int",
+        "Comment": "The tick count to set. Must be within the range of the encoder.",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "encoder_unwind_delta_tick_count",
+    "ReturnType": "Float",
+    "Return": "The unwound delta_tick_count (float)",
+    "Deprecated": "",
+    "Comment": "Returns the delta_tick_count. Unwinds in case encoder wraps around the range. If no wrapping has happened the given delta_tick_count is returned without any modification.",
+    "Parameters": [
+      {
+        "Label": "encoder_index",
+        "Type": "Int",
+        "Comment": "Index of the encoder to query. Must be either 0 or 1.",
+        "Default": ""
+      },
+      {
+        "Label": "delta_tick_count",
+        "Type": "Float",
+        "Comment": "The delta (difference between two) tick count to unwind (float) (current-start)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "end_force_mode",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Resets the robot mode from force mode to normal operation.\r\nThis is also done when a program stops.",
+    "Parameters": []
+  },
+  {
+    "Name": "end_freedrive_mode",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Set robot back in normal position control mode after freedrive mode.",
+    "Parameters": []
+  },
+  {
+    "Name": "end_screw_driving",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Exit screw driving mode and return to normal operation.",
+    "Parameters": []
+  },
+  {
+    "Name": "end_teach_mode",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Set robot back in normal position control mode after freedrive mode.",
+    "Parameters": []   
+  },
+  {
+    "Name": "force_mode",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Set robot to be controlled in force mode",
+    "Parameters": [
+      {
+        "Label": "task_frame",
+        "Type": "Pose",
+        "Comment": "A pose vector that defines the force frame relative to the base frame.",
+        "Default": ""
+      },
+      {
+        "Label": "selection_vector",
+        "Type": "Array",
+        "Comment": "A 6d vector of 0s and 1s. 1 means that the robot will be compliant in the corresponding axis of the task frame.",
+        "Default": ""
+      },
+      {
+        "Label": "wrench",
+        "Type": "Array",
+        "Comment": "The forces/torques the robot will apply to its environment. The robot adjusts its position along/about compliant axis in order to achieve the specified force/torque. Values have no effect for non-compliant axes.\r\n\r\nActual wrench applied may be lower than requested due to joint safety limits. Actual forces and torques can be read using `get_tcp_force` function in a separate thread.",
+        "Default": ""
+      },
+      {
+        "Label": "type",
+        "Type": "Int",
+        "Comment": "An integer [1;3] specifying how the robot interprets the force frame.\r\n`1` The force frame is transformed in a way such that its y-axis is aligned with a vector pointing from the robot tcp towards the origin of the force frame.\r\n`2` The force frame is not transformed.\r\n`3` The force frame is transformed in a way such that its x-axis is the projection of the robot tcp velocity vector onto the x-y plane of the force frame.",
+        "Default": ""
+      },
+      {
+        "Label": "limits",
+        "Type": "Array",
+        "Comment": "(Float) 6d vector. For compliant axes, these values are the maximum allowed tcp speed along/about the axis. For non-compliant axes, these values are the maximum allowed deviation along/about an axis between the actual tcp position and the one set by the program.",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "force_mode_set_damping",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Sets the damping parameter in force mode.",
+    "Parameters": [
+      {
+        "Label": "damping",
+        "Type": "Float",
+        "Comment": "Between 0 and 1, default value is 0.\r\n\r\nA value of 1 is full damping, so the robot will decellerate quickly if no force is present. A value of 0 is no damping, here the robot will maintain the speed.\r\n\r\nThe value is stored until this function is called again. Add this to the beginning of your program to ensure it is called before force mode is entered (otherwise default value will be used).",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "force_mode_set_gain_scaling",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Scales the gain in force mode.",
+    "Parameters": [
+      {
+        "Label": "scaling",
+        "Type": "Float",
+        "Comment": "Between 0 and 2, default value is 1.\r\n\r\nA value larger than 1 can make force mode unstable, e.g. in case of collisions or pushing against hard surfaces.\r\n\r\nThe value is stored until this function is called again. Add this to the beginning of your program to ensure it is called before force mode is entered (otherwise default value will be used).",
+        "Default": ""
+      }
+    ]
+  },  
+  {
+    "Name": "freedrive_mode",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Set robot in freedrive mode. In this mode the robot can be moved around by hand in the same way as by pressing the \"freedrive\" button. The robot will not be able to follow a trajectory (eg. a `movej`) in this mode.",
+    "Parameters": [
+        {
+            "Label": "freeAxes",
+            "Type": "Array",
+            "Comment": ": A 6 dimensional vector that contains 0’s and 1’s, these indicates in which axes movement is allowed. The first three values represents the cartesian directions along x, y, z, and the last three defines the rotation axis, rx, ry, rz. All relative to the selected feature.",
+            "Default": "[1,1,1,1,1,1]"
+        },
+        {
+            "Label": "feature",
+            "Type": "Pose",
+            "Comment": ": A pose vector that defines a freedrive frame relative to the base frame. For base and tool reference frames predefined constants \"base\", and \"tool\" can be used in place of pose vectors.",
+            "Default": "p[0,0,0,0,0,0]"
+        }               
+    ]
+  },
+  {
+    "Name": "get_conveyor_tick_count",
+    "ReturnType": "Int",
+    "Return": "The conveyor encoder tick count",
+    "Deprecated": "This function is replaced by `encoder_get_tick_count` and it should therefore not be used moving forward.",
+    "Comment": "Tells the tick count of the encoder, note that the controller interpolates tick counts to get more accurate movements with low resolution encoders",
+    "Parameters": []
+  },
+  {
+    "Name": "get_freedrive_status",
+    "ReturnType": "Int",
+    "Return": "0 - Normal operation.\r\n\r\n1 - Near singularity.\r\n\r\n2 - Too close to singularity. High movement resistance in freedrive",
+    "Deprecated": "",
+    "Comment": "Constrained freedrive usability is reduced near singularities. Value returned by this function corresponds to distance to the nearest singularity.\r\n\r\nIt can be used to advice operator to follow different path or switch to unconstrained freedrive.",
+    "Parameters": []
+  },
+  {
+    "Name": "get_target_tcp_pose_along_path",
+    "ReturnType": "Pose",
+    "Return": "Target TCP pose",
+    "Deprecated": "",
+    "Comment": "Query the target TCP pose as given by the trajectory being followed.\r\n\r\nThis script function is useful in conjunction with conveyor tracking to know what the target pose of the TCP would be if no offset was applied.",
+    "Parameters": []
+  },
+  {
+    "Name": "get_target_tcp_speed_along_path",
+    "ReturnType": "Array",
+    "Return": "Target TCP speed as a vector",
+    "Deprecated": "",
+    "Comment": "Query the target TCP speed as given by the trajectory being followed.\r\n\r\nThis script function is useful in conjunction with conveyor tracking to know what the target speed of the TCP would be if no offset was applied.",    
+    "Parameters": []
+  },    
+  {
+    "Name": "movec",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Move Circular: Move to position (circular in tool-space)\r\n\r\nTCP moves on the circular arc segment from current pose, through pose_via to pose_to. Accelerates to and moves with constant tool speed v. Use the mode parameter to define the orientation interpolation.",
+    "Parameters": [
+      {
+        "Label": "pose_via",
+        "Type": "Pose",
+        "Comment": "path point (note: only position is used). Pose_via can also be specified as joint positions, then forward kinematics is used to calculate the corresponding pose.",
+        "Default": ""
+      },
+      {
+        "Label": "pose_to",
+        "Type": "Pose",
+        "Comment": "target pose (note: only position is used in Fixed orientation mode). Pose_to can also be specified as joint positions, then forward kinematics is used to calculate the corresponding pose.",
+        "Default": ""
+      },
+      {
+        "Label": "a",
+        "Type": "Number",
+        "Comment": "tool acceleration [m/s^2]",
+        "Default": "1.2"
+      },
+      {
+        "Label": "v",
+        "Type": "Number",
+        "Comment": "tool speed [m/s]",
+        "Default": "0.25"
+      },
+      {
+        "Label": "r",
+        "Type": "Number",
+        "Comment": "blend radius (of target pose) [m]",
+        "Default": "0"
+      },
+      {
+        "Label": "mode",
+        "Type": "Int",
+        "Comment": "`0` Unconstrained mode. Interpolate orientation from current pose to target pose (pose_to)\r\n`1` Fixed mode. Keep orientation constant relative to the tangent of the circular arc (starting from current pose)",
+        "Default": "0"
+      }
+    ]
+  },
+  {
+    "Name": "movej",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Move to position (linear in joint-space)\r\n\r\nWhen using this command, the robot must be at a standstill or come from a movej or movel with a blend. The speed and acceleration parameters control the trapezoid speed profile of the move. Alternatively, the t parameter can be used to set the time for this move. Time setting has priority over speed and acceleration settings.",
+    "Parameters": [
+      {
+        "Label": "q",
+        "Type": "Array",
+        "Comment": "joint positions (q can also be specified as a pose, then inverse kinematics is used to calculate the corresponding joint positions)",
+        "Default": ""
+      },
+      {
+        "Label": "a",
+        "Type": "Number",
+        "Comment": "joint acceleration of leading axis [rad/s^2]",
+        "Default": "1.4"
+      },
+      {
+        "Label": "v",
+        "Type": "Number",
+        "Comment": "joint speed of leading axis [rad/s]",
+        "Default": "1.05"
+      },
+      {
+        "Label": "t",
+        "Type": "Number",
+        "Comment": "time [S]",
+        "Default": "0"
+      },
+      {
+        "Label": "r",
+        "Type": "Number",
+        "Comment": "blend radius [m]\r\n\r\nIf a blend radius is set, the robot arm trajectory will be modified to avoid the robot stopping at the point.\r\n\r\nHowever, if the blend region of this move overlaps with the blend radius of previous or following waypoints, this move will be skipped, and an **Overlapping Blends** warning message will be generated.",
+        "Default": "0"
+      }
+    ]
+  },
+  {
+    "Name": "movel",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Move to position (linear in tool-space)",
+    "Parameters": [
+      {
+        "Label": "pose",
+        "Type": "Pose",
+        "Comment": "target pose (pose can also be specified as joint positions, then forward kinematics is used to calculate the corresponding pose)",
+        "Default": ""
+      },
+      {
+        "Label": "a",
+        "Type": "Number",
+        "Comment": "tool acceleration [m/s^2]",
+        "Default": "1.2"
+      },
+      {
+        "Label": "v",
+        "Type": "Number",
+        "Comment": "tool speed [m/s]",
+        "Default": "0.25"
+      },
+      {
+        "Label": "t",
+        "Type": "Number",
+        "Comment": "time [s]",
+        "Default": "0"
+      },
+      {
+        "Label": "r",
+        "Type": "Number",
+        "Comment": "blend radius [m]",
+        "Default": "0"
+      }
+    ]
+  },
+  {
+    "Name": "movep",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Move Process\r\n\r\nBlend circular (in tool-space) and move linear (in tool-space) to position. Accelerates to and moves with constant tool speed v.",
+    "Parameters": [
+      {
+        "Label": "pose",
+        "Type": "Pose",
+        "Comment": "target pose (pose can also be specified as joint positions, then forward kinematics is used to calculate the corresponding pose)",
+        "Default": ""
+      },
+      {
+        "Label": "a",
+        "Type": "Number",
+        "Comment": "tool acceleration [m/s^2]",
+        "Default": "1.2"
+      },
+      {
+        "Label": "v",
+        "Type": "Number",
+        "Comment": "tool speed [m/s]",
+        "Default": "0.25"
+      },
+      {
+        "Label": "r",
+        "Type": "Number",
+        "Comment": "blend radius [m]",
+        "Default": "0"
+      }
+    ]
+  },
+  {
+    "Name": "path_offset_disable",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Disable the path offsetting and decelerate all joints to zero speed.\r\n\r\nUses the stopj functionality to bring all joints to a rest. Therefore, all joints will decelerate at different rates but reach stand-still at the same time.\r\n\r\nUse the script function path_offset_enable to enable path offsetting",
+    "Parameters": [
+      {
+        "Label": "a",
+        "Type": "Float",
+        "Comment": "joint acceleration [rad/s^2]",
+        "Default": "20"
+      }
+    ]
+  },
+  {
+    "Name": "path_offset_enable",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Enable path offsetting.\r\n\r\nPath offsetting is used to superimpose a Cartesian offset onto the robot motion as it follows a trajectory. This is useful for instance for imposing a weaving motion onto a welding task, or to compensate for the effect of moving the base of the robot while following a trajectory.\r\n\r\nPath offsets can be applied in various frames of reference and in various ways. Please refer to the script function path_offset_set for further explanation.\r\n\r\nEnabling path offsetting doesn’t cancel the effects of previous calls to the script functions path_offset_set_max_offset and path_offset_set_alpha_filter. Path offset configuration will persist through cycles of enable and disable.\r\n\r\nUsing Path offset at the same time as Conveyor Tracking and/or Force can lead to program conflict.\r\n\r\nDo not use this function togther with Conveyor Tracking and/or Force",
+    "Parameters": []
+  },      
+  {
+    "Name": "path_offset_get",
+    "ReturnType": "Pose",
+    "Return": "Pose specifying the translational and rotational offset. Units are meters and radians.",
+    "Deprecated": "",
+    "Comment": "Query the offset currently applied.",
+    "Parameters": [
+        {
+            "Label": "type",
+            "Type": "Int",
+            "Comment": "Specifies the frame of reference of the returned offset. Please refer to the path_offset_set script function for a definition of the possible values and their meaning.",
+            "Default": ""
+          }        
+    ]
+  },  
+  {
+    "Name": "path_offset_set",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Specify the Cartesian path offset to be applied.\r\n\r\nUse the script function path_offset_enable beforehand to enable offsetting. The calculated offset is applied during each cycle at 500Hz.\r\n\r\nDiscontinuous or jerky offsets are likely to cause protective stops. If offsets are not smooth the function path_offset_set_alpha_filter can be used to engage a simple filter.",
+    "Parameters": [
+        {
+            "Label": "offset",
+            "Type": "Pose",
+            "Comment": "Pose specifying the translational and rotational offset.",
+            "Default": ""
+        },           
+        {
+            "Label": "type",
+            "Type": "Int",
+            "Comment": "Specifies how to apply the given offset. Options are:\r\n\r\n1: (BASE) Use robot base coordinates when applying.\r\n\r\n2: (TCP) Use robot TCP coordinates when applying.\r\n\r\n3: (MOTION) Use a coordinate system following the un-offset trajectory when applying. This coordinate system is defined as follows. X-axis along the tangent of the translational part of the unoffset trajectory (rotation not relevant here). Y-axis perpendicular to the X-axis above and the Z-axis of the tool (X cross Z). Z-axis given from the X and Y axes by observing the right-hand rule. This is useful for instance for superimposing a weaving pattern onto the trajectory when welding.\r\n\r\n4: (BASE INVERTED) Invert the offset and use robot base coordinates when applying. This is useful for compensation when the robot base is moving i.e. keeping the robot TCP steady when the base is offset.",
+            "Default": ""
+        }        
+    ]
+  },
+  {
+    "Name": "path_offset_set_alpha_filter",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Engage offset filtering using a simple alpha filter (EWMA) and set the filter coefficient.\r\n\r\nAn alpha filter is a very simple 1st order IIR filter using a weighted sum of the target and current offset: current = alpha*target +(1-alpha)*current",
+    "Parameters": [
+        {
+            "Label": "alpha",
+            "Type": "Float",
+            "Comment": "The filter coefficient to be used. Must be between 0 and 1. A value of 1 is equivalent to no filtering. For welding, experiments have shown that a value around 0.1 is a good compromise between robustness and offsetting accuracy.",
+            "Default": ""
+          }        
+    ]
+  },        
+  {
+    "Name": "path_offset_set_max_offset",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Set limits for the maximum allowed offset.\r\n\r\nDue to safety and due to the finite reach of the robot, path offsetting limits the magnitude of the offset to be applied. Use this function to adjust these limits. Per default limits of 0.1 meters and 30 degrees (0.52 radians) are used.",
+    "Parameters": [
+        {
+            "Label": "transLimit",
+            "Type": "Float",
+            "Comment": "The maximum allowed translational offset distance along any axis in meters.",
+            "Default": ""
+        },
+        {
+            "Label": "rotLimit",
+            "Type": "Float",
+            "Comment": "The maximum allowed rotational offset around any axis in radians.",
+            "Default": ""
+        }        
+    ]
+  },
+  {
+    "Name": "pause_on_error_code",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Makes the robot pause if the specified error code occurs. The robot will only pause during program execution.\r\n\r\nThis setting is reset when the program is stopped. Call the command again before/during program execution to re-enable it.",
+    "Parameters": [
+        {
+            "Label": "code",
+            "Type": "Int",
+            "Comment": "The code of the error for which the robot should pause",
+            "Default": ""
+        },
+        {
+            "Label": "argument",
+            "Type": "Int",
+            "Comment": "The argument of the error. If this parameter is omitted the robot will pause on any argument for the specified error code",
+            "Default": ""
+        }        
+    ]
+  },    
+  {
+    "Name": "position_deviation_warning",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "When enabled, this function generates warning messages to the log when the robot deviates from the target position. This function can be called at any point in the execution of a program. It has no return value.",
+    "Parameters": [
+      {
+        "Label": "enabled",
+        "Type": "Bool",
+        "Comment": "(Boolean) Enable or disable position deviation log messages.",
+        "Default": ""
+      },
+      {
+        "Label": "threshold",
+        "Type": "Float",
+        "Comment": "(Float) Optional value in the range [0;1], where 0 is no position deviation and 1 is the maximum position deviation (equivalent to the amount of position deviation that causes a protective stop of the robot). If no threshold is specified by the user, a default value of 0.8 is used.",
+        "Default": "0.8"
+      }
+    ]
+  },
+  {
+    "Name": "reset_revolution_counter",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Reset the revolution counter, if no offset is specified. This is applied on joints which safety limits are set to \"Unlimited\" and are only applied when new safety settings are applied with limitted joint angles.",
+    "Parameters": [
+      {
+        "Label": "qNear",
+        "Type": "Array",
+        "Comment": "Optional parameter, reset the revolution counter to one close to the given qNear joint vector. If not defined, the joint’s actual number of revolutions are used.",
+        "Default": "[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]"
+      }
+    ]
+  },
+  {
+    "Name": "screw_driving",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Enter screw driving mode. The robot will exert a force in the TCP Z-axis direction at limited speed.\r\n\r\nThis allows the robot to follow the screw during tightening/loosening operations.",
+    "Parameters": [
+      {
+        "Label": "f",
+        "Type": "Float",
+        "Comment": "The amount of force the robot will exert along the TCP Z-axis [Newtons].",
+        "Default": ""
+      },
+      {
+        "Label": "v_limit",
+        "Type": "Float",
+        "Comment": "Maximum TCP velocity along the Z axis [m/s].",
+        "Default": ""
+      }      
+    ]
+  },
+  {
+    "Name": "servoc",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Servo Circular\r\nServo to position (circular in tool-space). Accelerates to and moves with constant tool speed v.",
+    "Parameters": [
+      {
+        "Label": "pose",
+        "Type": "Pose",
+        "Comment": "target pose (pose can also be specified as joint positions, then forward kinematics is used to calculate the corresponding pose)",
+        "Default": ""
+      },
+      {
+        "Label": "a",
+        "Type": "Number",
+        "Comment": "tool acceleration [m/s^2]",
+        "Default": "1.2"
+      },
+      {
+        "Label": "v",
+        "Type": "Number",
+        "Comment": "tool speed [m/s]",
+        "Default": "0.25"
+      },
+      {
+        "Label": "r",
+        "Type": "Number",
+        "Comment": "blend radius (of target pose) [m]",
+        "Default": "0"
+      }
+    ]
+  },
+  {
+    "Name": "servoj",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Servo to position (linear in joint-space)\r\n\r\nServo function used for online control of the robot. The lookahead time and the gain can be used to smoothen or sharpen the trajectory.\r\n\r\nNote: A high gain or a short lookahead time may cause instability. Prefered use is to call this function with a new setpoint (q) in each time step (thus the default t=0.008)",
+    "Parameters": [
+      {
+        "Label": "q",
+        "Type": "Array",
+        "Comment": "joint positions [rad]",
+        "Default": ""
+      },
+      {
+        "Label": "a",
+        "Type": "Number",
+        "Comment": "NOT used in current version",
+        "Default": ""
+      },
+      {
+        "Label": "v",
+        "Type": "Number",
+        "Comment": "NOT used in current version",
+        "Default": ""
+      },
+      {
+        "Label": "t",
+        "Type": "Number",
+        "Comment": "time where the command is controlling the robot. The function is blocking for time t [S]",
+        "Default": "0.008"
+      },
+      {
+        "Label": "lookahead_time",
+        "Type": "Number",
+        "Comment": "time [S], range [0.03,0.2] smoothens the trajectory with this lookahead time",
+        "Default": "0.1"
+      },
+      {
+        "Label": "gain",
+        "Type": "Number",
+        "Comment": "proportional gain for following target position, range [100,2000]",
+        "Default": "300"
+      }
+    ]
+  },
+  {
+    "Name": "set_conveyor_tick_count",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "This function is replaced by `encoder_set_tick_count` and it should therefore not be used moving forward.",
+    "Comment": "Tells the robot controller the tick count of the encoder. This function is useful for absolute encoders, use `conveyor_pulse_decode()` for setting up an incremental encoder. For circular conveyors, the value must be between 0 and the number of ticks per revolution.",
+    "Parameters": [
+      {
+        "Label": "tick_count",
+        "Type": "Int",
+        "Comment": "Tick count of the conveyor (Integer)",
+        "Default": ""
+      },
+      {
+        "Label": "absolute_encoder_resolution",
+        "Type": "Int",
+        "Comment": "Resolution of the encoder, needed to handle wrapping nicely. (Integer)\r\n`0` is a 32 bit signed encoder, range [-2147483648 ; 2147483647] (default)\r\n`1` is a 8 bit unsigned encoder, range [0 ; 255]\r\n`2` is a 16 bit unsigned encoder, range [0 ; 65535]\r\n`3` is a 24 bit unsigned encoder, range [0 ; 16777215]\r\n`4` is a 32 bit unsigned encoder, range [0 ; 4294967295]",
+        "Default": "0"
+      }
+    ]
+  },
+  {
+    "Name": "set_pos",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Set joint positions of simulated robot",
+    "Parameters": [
+      {
+        "Label": "q",
+        "Type": "Array",
+        "Comment": "joint positions",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "set_safety_mode_transition_hardness",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Sets the transition hardness between normal mode, reduced mode and safeguard stop.",
+    "Parameters": [
+      {
+        "Label": "type",
+        "Type": "Int",
+        "Comment": "An integer specifying transition hardness.\r\n`0` is hard transition between modes using maximum torque, similar to emergency stop.\r\n`1` is soft transition between modes.",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "speedj",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Joint speed\r\n\r\nAccelerate linearly in joint space and continue with constant joint speed. The time t is optional; if provided the function will return after time t, regardless of the target speed has been reached. If the time t is not provided, the function will return when the target speed is reached.",
+    "Parameters": [
+      {
+        "Label": "qd",
+        "Type": "Array",
+        "Comment": "joint speeds [rad/s]",
+        "Default": ""
+      },
+      {
+        "Label": "a",
+        "Type": "Number",
+        "Comment": "joint acceleration [rad/s^2] (of leading axis)",
+        "Default": ""
+      },
+      {
+        "Label": "t",
+        "Type": "Number",
+        "Comment": "time [s] before the function returns (optional)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "speedl",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Tool speed\r\n\r\nAccelerate linearly in Cartesian space and continue with constant tool speed. The time t is optional; if provided the function will return after time t, regardless of the target speed has been reached. If the time t is not provided, the function will return when the target speed is reached.",
+    "Parameters": [
+      {
+        "Label": "xd",
+        "Type": "Array",
+        "Comment": "tool speed [m/s] (spatial vector)",
+        "Default": ""
+      },
+      {
+        "Label": "a",
+        "Type": "Number",
+        "Comment": "tool position acceleration [m/s^2]",
+        "Default": ""
+      },
+      {
+        "Label": "t",
+        "Type": "Number",
+        "Comment": "time [s] before function returns (optional)",
+        "Default": ""
+      },
+      {
+        "Label": "aRot",
+        "Type": "Number",
+        "Comment": "tool acceleration [rad/s^2] (optional), if not defined a, position acceleration, is used",
+        "Default": "'a'"
+      }
+    ]
+  },
+  {
+    "Name": "stop_conveyor_tracking",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Stop tracking the conveyor, started by track_conveyor_linear() or track_conveyor_circular(), and decelerate all joint speeds to zero.",
+    "Parameters": [
+      {
+        "Label": "a",
+        "Type": "Number",
+        "Comment": "joint acceleration [rad/s^2] (optional)",
+        "Default": "20"
+      }
+    ]
+  },
+  {
+    "Name": "stopj",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Stop (linear in joint space)\r\n\r\nDecelerate joint speeds to zero",
+    "Parameters": [
+      {
+        "Label": "a",
+        "Type": "Number",
+        "Comment": "joint acceleration [rad/s^2] (of leading axis)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "stopl",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Stop (linear in tool space)\r\n\r\nDecelerate tool speed to zero",
+    "Parameters": [
+      {
+        "Label": "a",
+        "Type": "Number",
+        "Comment": "tool accleration [m/s^2]",
+        "Default": ""
+      },
+      {
+        "Label": "aRot",
+        "Type": "Number",
+        "Comment": "tool acceleration [rad/s^2] (optional), if not defined a, position acceleration, is used",
+        "Default": "'a'"
+      }
+    ]
+  },
+  {
+    "Name": "teach_mode",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Set robot in freedrive mode. In this mode the robot can be moved around by hand in the same way as by pressing the \"freedrive\" button. The robot will not be able to follow a trajectory (eg. a `movej`) in this mode.",
+    "Parameters": []
+  },
+  {
+    "Name": "track_conveyor_circular",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Makes robot movement (movej() etc.) track a circular conveyor.",
+    "Parameters": [
+      {
+        "Label": "center",
+        "Type": "Pose",
+        "Comment": "Pose vector that determines center of the conveyor in the base coordinate system of the robot.",
+        "Default": ""
+      },
+      {
+        "Label": "ticks_per_revolution",
+        "Type": "Number",
+        "Comment": "How many ticks the encoder sees when the conveyor moves one revolution.",
+        "Default": ""
+      },
+      {
+        "Label": "rotate_tool",
+        "Type": "Bool",
+        "Comment": "Should the tool rotate with the coneyor or stay in the orientation specified by the trajectory (movel() etc.)",
+        "Default": "False"
+      },
+      {
+        "Label": "encoder_index",
+        "Type": "Int",
+        "Comment": "The index of the encoder to associate with the conveyor tracking. Must be either 0 or 1. This is an optional argument, and please note the default of 0. The ability to omit this argument will allow existing programs to keep working. Also, in use cases where there is just one conveyor to track consider leaving this argument out.",
+        "Default": "0"
+      }
+    ]
+  },
+  {
+    "Name": "track_conveyor_linear",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Makes robot movement (movej() etc.) track a linear conveyor.",
+    "Parameters": [
+      {
+        "Label": "direction",
+        "Type": "Pose",
+        "Comment": "Pose vector that determines the direction of the conveyor in the base coordinate system of the robot",
+        "Default": ""
+      },
+      {
+        "Label": "ticks_per_meter",
+        "Type": "Number",
+        "Comment": "How many ticks the encoder sees when the conveyor moves one meter",
+        "Default": ""
+      },
+      {
+        "Label": "encoder_index",
+        "Type": "Int",
+        "Comment": "The index of the encoder to associate with the conveyor tracking. Must be either 0 or 1. This is an optional argument, and please note the default of 0. The ability to omit this argument will allow existing programs to keep working. Also, in use cases where there is just one conveyor to track consider leaving this argument out.",
+        "Default": "0"
+      }
+    ]
+  }
+]
