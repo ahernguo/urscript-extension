@@ -1,0 +1,283 @@
+[ 
+  {
+    "Name": "modbus_set_runstate_dependent_choice",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Sets the output signal levels depending on the state of the program (running or stopped).",
+    "Parameters": [
+      {
+        "Label": "signal_name",
+        "Type": "String",
+        "Comment": "A string identifying an output digital signal that in advance has been added.",
+        "Default": ""
+      },
+      {
+        "Label": "runstate_choice",
+        "Type": "Int",
+        "Comment": "An integer:\r\n\r\n* `0` preserve program state\r\n* `1` set low when a program is not running\r\n* `2` set high when a program is not running\r\n* `3` High when program is running and low when it is stopped",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "set_analog_outputdomain",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Set domain of analog outputs",
+    "Parameters": [
+      {
+        "Label": "port",
+        "Type": "Int",
+        "Comment": "analog output port number",
+        "Default": ""
+      },
+      {
+        "Label": "domain",
+        "Type": "Int",
+        "Comment": "analog output domain: 0: 4-20mA, 1: 0-10V",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "set_configurable_digital_input_action",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Using this method sets the selected configurable digital input register to either a \"default\" or \"freedrive\" action.\r\n\r\nSee also:\r\n* `set_input_actions_to_default`\r\n* `set_standard_digital_input_action`\r\n* `set_tool_digital_input_action`\r\n* `set_gp_boolean_input_action`",
+    "Parameters": [
+      {
+        "Label": "port",
+        "Type": "Int",
+        "Comment": "The configurable digital input port number. (integer)",
+        "Default": ""
+      },
+      {
+        "Label": "action",
+        "Type": "String",
+        "Comment": "The type of action. The action can either be \"default\" or \"freedrive\". (string)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "set_gp_boolean_input_action",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Using this method sets the selected gp boolean input register to either a \"default\" or \"freedrive\" action.",
+    "Parameters": [
+      {
+        "Label": "port",
+        "Type": "Int",
+        "Comment": "The gp boolean input port number. integer: [0:127]",
+        "Default": ""
+      },
+      {
+        "Label": "action",
+        "Type": "String",
+        "Comment": "The type of action. The action can either be \"default\" or \"freedrive\". (string)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "set_input_actions_to_default",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Using this method sets the input actions of all standard, configurable, tool, and gp_boolean input registers to \"default\" action.\r\n\r\nSee also:\r\n\r\n* `set_standard_digital_input_action`\r\n* `set_configurable_digital_input_action`\r\n* `set_tool_digital_input_action`\r\n* `set_gp_boolean_input_action`",
+    "Parameters": []
+  },
+  {
+    "Name": "set_runstate_configurable_digital_output_to_value",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Sets the output signal levels depending on the state of the program (running or stopped).\r\n\r\nExample: Set configurable digital output 5 to high when program is not running.\r\n\r\n```\r\nset_runstate_configurable_digital_output_to_value(5, 2)\r\n```",
+    "Parameters": [
+      {
+        "Label": "outputId",
+        "Type": "Int",
+        "Comment": "The output signal number (id), integer: [0:7]",
+        "Default": ""
+      },
+      {
+        "Label": "state",
+        "Type": "Int",
+        "Comment": "The state of the output, integer:\r\n\r\n* `0` Preserve state\r\n* `1` Low when program is not running\r\n* `2` High when program is not running\r\n* `3` High when program is running and low when it is stopped",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "set_runstate_gp_boolean_output_to_value",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Sets the output value depending on the state of the program (running or stopped).",
+    "Parameters": [
+      {
+        "Label": "outputId",
+        "Type": "Int",
+        "Comment": "The output signal number (id), integer: [0:127]",
+        "Default": ""
+      },
+      {
+        "Label": "state",
+        "Type": "Int",
+        "Comment": "The state of the output, integer:\r\n\r\n* `0` Preserve state\r\n* `1` Low when program is not running\r\n* `2` High when program is not running\r\n* `3` High when program is running and low when it is stopped",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "set_runstate_standard_analog_output_to_value",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Sets the output signal levels depending on the state of the program (running or stopped).\r\n\r\nExample: Set standard analog output 1 to high when program is not running.\r\n\r\n```\r\nset_runstate_standard_analog_output_to_value(1, 2)\r\n```",
+    "Parameters": [
+      {
+        "Label": "outputId",
+        "Type": "Int",
+        "Comment": "The output signal number (id), integer: [0:1]",
+        "Default": ""
+      },
+      {
+        "Label": "state",
+        "Type": "Int",
+        "Comment": "The state of the output, integer:\r\n\r\n* `0` Preserve state\r\n* `1` Min when program is not running\r\n* `2` Max when program is not running\r\n* `3` Max when program is running and Min when it is stopped",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "set_runstate_standard_digital_output_to_value",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Sets the output signal level depending on the state of the program (running or stopped).\r\n\r\nExample: Set standard digital output 5 to high when program is not running.\r\n\r\n```\r\nset_runstate_standard_digital_output_to_value(5, 2)\r\n```",
+    "Parameters": [
+      {
+        "Label": "outputId",
+        "Type": "Int",
+        "Comment": "The output signal number (id), integer: [0:7]",
+        "Default": ""
+      },
+      {
+        "Label": "state",
+        "Type": "Int",
+        "Comment": "The state of the output, integer:\r\n\r\n* `0` Preserve state\r\n* `1` Low when program is not running\r\n* `2` High when program is not running\r\n* `3` High when program is running and low when it is stopped",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "set_runstate_tool_digital_output_to_value",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Sets the output signal level depending on the state of the program (running or stopped).\r\n\r\nExample: Set tool digital output 1 to high when program is not running.\r\n\r\n```\r\nset_runstate_tool_digital_output_to_value(1, 2)\r\n```",
+    "Parameters": [
+      {
+        "Label": "outputId",
+        "Type": "Int",
+        "Comment": "The output signal number (id), integer: [0:1]",
+        "Default": ""
+      },
+      {
+        "Label": "state",
+        "Type": "Int",
+        "Comment": "The state of the output, integer:\r\n\r\n* `0` Preserve state\r\n* `1` Low when program is not running\r\n* `2` High when program is not running\r\n* `3` High when program is running and low when it is stopped",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "set_standard_analog_input_domain",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Set domain of standard analog inputs in the controller box\r\n\r\nFor the tool inputs see `set_tool_analog_input_domain`.",
+    "Parameters": [
+      {
+        "Label": "port",
+        "Type": "Int",
+        "Comment": "analog input port number: 0 or 1",
+        "Default": ""
+      },
+      {
+        "Label": "domain",
+        "Type": "Int",
+        "Comment": "analog input domains: 0: 4-20mA, 1: 0-10V",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "set_standard_digital_input_action",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Using this method sets the selected standard digital input register to either a \"default\" or \"freedrive\" action.\r\n\r\nSee also:\r\n\r\n* `set_input_actions_to_default`\r\n* `set_configurable_digital_input_action`\r\n* `set_tool_digital_input_action`\r\n* `set_gp_boolean_input_action`",
+    "Parameters": [
+      {
+        "Label": "port",
+        "Type": "Int",
+        "Comment": "The standard digital input port number. (integer)",
+        "Default": ""
+      },
+      {
+        "Label": "action",
+        "Type": "String",
+        "Comment": "The type of action. The action can either be \"default\" or \"freedrive\". (string)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "set_tool_analog_input_domain",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Set domain of analog inputs in the tool\r\n\r\nFor the controller box inputs see `set_standard_analog_input_domain`.",
+    "Parameters": [
+      {
+        "Label": "port",
+        "Type": "Int",
+        "Comment": "analog input port number: 0 or 1",
+        "Default": ""
+      },
+      {
+        "Label": "domain",
+        "Type": "Int",
+        "Comment": "analog input domains: 0: 4-20mA, 1: 0-10V",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "set_tool_digital_input_action",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Using this method sets the selected tool digital input register to either a \"default\" or \"freedrive\" action.\r\n\r\nSee also:\r\n\r\n* `set_input_actions_to_default`\r\n* `set_standard_digital_input_action`\r\n* `set_configurable_digital_input_action`\r\n* `set_gp_boolean_input_action`",
+    "Parameters": [
+      {
+        "Label": "port",
+        "Type": "Int",
+        "Comment": "The tool digital input port number. (integer)",
+        "Default": ""
+      },
+      {
+        "Label": "action",
+        "Type": "String",
+        "Comment": "The type of action. The action can either be \"default\" or \"freedrive\". (string)",
+        "Default": ""
+      }
+    ]
+  }
+]

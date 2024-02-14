@@ -1,0 +1,598 @@
+[
+  {
+    "Name": "acos",
+    "ReturnType": "Float",
+    "Return": "the arc cosine of f",
+    "Deprecated": "",
+    "Comment": "Returns the arc cosine of f\r\n\r\nReturns the principal value of the arc cosine of f, expressed in radians. A runtime error is raised if f lies outside the range [-1, 1]",
+    "Parameters": [
+      {
+        "Label": "f",
+        "Type": "Float",
+        "Comment": "floating point value",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "asin",
+    "ReturnType": "Float",
+    "Return": "the arc sine of f",
+    "Deprecated": "",
+    "Comment": "Returns the arc sine of f\r\n\r\nReturns the principal value of the arc sine of f, expressed in radians. A runtime error is raised if f lies outside the range [-1, 1].",
+    "Parameters": [
+      {
+        "Label": "f",
+        "Type": "Float",
+        "Comment": "floating point value",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "atan",
+    "ReturnType": "Float",
+    "Return": "the arc tangent of f",
+    "Deprecated": "",
+    "Comment": "Returns the arc tangent of f\r\n\r\nReturns the principal value of the arc tangent of f, expressed in radians",
+    "Parameters": [
+      {
+        "Label": "f",
+        "Type": "Float",
+        "Comment": "floating point value",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "atan2",
+    "ReturnType": "Float",
+    "Return": "the arc tangent of x/y",
+    "Deprecated": "",
+    "Comment": "Returns the arc tangent of x/y\r\n\r\nReturns the principal value of the arc tangent of x/y, expressed in radians. To compute the value, the function uses the sign of both arguments to determine the quadrant.",
+    "Parameters": [
+      {
+        "Label": "x",
+        "Type": "Float",
+        "Comment": "floating point value",
+        "Default": ""
+      },
+      {
+        "Label": "y",
+        "Type": "Float",
+        "Comment": "floating point value",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "binary_list_to_integer",
+    "ReturnType": "Int",
+    "Return": "The integer value of the binary list content",
+    "Deprecated": "",
+    "Comment": "Returns the value represented by the content of list l\r\n\r\nReturns the integer value represented by the bools contained in the list l when evaluated as a signed binary number",
+    "Parameters": [
+      {
+        "Label": "l",
+        "Type": "Array",
+        "Comment": "The list of bools to be converted to an integer. The bool at index 0 is evaluated as the least significant bit. `False` represents a zero and `True` represents a one. If the list is empty this function returns 0. If the list contains more than 32 bools, the function returns the signed integer value of the first 32 bools in the list",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "ceil",
+    "ReturnType": "Int",
+    "Return": "rounded integer",
+    "Deprecated": "",
+    "Comment": "Returns the smallest integer value that is not less than f\r\n\r\nRounds floating point number to the smallest integer no greater than f",
+    "Parameters": [
+      {
+        "Label": "f",
+        "Type": "Float",
+        "Comment": "floating point value",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "cos",
+    "ReturnType": "Float",
+    "Return": "the cosine of f",
+    "Deprecated": "",
+    "Comment": "Returns the cosine of f\r\n\r\nReturns the cosine of an angle of f **radians**",
+    "Parameters": [
+      {
+        "Label": "f",
+        "Type": "Float",
+        "Comment": "floating point value",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "d2r",
+    "ReturnType": "Number",
+    "Return": "The angle in radians",
+    "Deprecated": "",
+    "Comment": "Returns degrees-to-radians of d\r\n\r\nReturns the radian value of 'd' degrees. Actually: (d/180)*MATH_PI",
+    "Parameters": [
+      {
+        "Label": "d",
+        "Type": "Number",
+        "Comment": "The angle in degrees",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "ﬂoor",
+    "ReturnType": "Int",
+    "Return": "rounded integer",
+    "Deprecated": "",
+    "Comment": "Returns largest integer not greater than f\r\n\r\nRounds floating point number to the largest integer no greater than f",
+    "Parameters": [
+      {
+        "Label": "f",
+        "Type": "Float",
+        "Comment": "floating point value",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "make_list",
+    "ReturnType": "Array",
+    "Return": "rounded integer",
+    "Deprecated": "",
+    "Comment": "Create a new list of length \"length\" with the initial value of each element given by \"initial_value\" and assign it to a variable.\r\n\r\nThe \"initial_value\" sets the type of the list. It can be a complex type like struct. If not provided, the \"capacity\" will be defaulted to \"length\".\r\n\r\nCreation list of list with this function is not supported (they are matrices in URScript).",
+    "Parameters": [
+      {
+        "Label": "length",
+        "Type": "Int",
+        "Comment": "Number of elements which will be initialized",
+        "Default": ""
+      },
+      {
+        "Label": "initial_value",
+        "Type": "",
+        "Comment": "Initial value of the elements",
+        "Default": ""
+      },
+      {
+        "Label": "capacity",
+        "Type": "Int",
+        "Comment": "Maximum number of elements. List can be extended and contracted between 0, and capacity (Optional default value equals to length)",
+        "Default": "length"
+      }            
+    ]
+  },  
+  {
+    "Name": "get_list_length",
+    "ReturnType": "Int",
+    "Return": "An integer specifying the length of the given list",
+    "Deprecated": "",
+    "Comment": "Returns the length of a list variable\r\n\r\nThe length of a list is the number of entries the list is composed of",
+    "Parameters": [
+      {
+        "Label": "v",
+        "Type": "Array",
+        "Comment": "A list variable",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "integer_to_binary_list",
+    "ReturnType": "Array",
+    "Return": "A list of 32 bools, where False represents a zero and True represents a one. The bool at index 0 is the least significant bit.",
+    "Deprecated": "",
+    "Comment": "Returns the binary representation of x\r\n\r\nReturns a list of bools as the binary representation of the signed integer value x.",
+    "Parameters": [
+      {
+        "Label": "x",
+        "Type": "Int",
+        "Comment": "The integer value to be converted to a binary list",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "interpolate_pose",
+    "ReturnType": "Pose",
+    "Return": "interpolated pose (pose)",
+    "Deprecated": "",
+    "Comment": "Linear interpolation of tool position and orientation.\r\n\r\nWhen alpha is 0, returns p_from. When alpha is 1, returns p_to. As alpha goes from 0 to 1, returns a pose going in a straight line (and geodetic orientation change) from p_from to p_to. If alpha is less than 0, returns a point before p_from on the line. If alpha is greater than 1, returns a pose after p_to on the line",
+    "Parameters": [
+      {
+        "Label": "p_from",
+        "Type": "Pose",
+        "Comment": "tool pose (pose)",
+        "Default": ""
+      },
+      {
+        "Label": "p_to",
+        "Type": "Pose",
+        "Comment": "tool pose (pose)",
+        "Default": ""
+      },
+      {
+        "Label": "alpha",
+        "Type": "Float",
+        "Comment": "Floating point number",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "inv",
+    "ReturnType": "matrix",
+    "Return": "inverse matrix or pose transformation (spatial vector)",
+    "Deprecated": "",
+    "Comment": "Get the inverse of a matrix or pose\r\n\r\nThe matrix must be square and non singular.",
+    "Parameters": [
+      {
+        "Label": "m",
+        "Type": "matrix",
+        "Comment": "matrix or pose (spatial vector)",
+        "Default": ""
+      }
+    ]
+  },  
+  {
+    "Name": "length",
+    "ReturnType": "Int",
+    "Return": "An integer specifying the length of the given list or string",
+    "Deprecated": "",
+    "Comment": "Returns the length of a list variable or a string\r\n\r\nThe length of a list or string is the number of entries or characters it is composed of",
+    "Parameters": [
+      {
+        "Label": "v",
+        "Type": "Array",
+        "Comment": "A list or string variable",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "log",
+    "ReturnType": "Float",
+    "Return": "the logarithm of f to the base of b",
+    "Deprecated": "",
+    "Comment": "Returns the logarithm of f to the base b\r\n\r\nReturns the logarithm of f to the base b. If b or f is negative, or if b is 1 a runtime error is raised",
+    "Parameters": [
+      {
+        "Label": "b",
+        "Type": "Float",
+        "Comment": "floating point value",
+        "Default": ""
+      },
+      {
+        "Label": "f",
+        "Type": "Float",
+        "Comment": "floating point value",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "norm",
+    "ReturnType": "Number",
+    "Return": "norm of a",
+    "Deprecated": "",
+    "Comment": "Returns the norm of the argument\r\n\r\nThe argument can be one of four different types:\r\n\r\n`Pose` In this case the euclidian norm of the pose is returned.\r\n`Float` In this case fabs(a) is returned.\r\n`Int` In this case abs(a) is returned.\r\n`List` In this case the euclidian norm of the list is returned, the list elements must be numbers.",
+    "Parameters": [
+      {
+        "Label": "a",
+        "Type": "Number",
+        "Comment": "Pose, float, int or List",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "normalize",
+    "ReturnType": "Array",
+    "Return": "normalized form of v",
+    "Deprecated": "",
+    "Comment": "Returns the normalized form of a list of floats\r\n\r\nExcept for the case of all zeroes, the normalized form corresponds to the unit vector in the direction of v.\r\n\r\nThrows an exception if the sum of all squared elements is zero",
+    "Parameters": [
+      {
+        "Label": "v",
+        "Type": "Array",
+        "Comment": "List of floats",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "point_dist",
+    "ReturnType": "Number",
+    "Return": "Distance between the two tool positions (without considering rotations)",
+    "Deprecated": "",
+    "Comment": "Point distance",
+    "Parameters": [
+      {
+        "Label": "p_from",
+        "Type": "Pose",
+        "Comment": "tool pose (pose)",
+        "Default": ""
+      },
+      {
+        "Label": "p_to",
+        "Type": "Pose",
+        "Comment": "tool pose (pose)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "pose_add",
+    "ReturnType": "Pose",
+    "Return": "Sum of position parts and product of rotation parts (pose)",
+    "Deprecated": "",
+    "Comment": "Pose addition\r\n\r\nBoth arguments contain three position parameters (x, y, z) jointly called P, and three rotation parameters (R_x, R_y, R_z) jointly called R. This function calculates the result x_3 as the addition of the given poses as follows:\r\n\r\n```\r\np_3.P = p_1.P + p_2.P\r\np_3.R = p_1.R * p_2.R\r\n```",
+    "Parameters": [
+      {
+        "Label": "p_1",
+        "Type": "Pose",
+        "Comment": "tool pose 1 (pose)",
+        "Default": ""
+      },
+      {
+        "Label": "p_2",
+        "Type": "Pose",
+        "Comment": "tool pose 2 (pose)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "pose_dist",
+    "ReturnType": "Number",
+    "Return": "distance",
+    "Deprecated": "",
+    "Comment": "Pose distance",
+    "Parameters": [
+      {
+        "Label": "p_from",
+        "Type": "Pose",
+        "Comment": "tool pose (pose)",
+        "Default": ""
+      },
+      {
+        "Label": "p_to",
+        "Type": "Pose",
+        "Comment": "tool pose (pose)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "pose_inv",
+    "ReturnType": "Pose",
+    "Return": "inverse tool pose transformation (spatial vector)",
+    "Deprecated": "",
+    "Comment": "Get the inverse of a pose",
+    "Parameters": [
+      {
+        "Label": "p_from",
+        "Type": "Pose",
+        "Comment": "tool pose (spatial vector)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "pose_sub",
+    "ReturnType": "Pose",
+    "Return": "tool pose transformation (spatial vector)",
+    "Deprecated": "",
+    "Comment": "Pose subtraction",
+    "Parameters": [
+      {
+        "Label": "p_to",
+        "Type": "Pose",
+        "Comment": "tool pose (spatial vector)",
+        "Default": ""
+      },
+      {
+        "Label": "p_from",
+        "Type": "Pose",
+        "Comment": "tool pose (spatial vector)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "pose_trans",
+    "ReturnType": "Pose",
+    "Return": "resulting pose (spatial vector)",
+    "Deprecated": "",
+    "Comment": "Pose transformation\r\n\r\nThe first argument, p_from, is used to transform the second argument, p_from_to, and the result is then returned. This means that the result is the resulting pose, when starting at the coordinate system of p_from, and then in that coordinate system moving p_from_to.\r\n\r\nThis function can be seen in two different views. Either the function transforms, that is translates and rotates, p_from_to by the parameters of p_from. Or the function is used to get the resulting pose, when first making a move of p_from and then from there, a move of p_from_to.\r\n\r\nIf the poses were regarded as transformation matrices, it would look like:\r\n\r\n```\r\nT_world->to = T_world->from * T_from->to\r\nT_x->to = T_x->from * T_from->to\r\n```",
+    "Parameters": [
+      {
+        "Label": "p_from",
+        "Type": "Pose",
+        "Comment": "arting pose (spatial vector)",
+        "Default": ""
+      },
+      {
+        "Label": "p_from_to",
+        "Type": "Pose",
+        "Comment": "pose change relative to starting pose (spatial vector)",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "pow",
+    "ReturnType": "Float",
+    "Return": "base raised to the power of exponent",
+    "Deprecated": "",
+    "Comment": "Returns base raised to the power of exponent\r\n\r\nReturns the result of raising base to the power of exponent. If base is negative and exponent is not an integral value, or if base is zero and exponent is negative, a runtime error is raised.",
+    "Parameters": [
+      {
+        "Label": "base",
+        "Type": "Float",
+        "Comment": "floating point value",
+        "Default": ""
+      },
+      {
+        "Label": "exponent",
+        "Type": "Float",
+        "Comment": "floating point value",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "r2d",
+    "ReturnType": "Number",
+    "Return": "The angle in degrees",
+    "Deprecated": "",
+    "Comment": "Returns radians-to-degrees of r\r\n\r\nReturns the degree value of 'r' radians",
+    "Parameters": [
+      {
+        "Label": "r",
+        "Type": "Number",
+        "Comment": "The angle in radians",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "random",
+    "ReturnType": "Float",
+    "Return": "pseudo-random number between 0 and 1 (float)",
+    "Deprecated": "",
+    "Comment": "Random Number",
+    "Parameters": []
+  },
+  {
+    "Name": "rotvec2rpy",
+    "ReturnType": "Array",
+    "Return": "The RPY vector (Vector3d) in radians, describing a roll-pitch-yaw sequence of extrinsic rotations about the X-Y-Z axes, (corresponding to intrinsic rotations about the Z-Y'-X\" axes). In matrix form the RPY vector is defined as `Rrpy = Rz(yaw)Ry(pitch)Rx(roll)`.",
+    "Deprecated": "",
+    "Comment": "eturns RPY vector corresponding to rotation_vector\r\n\r\nReturns the RPY vector corresponding to `rotation_vector` where the rotation vector is the axis of rotation with a length corresponding to the angle of rotation in radians.",
+    "Parameters": [
+      {
+        "Label": "rotation_vector",
+        "Type": "Array",
+        "Comment": "The rotation vector (Vector3d) in radians, also called the Axis-Angle vector (unit-axis of rotation multiplied by the rotation angle in radians).",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "rpy2rotvec",
+    "ReturnType": "Array",
+    "Return": "The rotation vector (Vector3d) in radians, also called the Axis-Angle vector (unit-axis of rotation multiplied by the rotation angle in radians).",
+    "Deprecated": "",
+    "Comment": "Returns rotation vector corresponding to rpy_vector\r\n\r\nReturns the rotation vector corresponding to `rpy_vector` where the RPY (roll-pitch-yaw) rotations are extrinsic rotations about the X-Y-Z axes (corresponding to intrinsic rotations about the Z-Y’-X” axes).",
+    "Parameters": [
+      {
+        "Label": "rpy_vector",
+        "Type": "Array",
+        "Comment": "The RPY vector (Vector3d) in radians, describing a roll-pitch-yaw sequence of extrinsic rotations about the X-Y-Z axes, (corresponding to intrinsic rotations about the Z-Y'-X\" axes). In matrix form the RPY vector is defined as `Rrpy = Rz(yaw)Ry(pitch)Rx(roll)`.",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "sin",
+    "ReturnType": "Float",
+    "Return": "the sine of f",
+    "Deprecated": "",
+    "Comment": "Returns the sine of f\r\n\r\nReturns the sine of an angle of f radians",
+    "Parameters": [
+      {
+        "Label": "f",
+        "Type": "Float",
+        "Comment": "floating point value",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "size",
+    "ReturnType": "",
+    "Return": "Given a list or a string the length is returned as an integer. Given a matrix the size is returned asa list of two numbers representing the number of rows and columns, respectively.",
+    "Deprecated": "",
+    "Comment": "Returns the size of a matrix variable, the length of a list or string variable",
+    "Parameters": [
+      {
+        "Label": "v",
+        "Type": "None",
+        "Comment": "A matrix, list or string variable",
+        "Default": ""
+      }
+    ]
+  },  
+  {
+    "Name": "sqrt",
+    "ReturnType": "Float",
+    "Return": "the square root of f.",
+    "Deprecated": "",
+    "Comment": "Returns the square root of f\r\n\r\nReturns the square root of f. If f is negative, a runtime error is raised",
+    "Parameters": [
+      {
+        "Label": "f",
+        "Type": "Float",
+        "Comment": "floating point value",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "tan",
+    "ReturnType": "Float",
+    "Return": "the tangent of f.",
+    "Deprecated": "",
+    "Comment": "Returns the tangent of f\r\n\r\nReturns the tangent of an angle of f radians.",
+    "Parameters": [
+      {
+        "Label": "f",
+        "Type": "Float",
+        "Comment": "floating point value",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "transpose",
+    "ReturnType": "matrix",
+    "Return": "transposed matrix or array",
+    "Deprecated": "",
+    "Comment": "Get the transpose of a matrix",
+    "Parameters": [
+      {
+        "Label": "m",
+        "Type": "matrix",
+        "Comment": "matrix or an array",
+        "Default": ""
+      }
+    ]
+  },  
+  {
+    "Name": "wrench_trans",
+    "ReturnType": "Array",
+    "Return": "resulting wrench, w_to in list format [F_x, F_y, F_z, M_x, M_y,M_z]",
+    "Deprecated": "",
+    "Comment": "Wrench transformation\r\n\r\nMove the point of view of a wrench.\r\n\r\nNote: Transforming wrenches is not as trivial as transforming poses as the torque scales with the length of the translation.\r\n\r\n```\r\nw_to = T_from->to * w_from\r\n```",
+    "Parameters": [
+      {
+        "Label": "T_from_to",
+        "Type": "Pose",
+        "Comment": "The transformation to the new point of view (Pose)",
+        "Default": ""
+      },
+      {
+        "Label": "w_from",
+        "Type": "Array",
+        "Comment": "wrench to transform in list format [F_x, F_y, F_z,M_x, M_y, M_z]",
+        "Default": ""
+      }
+    ]
+  }
+]
