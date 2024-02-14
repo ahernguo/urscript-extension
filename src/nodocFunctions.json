@@ -1,0 +1,134 @@
+[
+    {
+        "Name": "request_boolean_from_primary_client",
+        "ReturnType": "Bool",
+        "Return": "User input True/False",
+        "Deprecated": "",
+        "Comment": "Displays a popup requesting the user to choose a state. The Text is displayed",
+        "Parameters": [
+            {
+                "Label": "Text",
+                "Type": "String",
+                "Comment": "The Text to be displayed. Supports HTML in Polyscope 5",
+                "Default": ""
+            }
+        ]
+    },
+    {
+        "Name": "request_float_from_primary_client",
+        "ReturnType": "Float",
+        "Return": "User input float value",
+        "Deprecated": "",
+        "Comment": "Displays a popup requesting the user to input a float value. The Text is displayed",
+        "Parameters": [
+            {
+                "Label": "Text",
+                "Type": "String",
+                "Comment": "The Text to be displayed. NO support HTML in Polyscope 5",
+                "Default": ""
+            }
+        ]
+    },
+    {
+        "Name": "request_integer_from_primary_client",
+        "ReturnType": "Integer",
+        "Return": "User input integer value",
+        "Deprecated": "",
+        "Comment": "Displays a popup requesting the user to input an integer value. The Text is displayed",
+        "Parameters": [
+        {
+            "Label": "Text",
+            "Type": "String",
+            "Comment": "The Text to be displayed. NO support HTML in Polyscope 5",
+            "Default": ""
+        }
+        ]
+    },  
+    {
+        "Name": "request_string_from_primary_client",
+        "ReturnType": "String",
+        "Return": "User input string value",
+        "Deprecated": "",
+        "Comment": "Displays a popup requesting the user to input a string. The Text is displayed",
+        "Parameters": [
+        {
+            "Label": "Text",
+            "Type": "String",
+            "Comment": "The Text to be displayed. NO support HTML in Polyscope 5",
+            "Default": ""
+        }
+        ]
+    },  
+    {
+      "Name": "set_euromap_output",
+      "ReturnType": "None",
+      "Return": "",
+      "Deprecated": "",
+      "Comment": "Sets the value of a specific Euromap67 output signal. This means the value that is sent from the robot to the injection moulding machine.\r\n\r\nSee [Supports](http://universal-robots.com/support) for signal specifications.",
+      "Parameters": [
+        {
+          "Label": "port_number",
+          "Type": "Int",
+          "Comment": "An integer specifying one of the available Euromap67 output signals.",
+          "Default": ""
+        },
+        {
+          "Label": "signal_value",
+          "Type": "Bool",
+          "Comment": "A boolean, either `True` or `False`",
+          "Default": ""
+        }
+      ]
+    },
+    {
+      "Name": "set_euromap_runstate_dependent_choice",
+      "ReturnType": "None",
+      "Return": "",
+      "Deprecated": "",
+      "Comment": "Sets whether an Euromap67 output signal must preserve its state from a program, or it must be set either high or low when a program is not running.\r\n\r\nSee [Supports](http://universal-robots.com/support) for signal specifications.",
+      "Parameters": [
+        {
+          "Label": "port_number",
+          "Type": "Int",
+          "Comment": "An integer specifying a Euromap67 output signal.",
+          "Default": ""
+        },
+        {
+          "Label": "runstate_choice",
+          "Type": "Int",
+          "Comment": "An integer:\r\n\r\n* `0` preserve program state\r\n* `1` set low when a program is not running\r\n* `2` set high when a program is not running",
+          "Default": ""
+        }
+      ]
+    },  
+    {
+      "Name": "get_euromap_input",
+      "ReturnType": "Bool",
+      "Return": "boolean, either True or False",
+      "Deprecated": "",
+      "Comment": "Reads the current value of a specific Euromap67 input signal. See [Supports](http://universal-robots.com/support) for signal specifications.",
+      "Parameters": [
+        {
+          "Label": "port_number",
+          "Type": "Int",
+          "Comment": "An integer specifying one of the available Euromap67 input signals.",
+          "Default": ""
+        }
+      ]
+    },
+    {
+      "Name": "get_euromap_output",
+      "ReturnType": "Bool",
+      "Return": "A boolean, either True or False",
+      "Deprecated": "",
+      "Comment": "Reads the current value of a specific Euromap67 output signal. This means the value that is sent from the robot to the injection moulding machine.\r\n\r\nSee [Supports](http://universal-robots.com/support) for signal specifications.",
+      "Parameters": [
+        {
+          "Label": "port_number",
+          "Type": "Int",
+          "Comment": "An integer specifying one of the available Euromap67 output signals",
+          "Default": ""
+        }
+      ]
+    }
+]
