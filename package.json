@@ -2,7 +2,7 @@
   "name": "urscript",
   "displayName": "URScript",
   "description": "Code snippet and completion items for Universal Robots Script",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "publisher": "Ahern",
   "icon": "resources/logo.png",
   "engines": {

@@ -3,6 +3,18 @@ All notable changes to the "urscript" extension will be documented in this file.
 
 Goto [urscript-extension](https://github.com/ahernguo/urscript-extension) for more details.
 
+## `0.1.17` (08-Jul-2024)
+* FEATURE
+  * Added 5.17.0 new functions ([#32](https://github.com/ahernguo/urscript-extension/pull/32))
+
+## `0.1.16` (06-Mar-2024)
+* BUGFIXES
+  * added missing semicolon to import new functions ([#31](https://github.com/ahernguo/urscript-extension/pull/31))
+
+## `0.1.15` (14-Feb-2024)
+* FEATURE
+  * reintroduced ([#30](https://github.com/ahernguo/urscript-extension/pull/30))
+
 ## `0.1.14` (03-Jul-2023)
 * FEATURE
   * added encoder_unwind_delta_tick_count ([#26](https://github.com/ahernguo/urscript-extension/pull/26))
