@@ -574,6 +574,21 @@
     ]
   },
   {
+    "Name": "time",
+    "ReturnType": "Struct",
+    "Return": "Function retruns structure in format struct(sec, nanosec)",
+    "Deprecated": "",
+    "Comment": "Get current time from selected source",
+    "Parameters": [
+      {
+        "Label": "mode",
+        "Type": "Number",
+        "Comment": "mode: integer, one of:\r\n\r\n* 0: Controller execution time. Time counted since low level controller start. Guaranteed monotonic. Reset on robot restart.\r\n\r\n* 1: Reserved. \r\n\r\n* 2: System time in GMT time zone. Not guaranteed to be monotonic - can go backwards when system time is adjusted.",
+        "Default": ""
+      }
+    ]
+  },
+  {
     "Name": "str_at",
     "ReturnType": "None",
     "Return": "String containing the byte at position `index` in the source string. An exception is raised if the index is not valid.",
@@ -727,14 +742,6 @@
         "Default": "''"
       }
     ]
-  },
-  {
-    "Name": "time",
-    "ReturnType": "Number",
-    "Return": "float number",
-    "Deprecated": "",
-    "Comment": "Returns monotonic controller time with 2ms resolution, or system time.",
-    "Parameters": []
   },
   {
     "Name": "to_num",
