@@ -861,6 +861,65 @@
     ]
   },
   {
+    "Name": "tool_wrench_limit_set",
+    "ReturnType":"None",
+    "Return":"",
+    "Deprecated":"",
+    "Comment":"Limit the wrench (forces and torques) caused by motion of the robot in a frame given relative to the tool flange. The wrench is limited in normal and reduced mode operation, as well as during protective stops, safeguard stops, 3PE stops and emergency stops. For this reason, it can affect robot motion speed to ensure adherence to safety limits. Usage can help prevent dropping items by limiting accelerations as well as reducing wrench applied to the attached tool.\r\n\r\nThis limitation does not affect the forces and torques that can be applied in force control.",
+    "Parameters":[
+      {
+        "Label": "frame_offset",
+        "Type": "Pose",
+        "Comment": "Pose specifying frame relative to the tool flange similarly to how the TCP offset is specified. The first three coordinates specify translational offset along the x- y- and z-axis in meters. The last three specify the rotational offset using the axis-angle representation in radians.",
+        "Default": ""
+      },
+      {
+        "Label": "Fx",
+        "Type": "Number",
+        "Comment": "Fx (optional): Float, setting maximum acceleration force along the X-axis in the specified frame.",
+        "Default": ""
+      },
+      {
+        "Label": "Fy",
+        "Type": "Number",
+        "Comment": "Fy (optional): Float, setting maximum acceleration force along the Y-axis in the specified frame.",
+        "Default": ""
+      },
+      {
+        "Label": "Fz",
+        "Type": "Number",
+        "Comment": "Fz (optional): Float, setting maximum acceleration force along the Z-axis in the specified frame.",
+        "Default": ""
+      },
+      {
+        "Label": "Mx",
+        "Type": "Number",
+        "Comment": "Mx (optional): Float, setting maximum acceleration torque around the X-axis in the specified frame.",
+        "Default": ""
+      },
+      {
+        "Label": "My",
+        "Type": "Number",
+        "Comment": "My (optional): Float, setting maximum acceleration torque around the Y-axis in the specified frame.",
+        "Default": ""
+      },
+      {
+        "Label": "Mz",
+        "Type": "Number",
+        "Comment": "Mz (optional): Float, setting maximum acceleration torque around the Z-axis in the specified frame.",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "tool_wrench_limit_disable",
+    "ReturnType":"None",
+    "Return":"",
+    "Deprecated":"",
+    "Comment":"Disable tool wrench limitation set by tool_wrench_limit_set.",
+    "Parameters":[]
+  },
+  {
     "Name": "teach_mode",
     "ReturnType": "None",
     "Return": "",
