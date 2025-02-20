@@ -3,6 +3,13 @@ All notable changes to the "urscript" extension will be documented in this file.
 
 Goto [urscript-extension](https://github.com/ahernguo/urscript-extension) for more details.
 
+## `0.1.18` (16-Dec-2024) by _Ebbe Fuglsang_
+* FEATURE
+  * urscript manual 5.19 tool_wrench_limit functions added
+  * time() updated to urscript manual 5.18
+  * development container added
+  * package.lock.json updated to version 1.17
+
 ## `0.1.17` (08-Jul-2024)
 * FEATURE
   * Added 5.17.0 new functions ([#32](https://github.com/ahernguo/urscript-extension/pull/32))
