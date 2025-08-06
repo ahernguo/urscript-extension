@@ -1,0 +1,72 @@
+{
+    "Name": "add_frame",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Move to position (linear in joint-space)\r\n\r\nWhen using this command, the robot must be at a standstill or come from a movej or movel with a blend. The speed and acceleration parameters control the trapezoid speed profile of the move. Alternatively, the t parameter can be used to set the time for this move. Time setting has priority over speed and acceleration settings.",
+    "Parameters": [
+      {
+        "Label": "name",
+        "Type": "String",
+        "Comment": "name of the frame to be added. The name must not be the same as any existing world model object (frame, axis, or axis group), otherwise an exception is thrown",
+        "Default": ""
+      },
+      {
+        "Label": "pose",
+        "Type": "Pose",
+        "Comment": "initial pose of the new frame",
+        "Default": ""
+      },
+      {
+        "Label": "refname",
+        "Type": "String",
+        "Comment": "name of the world model object whose coordinate frame the pose is expressed in. If nothing is provided here, the default is the robot base frame.",
+        "Default": "base"
+      }
+    ]
+},
+{
+    "Name": "attach_frame",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Move to position (linear in joint-space)\r\n\r\nWhen using this command, the robot must be at a standstill or come from a movej or movel with a blend. The speed and acceleration parameters control the trapezoid speed profile of the move. Alternatively, the t parameter can be used to set the time for this move. Time setting has priority over speed and acceleration settings.",
+    "Parameters": [
+      {
+        "Label": "child",
+        "Type": "String",
+        "Comment": "name of the frame to be attached. The name must not be \“world\”, \“flange\”, or \“tcp\”.",
+        "Default": ""
+      },
+      {
+        "Label": "parent",
+        "Type": "String",
+        "Comment": "name of the object that the child frame will be attached to",
+        "Default": ""
+      }
+    ]
+},
+{
+    "Name": "delete_all_frames",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Move to position (linear in joint-space)\r\n\r\nWhen using this command, the robot must be at a standstill or come from a movej or movel with a blend. The speed and acceleration parameters control the trapezoid speed profile of the move. Alternatively, the t parameter can be used to set the time for this move. Time setting has priority over speed and acceleration settings.",
+    "Parameters": []
+},
+{
+    "Name": "delete_frame",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Delete the named frame from the world model.",
+    "Parameters": [
+      {
+        "Label": "name",
+        "Type": "String",
+        "Comment": "name of the frame to be deleted",
+        "Default": ""
+      }
+    ]
+}
+
