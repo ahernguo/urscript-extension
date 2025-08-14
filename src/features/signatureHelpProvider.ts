@@ -70,6 +70,31 @@ export class URScriptSignatureHelpProvider implements SignatureHelpProvider {
         this.scriptSignatures = funcs.map(mthd => new ScriptSignature(mthd));
     }
 
+    private splitArgumentsRespectingBrackets(argStr: string): string[] {
+        const args: string[] = [];
+        let current = '';
+        let bracketDepth = 0;
+
+        for (let char of argStr) {
+            if (char === '[') {
+                bracketDepth++;
+            }else if (char === ']'){
+                bracketDepth--;
+            }
+            if (char === ',' && bracketDepth <= 0) {
+                args.push(current);
+                current = '';
+                bracketDepth = 0; 
+            } else {
+                current += char;
+            }
+        }
+
+        args.push(current);
+
+        return args;
+    }
+
     /**
      * search relative SignatureHelp item with keyword
      * @param document current editor of vscode
@@ -90,13 +115,13 @@ export class URScriptSignatureHelpProvider implements SignatureHelpProvider {
                 return undefined;
             }
             /* the context has the history of signature window.
-               return next signature if retrigger (',' or '←' or '→' pressed) */
+               return next signature if retrigger (',' or '←' or '→' pressed) */        
             if (context.isRetrigger && !isNullOrUndefined(context.activeSignatureHelp)) {
                 /* count how many ',' exist */
-                //get the string in parentheses. start from next '(' and stop to ')'
+                 //get the string in parentheses. start from next '(' and stop to ')'
                 const paraStr = line.text.substr(parLeft + 1, position.character - parLeft - 1);
-                //splitted with ','. the paraAry.Len shows how many ',' are keyed
-                const paraAry = paraStr.split(',');
+                //splitted with ','. that is not enclosed in [] from a constant pose, list or matrix
+                const paraAry = this.splitArgumentsRespectingBrackets(paraStr);
                 /* change the index to next one. (zero based) */
                 context.activeSignatureHelp.activeParameter = paraAry.length - 1;
                 /* return current signature. it will shift the signature window to next one (not re-pop it) */
