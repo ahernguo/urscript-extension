@@ -3,6 +3,10 @@ All notable changes to the "urscript" extension will be documented in this file.
 
 Goto [urscript-extension](https://github.com/ahernguo/urscript-extension) for more details.
 
+## `0.1.19` (15-Aug-2025) by _Ebbe Fuglsang_
+* BUGFIXES
+  * fix signatureHelpProvider is not parsing `,` in poses/lists as argument seperators
+
 ## `0.1.18` (16-Dec-2024) by _Ebbe Fuglsang_
 * FEATURE
   * urscript manual 5.19 tool_wrench_limit functions added
