@@ -6,7 +6,7 @@ import motionFunctions from './motionFunctions.json';
 import internalsFunctions from './internalsFunctions.json';
 import urmathFunctions from './urmathFunctions.json';
 import interfacesFunctions from './interfacesFunctions.json';
-import URG6Functions from './URG6Functions.json'
+import URG6Functions from './URG6Functions.json';
 import ioconfigurationFunctions from './ioconfigurationFunctions.json';
 import nodocFunctions from './nodocFunctions.json';
 //check string is empty or null

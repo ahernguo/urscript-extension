@@ -25,9 +25,9 @@
         "Type": "Array",
         "Comment": "wrenches - A list of wrenches resulting from gravity acting on the payload. Must have the same length as poses. Each wrench in wrenches should be measured at the corresponding pose in poses. The wrenches must be given at the tool flange but in robot base orientation. Wrenches in the required orientation can be recorded with get_tcp_force() when in the desired pose.",
         "Default": ""
-      }         
+      }
     ]
-  },    
+  },
   {
     "Name": "get_actual_joint_positions",
     "ReturnType": "Array",
@@ -48,9 +48,9 @@
         "Type": "Int",
         "Comment": "The number of controller time steps required to go back. 0 corresponds to \"get_actual_joint_positions()\"",
         "Default": "0"
-      }      
+      }
     ]
-  },  
+  },
   {
     "Name": "get_actual_joint_speeds",
     "ReturnType": "Array",
@@ -84,6 +84,14 @@
     "Parameters": []
   },
   {
+    "Name": "get_base_acceleration",
+    "ReturnType": "Array",
+    "Return": "The current assigned external acceleration vector",
+    "Deprecated": "",
+    "Comment": "Returns the currently assigned external acceleration vector for safety and the robot dynamics model",
+    "Parameters": []
+  },
+  {
     "Name": "get_controller_temp",
     "ReturnType": "Float",
     "Return": "A temperature in degrees Celcius (float)",
@@ -111,6 +119,14 @@
         "Default": "\"active_tcp\""
       }
     ]
+  },
+  {
+    "Name": "get_gravity",
+    "ReturnType": "List",
+    "Return": "List containing gravity Vector [X, Y, Z]",
+    "Deprecated": "",
+    "Comment": "Funktion for reading out the currently assigned gravity vector for safety and the robot dynamics model",
+    "Parameters": []
   },
   {
     "Name": "get_inverse_kin",
@@ -189,7 +205,7 @@
         "Default": "\"active_tcp\""
       }
     ]
-  },  
+  },
   {
     "Name": "get_joint_temp",
     "ReturnType": "Float",
@@ -260,7 +276,7 @@
     "Deprecated": "",
     "Comment": "Returns the most recently set payload inertia matrix.\r\n\r\nThis script function returns the inertia matrix of the active payload in tool flange coordinates, with origin at the CoG",
     "Parameters": []
-  },  
+  },
   {
     "Name": "get_target_tcp_pose",
     "ReturnType": "Array",
@@ -284,7 +300,7 @@
     "Deprecated": "",
     "Comment": "Returns the target waypoint of the active move\r\n\r\nThis is different from the get_target_tcp_pose() which returns the target pose for each time step. The get_target_waypoint() returns the same target pose for movel, movej, movep or movec during the motion. It returns the same as get_target_tcp_pose(), if none of the mentioned move functions are running.\r\n\r\nThis method is useful for calculating relative movements where the previous move command uses blends.",
     "Parameters": []
-  },  
+  },
   {
     "Name": "get_tcp_force",
     "ReturnType": "Pose",
@@ -315,6 +331,14 @@
     "Return": "The tool current in ampere.",
     "Deprecated": "",
     "Comment": "Returns the tool current\r\n\r\nThe tool current consumption measured in ampere.",
+    "Parameters": []
+  },
+  {
+    "Name": "get_tool_temp",
+    "ReturnType": "Number",
+    "Return": "Float with most recent tool temp measure",
+    "Deprecated": "",
+    "Comment": "Returns the most recently measured temperature of the tool",
     "Parameters": []
   },
   {
@@ -402,7 +426,7 @@
     "Deprecated": "",
     "Comment": "Shutdown the robot, and power off the robot and controller.",
     "Parameters": []
-  },  
+  },
   {
     "Name": "protective_stop",
     "ReturnType": "None",
@@ -410,7 +434,7 @@
     "Deprecated": "",
     "Comment": "Trigger a protective stop, pausing the program and stopping motion on the planned trajectory.\r\n\r\nNotes:\r\n\r\nThis function is not intended for use for simply pausing the running program (see Special keywords: pause).",
     "Parameters": []
-  },  
+  },
   {
     "Name": "set_base_acceleration",
     "ReturnType": "None",
@@ -425,7 +449,7 @@
         "Default": ""
       }
     ]
-  },  
+  },
   {
     "Name": "set_gravity",
     "ReturnType": "None",
@@ -516,9 +540,9 @@
         "Type": "Array",
         "Comment": "payload inertia matrix (in kg*m^2), as a vector with six elements [Ixx, Iyy, Izz, Ixy, Ixz, Iyz] with origin in the CoG and the axes aligned with the tool flange axes.",
         "Default": ""
-      }           
+      }
     ]
-  },  
+  },
   {
     "Name": "set_tcp",
     "ReturnType": "None",
@@ -545,6 +569,21 @@
         "Label": "t",
         "Type": "Number",
         "Comment": "time [s]",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "time",
+    "ReturnType": "Struct",
+    "Return": "Function retruns structure in format struct(sec, nanosec)",
+    "Deprecated": "",
+    "Comment": "Get current time from selected source",
+    "Parameters": [
+      {
+        "Label": "mode",
+        "Type": "Number",
+        "Comment": "mode: integer, one of:\r\n\r\n* 0: Controller execution time. Time counted since low level controller start. Guaranteed monotonic. Reset on robot restart.\r\n\r\n* 1: Reserved. \r\n\r\n* 2: System time in GMT time zone. Not guaranteed to be monotonic - can go backwards when system time is adjusted.",
         "Default": ""
       }
     ]
