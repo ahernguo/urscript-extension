@@ -36,7 +36,7 @@
           {
             "Label": "child",
             "Type": "String",
-            "Comment": "name of the frame to be attached. The name must not be \“world\”, \“flange\”, or \“tcp\”.",
+            "Comment": "name of the frame to be attached. The name must not be \"world\", \"flange\", or \"tcp\".",
             "Default": ""
           },
           {
