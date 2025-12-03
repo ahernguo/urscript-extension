@@ -9,6 +9,7 @@ import interfacesFunctions from './interfacesFunctions.json';
 import URG6Functions from './URG6Functions.json';
 import ioconfigurationFunctions from './ioconfigurationFunctions.json';
 import worldModelFunctinos from './worldModelFunctions.json'
+import ROS2Functions from './ROS2Functions.json'
 import nodocFunctions from './nodocFunctions.json';
 //check string is empty or null
 import { isBlank } from './utilities/checkString.js';
@@ -253,6 +254,7 @@ export function createFunctions(): ScriptMethod[] {
     functionList = functionList.concat(ioconfigurationFunctions.map(jsMthd => new ScriptMethod(jsMthd)));
     functionList = functionList.concat(URG6Functions.map(jsMthd => new ScriptMethod(jsMthd)));
     functionList = functionList.concat(worldModelFunctinos.map(jsMthd => new ScriptMethod(jsMthd)));
+    functionList = functionList.concat(ROS2Functions.map(jsMthd => new ScriptMethod(jsMthd)));
     functionList = functionList.concat(nodocFunctions.map(jsMthd => new ScriptMethod(jsMthd)));
     return functionList;
 }
