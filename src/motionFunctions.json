@@ -27,6 +27,27 @@
     ]
   },
   {
+    "Name": "direct_torque",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Sets the target torque for all robot joints at 500Hz. This function must be called continuously at each robot time step; otherwise, the robot will return to position control mode. The function always compensates for gravity, meaning that the provided target torque should not include gravity compensation. Friction compensation is enabled by default, but can be disabled by setting __friction_comp=False__.",
+    "Parameters": [
+      {
+      "Label": "torques",
+      "Type": "Array",
+      "Comment": "List of target joint torques (Nm) to be commanded to the robot joints (length 6)",
+      "Default": ""
+      },
+      {
+        "Label": "friction_comp",
+        "Type": "Bool",
+        "Comment": "Enable internal friction compensation.",
+        "Default": "True"
+      }
+    ]      
+  },
+  {
     "Name": "encoder_enable_pulse_decode",
     "ReturnType": "None",
     "Return": "",
@@ -209,6 +230,22 @@
     ]
   },
   {
+    "Name": "force_mode_get_damping",
+    "ReturnType": "Float",
+    "Return": "Damping",
+    "Deprecated": "",
+    "Comment": "Return the force mode damping.",
+    "Parameters": []
+  },
+  {
+    "Name": "force_mode_get_gain_scaling()",
+    "ReturnType": "Float",
+    "Return": "Gain scaling",
+    "Deprecated": "",
+    "Comment": "Return the force mode gain scaling.",
+    "Parameters": []
+  },  
+  {
     "Name": "force_mode_set_damping",
     "ReturnType": "None",
     "Return": "",
@@ -260,6 +297,14 @@
     ]
   },
   {
+  "Name": "freedrive_mode_no_incorrect_payload_check",
+  "ReturnType": "None",
+  "Return": "",
+  "Deprecated": "",
+  "Comment": "This method, like teach_mode() and freedrive_mode(), changes the robot mode to teach mode, but this function does not check for an incorrect payload during the initial state change, nor if the payload is updated during freedrive. For this reason, it is exceedingly important for users to be certain the payload is correct.\r\n\r\nIt is possible for the user to exit teach mode/freedrive in the usual manner, using: end_teach_mode() or end_freedrive_mode()",
+  "Parameters": []
+  },
+  {
     "Name": "get_conveyor_tick_count",
     "ReturnType": "Int",
     "Return": "The conveyor encoder tick count",
@@ -290,7 +335,53 @@
     "Deprecated": "",
     "Comment": "Query the target TCP speed as given by the trajectory being followed.\r\n\r\nThis script function is useful in conjunction with conveyor tracking to know what the target speed of the TCP would be if no offset was applied.",    
     "Parameters": []
-  },    
+  },
+  {
+    "Name": "jerk_gain_scaling_get",
+    "ReturnType": "Float",
+    "Return": "Jerk gain scale",
+    "Deprecated": "",
+    "Comment": "Get the actual jerk gain scale.",
+    "Parameters": []
+  },
+  {
+    "Name": "jerk_gain_scaling_set",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "The following motion profiles have a jerk limited acceleration and deceleration phase:\r\n- movej[motionversion=>2] and optimovej\r\n- movel[motionversion=>2] and optimovel\r\n\r\nThe jerk is the change rate of acceleration.\r\n\r\nThe default jerk depends on the specific pose, payload and acceleration and fits general applications.\r\n\r\nIt is possible to reduce the jerk for applications, which requires smoother motions.\r\n\r\nThis can be done with jerk_gain_scaling_set(gain=1.0).\r\n\r\nWhere:\r\n\r\n0.01 <= gain <= 1.0,\r\n\r\nand default gain is 1.0.\r\n\r\nIn this example, the jerk is reduced with a gain of 0.5:\r\n\r\njerk_gain_scaling_set(0.5)\r\n\r\nThe value is stored until this function is called again or until reboot. Add this to the beginning of your program to ensure it is called before the first move (otherwise default value will be used).",
+    "Parameters": [
+      {
+        "Label": "gain",
+        "Type": "Float",
+        "Comment": "Jerk gain scaling.",
+        "Default": ""
+      }      
+    ]
+  },
+  {
+    "Name": "motion_version_get",
+    "ReturnType": "Int",
+    "Return": "Active version",
+    "Deprecated": "",
+    "Comment": "Get the active Motion Version for movej and movel. This function allows URCaps and imported URScript to store the active motion version with the intent of setting it back at a later time. They are then free to perform motions with a specific version, without risking affecting the rest of a program.",
+    "Parameters": []
+  },
+  {
+    "Name": "motion_version_set",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Set which Motion Version will be used for movej and movel motion planning.\r\n\r\nThis command overrides the PolyScope GUI 'Installation → Motion → Motion Version → Motion Version 2' setting.",
+    "Parameters": [
+      {
+        "Label": "version",
+        "Type": "Int",
+        "Comment": "Motion version: 1 or 2.",
+        "Default": ""
+      }
+    ]
+  },
   {
     "Name": "movec",
     "ReturnType": "None",
@@ -443,6 +534,72 @@
         "Label": "r",
         "Type": "Number",
         "Comment": "blend radius [m]",
+        "Default": "0"
+      }
+    ]
+  },
+  {
+    "Name": "optimovej",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Move to the goal position (linear in joint-space)\r\n\r\nOptiMove dynamically adapts speed and acceleration to perform smooth motions using jerk-limited speed profiles. The speed and acceleration parameters control the speed profile of the move. Setting speed and acceleration parameters to 1 causes the fastest cycle time the robot is capable of. This command is similar to movej() but with smoother motions with less vibration.",
+    "Parameters": [
+      {
+        "Label": "goal",
+        "Type": "Array",
+        "Comment": "goal: (q, pose, struct{pose, frame}, string) - the target for the TCP motion can be defined in different ways:\r\n- (q) as robot joint positions\r\n- (pose) as a pose in robot base coordinate frame. The target joint positions will be calculated by inverse kinematics\r\n- (struct{pose, frame}) as a pose and the name of a reference coordinate frame. The goal will be set to this pose in this reference coordinate frame.\r\n-(string) as the name of a world model object. The goal will be set to the object's pose.",
+        "Default": ""
+      },
+      {
+        "Label": "a",
+        "Type": "Float",
+        "Comment": "Joint acceleration as a fraction of what the joints are able to perform - a∈ (0.0,1.0]",
+        "Default": "0.3"
+      },
+      {
+        "Label": "v",
+        "Type": "Float",
+        "Comment": "Joint speed as a fraction of how fast the joints can move during the motion - v∈ (0.0,1.0]",
+        "Default": "0.3"
+      },
+      {
+        "Label": "r",
+        "Type": "Float",
+        "Comment": "Blend radius [m]",
+        "Default": "0"
+      }
+    ]
+  },
+  {
+    "Name": "optimovel",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Move to the goal position (linear in Cartesian space).\r\n\r\nOptiMove dynamically adapts speed and acceleration to perform smooth motions using jerk-limited speed profiles. The speed and acceleration parameters control the speed profile of the move. Setting speed and acceleration parameters to 1 causes the fastest cycle time the robot is capable of. This command is similar to movel() but with smoother motions with less vibration.",
+    "Parameters": [
+      {
+        "Label": "goal",
+        "Type": "Array",
+        "Comment": "goal: (q, pose, struct{pose, frame}, string) - the target for the TCP motion can be defined in different ways:\r\n- (q) as robot joint positions\r\n- (pose) as a pose in robot base coordinate frame. The target joint positions will be calculated by inverse kinematics\r\n- (struct{pose, frame}) as a pose and the name of a reference coordinate frame. The goal will be set to this pose in this reference coordinate frame.\r\n-(string) as the name of a world model object. The goal will be set to the object's pose.",
+        "Default": ""
+      },
+      {
+        "Label": "a",
+        "Type": "Float",
+        "Comment": "Joint acceleration as a fraction of what the joints are able to perform - a∈ (0.0,1.0]",
+        "Default": "0.3"
+      },
+      {
+        "Label": "v",
+        "Type": "Float",
+        "Comment": "Joint speed as a fraction of how fast the joints can move during the motion - v∈ (0.0,1.0]",
+        "Default": "0.3"
+      },
+      {
+        "Label": "r",
+        "Type": "Float",
+        "Comment": "Blend radius [m]",
         "Default": "0"
       }
     ]
@@ -618,39 +775,6 @@
         "Comment": "Maximum TCP velocity along the Z axis [m/s].",
         "Default": ""
       }      
-    ]
-  },
-  {
-    "Name": "servoc",
-    "ReturnType": "None",
-    "Return": "",
-    "Deprecated": "",
-    "Comment": "Servo Circular\r\nServo to position (circular in tool-space). Accelerates to and moves with constant tool speed v.",
-    "Parameters": [
-      {
-        "Label": "pose",
-        "Type": "Pose",
-        "Comment": "target pose (pose can also be specified as joint positions, then forward kinematics is used to calculate the corresponding pose)",
-        "Default": ""
-      },
-      {
-        "Label": "a",
-        "Type": "Number",
-        "Comment": "tool acceleration [m/s^2]",
-        "Default": "1.2"
-      },
-      {
-        "Label": "v",
-        "Type": "Number",
-        "Comment": "tool speed [m/s]",
-        "Default": "0.25"
-      },
-      {
-        "Label": "r",
-        "Type": "Number",
-        "Comment": "blend radius (of target pose) [m]",
-        "Default": "0"
-      }
     ]
   },
   {

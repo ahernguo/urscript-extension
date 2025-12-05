@@ -171,6 +171,21 @@
     ]
   },
   {
+    "Name": "get_rtde_value",
+    "ReturnType": "Bool|Number|Array",
+    "Return": "The type of the return value depends on the key parameter and can be one of the following: \r\n- bool\r\n  - For RTDE field type: BOOL\r\n- number - either int or float\r\n  - For RTDE field types: UINT8, UINT32, UINT64, INT32, DOUBLE\r\n- fixed length list of numbers either int or float\r\n  - For RTDE field types: VECTOR3D, VECTOR6D, VECTOR6INT32, VECTOR6UINT32",
+    "Deprecated": "",
+    "Comment": "Returns the corresponding value of the supplied RTDE output field key.\r\n\r\nThis function retrieves an RTDE value from the RTDE output buffer, which also can be collected through a client. The RTDE value is one time step behind, therefore it is suggested to make a sync() call, before calling get_rtde_value(key).",
+    "Parameters": [
+      {
+        "Label": "key",
+        "Type": "String",
+        "Comment": "RTDE output field key of value to retrieve. See the complete list of available fields and their corresponding field types: [RTDE Guide](www.universal-robots.com/articles/ur/interface-communication/real-time-data-exchange-rtde-guide/)",
+        "Default": ""
+      }
+    ]
+  },
+  {
     "Name": "get_standard_analog_in",
     "ReturnType": "Float",
     "Return": "float, The signal level in Amperes, or Volts",
@@ -1494,5 +1509,65 @@
     "Deprecated": "",
     "Comment": "Zeroes the TCP force/torque measurement from the builtin force/torque sensor by subtracting the current measurement from the subsequent.",
     "Parameters": []
-  }  
+  },
+  {
+    "Name": "request_boolean_from_primary_client",
+    "ReturnType": "Bool",
+    "Return": "User input True/False",
+    "Deprecated": "",
+    "Comment": "Displays a popup requesting the user to choose a state. The Text is displayed",
+    "Parameters": [
+        {
+            "Label": "Text",
+            "Type": "String",
+            "Comment": "The Text to be displayed. Supports HTML in Polyscope 5",
+            "Default": ""
+        }
+    ]
+  },
+  {
+      "Name": "request_float_from_primary_client",
+      "ReturnType": "Float",
+      "Return": "User input float value",
+      "Deprecated": "",
+      "Comment": "Displays a popup requesting the user to input a float value. The Text is displayed",
+      "Parameters": [
+          {
+              "Label": "Text",
+              "Type": "String",
+              "Comment": "The Text to be displayed. NO support HTML in Polyscope 5",
+              "Default": ""
+          }
+      ]
+  },
+  {
+      "Name": "request_integer_from_primary_client",
+      "ReturnType": "Integer",
+      "Return": "User input integer value",
+      "Deprecated": "",
+      "Comment": "Displays a popup requesting the user to input an integer value. The Text is displayed",
+      "Parameters": [
+        {
+            "Label": "Text",
+            "Type": "String",
+            "Comment": "The Text to be displayed. NO support HTML in Polyscope 5",
+            "Default": ""
+        }
+      ]
+  },
+  {
+      "Name": "request_string_from_primary_client",
+      "ReturnType": "String",
+      "Return": "User input string value",
+      "Deprecated": "",
+      "Comment": "Displays a popup requesting the user to input a string. The Text is displayed",
+      "Parameters": [
+        {
+            "Label": "Text",
+            "Type": "String",
+            "Comment": "The Text to be displayed. NO support HTML in Polyscope 5",
+            "Default": ""
+        }
+      ]
+  }
 ]
