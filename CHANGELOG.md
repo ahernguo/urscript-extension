@@ -3,6 +3,10 @@ All notable changes to the "urscript" extension will be documented in this file.
 
 Goto [urscript-extension](https://github.com/ahernguo/urscript-extension) for more details.
 
+## `0.1.21` (07-Dec-2025) by _Ebbe Fuglsang_ and _xemjeff_
+* FEATURE
+  * Update of builtins ([#35](https://github.com/ahernguo/urscript-extension/pull/35))
+
 ## `0.1.20` (19-Nov-2025)
 * HOTFIX
   * Bump js-yaml from 3.13.1 to 3.14.2 ([#34](https://github.com/ahernguo/urscript-extension/pull/34))
