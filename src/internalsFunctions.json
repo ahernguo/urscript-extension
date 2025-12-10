@@ -29,6 +29,14 @@
     ]
   },
   {
+    "Name": "get_actual_joint_accelerations",
+    "ReturnType": "Array",
+    "Return": "Returns the list of joint accelerations derived directly from the encoders.",
+    "Deprecated": "",
+    "Comment": "List of joint acceleration.",
+    "Parameters": []
+  },
+  {
     "Name": "get_actual_joint_positions",
     "ReturnType": "Array",
     "Return": "The current actual joint angular position vector in rad : [Base, Shoulder, Elbow, Wrist1, Wrist2, Wrist3]",
@@ -98,6 +106,27 @@
     "Deprecated": "",
     "Comment": "Returns the temperature of the control box\r\n\r\nThe temperature of the robot control box in degrees Celcius",
     "Parameters": []
+  },
+  {
+    "Name": "get_coriolis_and_centrifugal_torques",
+    "ReturnType": "Array",
+    "Return": "List of Coriolis and centrifugal joint torques.",
+    "Deprecated": "",
+    "Comment": "Returns the summed list of Coriolis and centrifugal joint torques for the robot at the specified joint positions and velocities.",
+    "Parameters": [
+      {
+        "Label": "q",
+        "Type": "Array",
+        "Comment": "List of joint positions. If not specified, uses the current robot position",
+        "Default": "\"current_joint_positions\""
+      },
+      {
+        "Label": "qd",
+        "Type": "Array",
+        "Comment": "List of joint velocities. If not specified, uses the current robot velocities.",
+        "Default": "\"current_joint_speeds\""
+      }
+    ]
   },
   {
     "Name": "get_forward_kin",
@@ -207,6 +236,54 @@
     ]
   },
   {
+    "Name": "get_jacobian",
+    "ReturnType": "Matrix",
+    "Return": "The Jacobian matrix.",
+    "Deprecated": "",
+    "Comment": "Returns the Jacobian matrix for the robot at the specified joint positions and TCP offset.",
+    "Parameters": [
+      {
+        "Label": "q",
+        "Type": "Array",
+        "Comment": "List of joint positions. If not specified, uses the current robot position",
+        "Default": "\"current_joint_positions\""
+      },
+      {
+        "Label": "tcp",
+        "Type": "Pose",
+        "Comment": "Pose of the TCP offset. If not specified, uses the active TCP offset.",
+        "Default": "\"active_tcp\""
+      }
+    ]
+  },
+  {
+    "Name": "get_jacobian_time_derivative",
+    "ReturnType": "Matrix",
+    "Return": "The time derivative of the Jacobian matrix.",
+    "Deprecated": "",
+    "Comment": "Returns the time derivative of the Jacobian matrix for the robot at the specified joint positions, joint velocities and TCP offset.",
+    "Parameters": [
+      {
+        "Label": "q",
+        "Type": "Array",
+        "Comment": "List of joint positions. If not specified, uses the current robot position",
+        "Default": "\"current_joint_positions\""
+      },
+      {
+        "Label": "qd",
+        "Type": "Array",
+        "Comment": "List of joint velocities. If not specified, uses the current robot velocities.",
+        "Default": "\"current_joint_speeds\""
+      },
+      {
+        "Label": "tcp",
+        "Type": "Pose",
+        "Comment": "Pose of the TCP offset. If not specified, uses the active TCP offset.",
+        "Default": "\"active_tcp\""
+      }
+    ]
+  },
+  {
     "Name": "get_joint_temp",
     "ReturnType": "Float",
     "Return": "A temperature in degrees Celcius (float)",
@@ -230,11 +307,40 @@
     "Parameters": []
   },
   {
+    "Name": "get_mass_matrix",
+    "ReturnType": "Matrix",
+    "Return": "The mass matrix.",
+    "Deprecated": "",
+    "Comment": "Returns the mass (inertia) matrix of the robot at the specified joint positions. Optionally includes the inertia of the motor side of the gear.",
+    "Parameters": [
+      {
+        "Label": "q",
+        "Type": "Array",
+        "Comment": "List of joint positions. If not specified, uses the current robot position",
+        "Default": "\"current_joint_positions\""
+      },
+      {
+        "Label": "include_rotors_inertia",
+        "Type": "Bool",
+        "Comment": "If True, includes the inertia on the motor side of the gear.",
+        "Default": "False"
+      }
+    ]
+  },
+  {
     "Name": "get_steptime",
     "ReturnType": "Int",
     "Return": "duration of the robot step in seconds",
     "Deprecated": "",
     "Comment": "Returns the duration of the robot time step in seconds.\r\n\r\nIn every time step, the robot controller will receive measured joint positions and velocities from the robot, and send desired joint positions and velocities back to the robot. This happens with a predetermined frequency, in regular intervals. This interval length is the robot time step.",
+    "Parameters": []
+  },
+  {
+    "Name": "get_target_joint_accelerations",
+    "ReturnType": "Array",
+    "Return": "List of joint accelerations.",
+    "Deprecated": "",
+    "Comment": "Returns the list of joint accelerations derived from the motion commands.",
     "Parameters": []
   },
   {
@@ -446,6 +552,49 @@
         "Label": "a",
         "Type": "Array",
         "Comment": "The linear acceleration of the base in x, y, z directions",
+        "Default": ""
+      }
+    ]
+  },
+  {
+    "Name": "set_baselight_off",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Turns the baselight completely off.",
+    "Parameters": []
+  },
+  {
+    "Name": "set_baselight_iec",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Make the baselight comply to the IEC 60204-1 standard and indicate whether the robot is in a safety stop, in freedrive as well as the operational mode. Further details of the colors can be seen in the UR20 manual.",
+    "Parameters": []
+  },
+  {
+    "Name": "set_baselight_solid",
+    "ReturnType": "None",
+    "Return": "",
+    "Deprecated": "",
+    "Comment": "Set a color on the entire baselight ring as specified by the given RGB values in the range 0-255.",
+    "Parameters": [
+      {
+        "Label": "r",
+        "Type": "Int",
+        "Comment": "R value in the range 0-255.",
+        "Default": ""
+      },
+      {
+        "Label": "g",
+        "Type": "Int",
+        "Comment": "G value in the range 0-255.",
+        "Default": ""
+      },
+      {
+        "Label": "b",
+        "Type": "Int",
+        "Comment": "B value in the range 0-255.",
         "Default": ""
       }
     ]

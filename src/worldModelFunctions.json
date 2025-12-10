@@ -1,0 +1,271 @@
+[
+    {
+        "Name": "add_frame",
+        "ReturnType": "None",
+        "Return": "",
+        "Deprecated": "",
+        "Comment": "Add a frame with the name name initialized at the specified pose expressed in the ref_name coordinate frame. ",
+        "Parameters": [
+          {
+            "Label": "name",
+            "Type": "String",
+            "Comment": "name of the frame to be added. The name must not be the same as any existing world model object (frame, axis, or axis group), otherwise an exception is thrown",
+            "Default": ""
+          },
+          {
+            "Label": "pose",
+            "Type": "Pose",
+            "Comment": "initial pose of the new frame",
+            "Default": ""
+          },
+          {
+            "Label": "refname",
+            "Type": "String",
+            "Comment": "name of the world model object whose coordinate frame the pose is expressed in. If nothing is provided here, the default is the robot's \"base\" frame.",
+            "Default": "base"
+          }
+        ]
+    },
+    {
+        "Name": "attach_frame",
+        "ReturnType": "None",
+        "Return": "",
+        "Deprecated": "",
+        "Comment": "Attaches the child frame to the parent world model object.",
+        "Parameters": [
+          {
+            "Label": "child",
+            "Type": "String",
+            "Comment": "name of the frame to be attached. The name must not be \"world\", \"flange\", or \"tcp\".",
+            "Default": ""
+          },
+          {
+            "Label": "parent",
+            "Type": "String",
+            "Comment": "name of the object that the child frame will be attached to",
+            "Default": ""
+          }
+        ]
+    },
+    {
+        "Name": "delete_all_frames",
+        "ReturnType": "None",
+        "Return": "",
+        "Deprecated": "",
+        "Comment": "Delete all frames that have been added to the world model.",
+        "Parameters": []
+    },
+    {
+        "Name": "delete_frame",
+        "ReturnType": "None",
+        "Return": "",
+        "Deprecated": "",
+        "Comment": "Delete the named frame from the world model.",
+        "Parameters": [
+          {
+            "Label": "name",
+            "Type": "String",
+            "Comment": "name of the frame to be deleted",
+            "Default": ""
+          }
+        ]
+    },
+    {
+        "Name": "move_frame",
+        "ReturnType": "None",
+        "Return": "",
+        "Deprecated": "",
+        "Comment": "Changes the placement of the coordinate frame named name to the new placement given by pose that is defined in the ref_name coordinate frame.",
+        "Parameters": [
+          {
+            "Label": "name",
+            "Type": "String",
+            "Comment": "name of the frame to be moved. The name must not be the same as any existing world model object (frame, axis, or axis group), otherwise an exception is thrown",
+            "Default": ""
+          },
+          {
+            "Label": "pose",
+            "Type": "Pose",
+            "Comment": "the new placement",
+            "Default": ""
+          },
+          {
+            "Label": "refname",
+            "Type": "String",
+            "Comment": "name of the coordinate frame that the pose is expressed in. If nothing is provided here, the default is the robot's \"base\" frame.",
+            "Default": "base"
+          }
+        ]
+    },
+    {
+        "Name": "get_pose",
+        "ReturnType": "Pose",
+        "Return": "pose",
+        "Deprecated": "",
+        "Comment": "Get the pose of the name frame relative to the rel_name frame but expressed in the coordinates of the ref_name frame.",
+        "Parameters": [
+          {
+            "Label": "name",
+            "Type": "String",
+            "Comment": "name of the frame to query.",
+            "Default": ""
+          },
+          {
+            "Label": "rel_name",
+            "Type": "String",
+            "Comment": "short for “relative frame name” is the frame where the pose is computed relative to",
+            "Default": ""
+          },
+          {
+            "Label": "ref_name",
+            "Type": "String",
+            "Comment": "short for “reference frame name” is the frame to express the coordinates of resulting relative pose in. If this is not provided, then it will default to match the value of rel_name.",
+            "Default": "base"
+          }
+        ]
+    },
+    {
+        "Name": "convert_pose",
+        "ReturnType": "Pose",
+        "Return": "pose",
+        "Deprecated": "",
+        "Comment": "Convert pose from 'from_frame' to 'to_frame'.",
+        "Parameters": [
+          {
+            "Label": "pose",
+            "Type": "Pose",
+            "Comment": "pose to be converted.",
+            "Default": ""
+          },
+          {
+            "Label": "from_frame",
+            "Type": "String",
+            "Comment": "name of reference frame at origin of old coordinate system",
+            "Default": ""
+          },
+          {
+            "Label": "to_frame",
+            "Type": "String",
+            "Comment": "name of reference frame at origin of new coordinate system.",
+            "Default": ""
+          }
+        ]
+    },
+    {
+        "Name": "reset_world_model",
+        "ReturnType": "None",
+        "Return": "",
+        "Deprecated": "",
+        "Comment": "Delete all frames, axis groups, and axes that were added to the world model. This also moves the robot’s base to the world origin.",
+        "Parameters": []
+    },
+    {
+        "Name": "is_frame",
+        "ReturnType": "Boolean",
+        "Return": "true if there is a frame by the given name, false if not.",
+        "Deprecated": "",
+        "Comment": "Queries for the existence of a frame by the given name.",
+        "Parameters": [
+          {
+            "Label": "name",
+            "Type": "String",
+            "Comment": "name of the frame to be queried",
+            "Default": ""
+          }
+        ]
+    },
+    {
+        "Name": "get_frame_parent",
+        "ReturnType": "String",
+        "Return": "name of the parent as a string",
+        "Deprecated": "",
+        "Comment": "Get the parent of the frame named name in the world model.",
+        "Parameters": [
+          {
+            "Label": "name",
+            "Type": "String",
+            "Comment": "name of the frame to be queried",
+            "Default": ""
+          }
+        ]
+    },
+    {
+        "Name": "get_children",
+        "ReturnType": "Array",
+        "Return": "array strings : the names of the children of the queried frame",
+        "Deprecated": "",
+        "Comment": "Returns a list of immediate child object frame names.",
+        "Parameters": [
+          {
+            "Label": "name",
+            "Type": "String",
+            "Comment": "the name of the parent object.",
+            "Default": ""
+          }
+        ]
+    },
+    {
+        "Name": "frame_tracking_enable",
+        "ReturnType": "None",
+        "Return": "",
+        "Deprecated": "",
+        "Comment": "Enables frame tracking.",
+        "Parameters": [
+          {
+            "Label": "frame_name",
+            "Type": "String",
+            "Comment": "Name of the frame in the world model to track. This can also be the name of an axis added with the 'axis_group_add_axis()' command.",
+            "Default": ""
+          }
+        ]
+    },
+    {
+        "Name": "frame_tracking_disable",
+        "ReturnType": "None",
+        "Return": "",
+        "Deprecated": "",
+        "Comment": "Disables frame tracking.",
+        "Parameters": []
+    },
+    {
+        "Name": "set_mass_properties",
+        "ReturnType": "None",
+        "Return": "",
+        "Deprecated": "",
+        "Comment": "Set mass properties (including mass m, center of gravity cog, and inertia matrix inertia) of the frame.",
+        "Parameters": [
+          {
+            "Label": "frame",
+            "Type": "String",
+            "Comment": "",
+            "Default": ""
+          },
+          {
+            "Label": "m",
+            "Type": "Float",
+            "Comment": "mass in kg",
+            "Default": ""
+          },
+          {
+            "Label": "cog",
+            "Type": "Array",
+            "Comment": "Center of Gravity: an array with three elements [CoGx, CoGy, CoGz] specifying the offset (in meters) from the frame origin.",
+            "Default": ""
+          },
+          {
+            "Label": "inertia",
+            "Type": "Array",
+            "Comment": "Inertia: an array with six elements [Ixx, Iyy, Izz, Ixy, Ixz, Iyz] with origin in the CoG and the axes aligned with the frame axes",
+            "Default": ""
+          }         
+        ]
+    },
+    {
+        "Name": "set_payload_from_attached_frames",
+        "ReturnType": "None",
+        "Return": "",
+        "Deprecated": "",
+        "Comment": "Set the payload based on the attached frames. This will compute the effective mass and inertia from frames on an attachment chain to the TCP and set it as the payload.",
+        "Parameters": []
+    }
+]

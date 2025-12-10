@@ -1,0 +1,278 @@
+[
+    {
+      "Name": "ros_publisher_factory",
+      "ReturnType": "Number",
+      "Return": "A ros publisher handle with the methods \"publish(myStruct)\"/\"write(myStruct)\" and \"close()\"",
+      "Deprecated": "",
+      "Comment": "Used to create a ROS2 publisher handle that can be used to publish or write messages to the topic.",
+      "Parameters": [
+        {
+          "Label": "topic",
+          "Type": "String",
+          "Comment": "The name of the topic.",
+          "Default": ""
+        },
+        {
+          "Label": "type",
+          "Type": "String",
+          "Comment": "The type of the messages on the topic. A dynamic library corresponding to the type must be present on the robot, e.g libstd_msgs__rosidl_typesupport_introspection_c.so for std_msgs/String.",
+          "Default": ""
+        },
+        {
+          "Label": "history",
+          "Type": "String",
+          "Comment": "How many messages to store in the history. Options are \"default\", \"keep_last\" and \"keep_all\".",
+          "Default": "\"default\""
+        },
+        {
+          "Label": "depth",
+          "Type": "Number",
+          "Comment": "The size of the queue of old messages. It requires history to be \"keep_last\" to take effect.",
+          "Default": "1"
+        },
+        {
+          "Label": "reliability",
+          "Type": "String",
+          "Comment": "How reliable the topic should be. Options are \"default\", \"reliable\", and \"best_effort\".",
+          "Default": "\"default\""
+        },
+        {
+          "Label": "durability",
+          "Type": "String",
+          "Comment": "Options are \"default\", \"transient_local\", and \"volatile\".",
+          "Default": "\"default\""
+        },
+        {
+          "Label": "deadline",
+          "Type": "Float",
+          "Comment": "A contract for how much time is allowed between messages.",
+          "Default": "0"
+        },
+        {
+          "Label": "lifespan",
+          "Type": "Float",
+          "Comment": "The amount of time a message will be considered valid. 0 will mean lifespan is disabled.",
+          "Default": "0"
+        },
+        {
+          "Label": "liveliness",
+          "Type": "String",
+          "Comment": "Specifies for how long the publisher is considered alive. Options are \"default\", \"automatic\", and \"manual\".",
+          "Default": "\"default\""
+        },
+        {
+          "Label": "lease_duration",
+          "Type": "Float",
+          "Comment": "The period of time a publisher has to indicate that it is alive before it is considered to have lost liveliness.",
+          "Default": "0"
+        }
+      ]
+    },
+    {
+        "Name": "ros_subscriber_factory",
+        "ReturnType": "Number",
+        "Return": "A ros subscriber handle with the methods \"read()\", \"read_history(number_of_msgs)\", \"wait(timeout)\" and \"close\"",
+        "Deprecated": "",
+        "Comment": "Used to create a subscriber handle. The constraints on the message type from publishers also apply to subscribers, but the read method returns a struct corresponding to the message type, blocking until one is available.",
+        "Parameters": [
+          {
+            "Label": "topic",
+            "Type": "String",
+            "Comment": "The name of the topic.",
+            "Default": ""
+          },
+          {
+            "Label": "type",
+            "Type": "String",
+            "Comment": "The type of the messages on the topic. A dynamic library corresponding to the type must be present on the robot, e.g libstd_msgs__rosidl_typesupport_introspection_c.so for std_msgs/String.",
+            "Default": ""
+          },
+          {
+            "Label": "history",
+            "Type": "String",
+            "Comment": "How many messages to store in the history. Options are \"default\", \"keep_last\" and \"keep_all\".",
+            "Default": "\"default\""
+          },
+          {
+            "Label": "depth",
+            "Type": "Number",
+            "Comment": "The size of the queue of old messages. It requires history to be \"keep_last\" to take effect.",
+            "Default": "1"
+          },
+          {
+            "Label": "reliability",
+            "Type": "String",
+            "Comment": "How reliable the topic should be. Options are \"default\", \"reliable\", and \"best_effort\".",
+            "Default": "\"default\""
+          },
+          {
+            "Label": "durability",
+            "Type": "String",
+            "Comment": "Options are \"default\", \"transient_local\", and \"volatile\".",
+            "Default": "\"default\""
+          },
+          {
+            "Label": "deadline",
+            "Type": "Float",
+            "Comment": "A contract for how much time is allowed between messages.",
+            "Default": "0"
+          },
+          {
+            "Label": "lifespan",
+            "Type": "Float",
+            "Comment": "The amount of time a message will be considered valid. 0 will mean lifespan is disabled.",
+            "Default": "0"
+          },
+          {
+            "Label": "liveliness",
+            "Type": "String",
+            "Comment": "Specifies for how long the publisher is considered alive. Options are \"default\", \"automatic\", and \"manual\".",
+            "Default": "\"default\""
+          },
+          {
+            "Label": "lease_duration",
+            "Type": "Float",
+            "Comment": "The period of time a publisher has to indicate that it is alive before it is considered to have lost liveliness.",
+            "Default": "0"
+          }
+        ]
+      },
+      {
+        "Name": "ros_service_client_factory",
+        "ReturnType": "Number",
+        "Return": "A ros service client handle with the methods \"wait_for_service(timeout)\" and \"call(myStruct, timeout)\"",
+        "Deprecated": "",
+        "Comment": "Used to create a service client handle. The constraints on the message type from publishers also apply to subscribers, but the read method returns a struct corresponding to the message type, blocking until one is available.",
+        "Parameters": [
+          {
+            "Label": "topic",
+            "Type": "String",
+            "Comment": "The name of the topic.",
+            "Default": ""
+          },
+          {
+            "Label": "type",
+            "Type": "String",
+            "Comment": "The type of the messages on the topic. A dynamic library corresponding to the type must be present on the robot, e.g libstd_msgs__rosidl_typesupport_introspection_c.so for std_msgs/String.",
+            "Default": ""
+          },
+          {
+            "Label": "history",
+            "Type": "String",
+            "Comment": "How many messages to store in the history. Options are \"default\", \"keep_last\" and \"keep_all\".",
+            "Default": "\"default\""
+          },
+          {
+            "Label": "depth",
+            "Type": "Number",
+            "Comment": "The size of the queue of old messages. It requires history to be \"keep_last\" to take effect.",
+            "Default": "1"
+          },
+          {
+            "Label": "reliability",
+            "Type": "String",
+            "Comment": "How reliable the topic should be. Options are \"default\", \"reliable\", and \"best_effort\".",
+            "Default": "\"default\""
+          },
+          {
+            "Label": "durability",
+            "Type": "String",
+            "Comment": "Options are \"default\", \"transient_local\", and \"volatile\".",
+            "Default": "\"default\""
+          },
+          {
+            "Label": "deadline",
+            "Type": "Number",
+            "Comment": "A contract for how much time is allowed between messages.",
+            "Default": "0"
+          },
+          {
+            "Label": "lifespan",
+            "Type": "Number",
+            "Comment": "The amount of time a message will be considered valid. 0 will mean lifespan is disabled.",
+            "Default": "0"
+          },
+          {
+            "Label": "liveliness",
+            "Type": "String",
+            "Comment": "Specifies for how long the publisher is considered alive. Options are \"default\", \"automatic\", and \"manual\".",
+            "Default": "\"default\""
+          },
+          {
+            "Label": "lease_duration",
+            "Type": "Number",
+            "Comment": "The period of time a publisher has to indicate that it is alive before it is considered to have lost liveliness.",
+            "Default": "0"
+          }
+        ]
+      },
+      {
+        "Name": "ros_action_client_factory",
+        "ReturnType": "Number",
+        "Return": "A ros service client handle with the methods \"wait_for_server(timeout)\", \"send_goal(myStruct)\", \"wait_for_done(timeout)\", \"get_result()\", \"cancel()\", \"get_status()\", \"feedback()\" and \"close()\"",
+        "Deprecated": "",
+        "Comment": "Used to create a action client handle. The constraints on the message type from publishers also apply to subscribers, but the read method returns a struct corresponding to the message type, blocking until one is available.",
+        "Parameters": [
+          {
+            "Label": "topic",
+            "Type": "String",
+            "Comment": "The name of the topic.",
+            "Default": ""
+          },
+          {
+            "Label": "type",
+            "Type": "String",
+            "Comment": "The type of the messages on the topic. A dynamic library corresponding to the type must be present on the robot, e.g libstd_msgs__rosidl_typesupport_introspection_c.so for std_msgs/String.",
+            "Default": ""
+          },
+          {
+            "Label": "history",
+            "Type": "String",
+            "Comment": "How many messages to store in the history. Options are \"default\", \"keep_last\" and \"keep_all\".",
+            "Default": "\"default\""
+          },
+          {
+            "Label": "depth",
+            "Type": "Number",
+            "Comment": "The size of the queue of old messages. It requires history to be \"keep_last\" to take effect.",
+            "Default": "1"
+          },
+          {
+            "Label": "reliability",
+            "Type": "String",
+            "Comment": "How reliable the topic should be. Options are \"default\", \"reliable\", and \"best_effort\".",
+            "Default": "\"default\""
+          },
+          {
+            "Label": "durability",
+            "Type": "String",
+            "Comment": "Options are \"default\", \"transient_local\", and \"volatile\".",
+            "Default": "\"default\""
+          },
+          {
+            "Label": "deadline",
+            "Type": "Number",
+            "Comment": "A contract for how much time is allowed between messages.",
+            "Default": "0"
+          },
+          {
+            "Label": "lifespan",
+            "Type": "Number",
+            "Comment": "The amount of time a message will be considered valid. 0 will mean lifespan is disabled.",
+            "Default": "0"
+          },
+          {
+            "Label": "liveliness",
+            "Type": "String",
+            "Comment": "Specifies for how long the publisher is considered alive. Options are \"default\", \"automatic\", and \"manual\".",
+            "Default": "\"default\""
+          },
+          {
+            "Label": "lease_duration",
+            "Type": "Number",
+            "Comment": "The period of time a publisher has to indicate that it is alive before it is considered to have lost liveliness.",
+            "Default": "0"
+          }
+        ]
+      }
+]        
