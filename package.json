@@ -2,7 +2,7 @@
   "name": "urscript",
   "displayName": "URScript",
   "description": "Code snippet and completion items for Universal Robots Script",
-  "version": "0.1.21",
+  "version": "0.1.22",
   "publisher": "ahernguo",
   "icon": "resources/logo.png",
   "engines": {
@@ -53,7 +53,36 @@
         "scopeName": "source.urscript",
         "path": "./syntaxes/urscript.tmLanguage.json"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "URScript",
+      "properties": {
+        "urscript.autocomplete.methodCommitCharacters": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["(", ")", ":", "\\t", "\\n", "Space"],
+          "description": "The commit characters that trigger autocomplete of methods. E.g. `r2d`, `movej`\nPlease use escape symbol or symbol name. E.g. ( \\t | tab ) for tab, ( \\n | newline | enter) for newline, (Space) for space"
+        },
+        "urscript.autocomplete.keywordCommitCharacters": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["\\t", "\\n", "Space"],
+          "description": "The commit characters that trigger autocomplete of keywords. E.g. `def`, `end`\nPlease use escape symbol or symbol name. E.g. ( \\t | tab ) for tab, ( \\n | newline | enter) for newline, (Space) for space"
+        },
+        "urscript.autocomplete.urdocCommitCharacters": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["\\n", "\\t"],
+          "description": "The commit characters that trigger autocomplete of UrDoc paragraph (###)\nPlease use escape symbol or symbol name. E.g. ( \\t | tab ) for tab, ( \\n | newline | enter) for newline, (Space) for space"
+        },
+        "urscript.autocomplete.urdocTagCommitCharacters": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["\\n", "\\t", "Space"],
+          "description": "The commit characters that trigger autocomplete of UrDoc tags. E.g. `@param`\nPlease use escape symbol or symbol name. E.g. ( \\t | tab ) for tab, ( \\n | newline | enter) for newline, (Space) for space"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

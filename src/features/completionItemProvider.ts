@@ -28,10 +28,66 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
     private scriptCmpItems: CompletionItem[];
 
     /**
+     * Parse human-readable commit characters from setting into actual characters
+     * @param chars the string array from setting
+     */
+    private parseCommitCharacters(chars: string[]): string[] {
+        return chars.map(char => {
+            switch (char.trim().toLowerCase()) {
+                case '\\t':
+                case 'tab':
+                    return '\t';
+                case '\\n':
+                case 'enter':
+                case 'newline':
+                    return '\n';
+                case '\\v':
+                case 'verticaltab':
+                    return '\v';
+                case '\\b':
+                case 'backspace':
+                    return '\b';
+                case '\\r':
+                case 'return':
+                    return '\r';
+                case '\\f':
+                case 'formfeed':
+                    return '\f';
+                case '\\a':
+                case 'alert':
+                    return '\a';
+                case '\\\\':
+                case 'backslash':
+                    return '\\';
+                case '\\?':
+                case 'question':
+                    return '?';
+                case '\\\'':
+                case 'quote':
+                case 'singlequote':
+                    return '\'';
+                case '\\\"':
+                case 'doublequote':
+                    return '\"';
+                case 'space':
+                case 'blank':
+                    return ' ';
+                default:
+                    return char;
+            }
+        });
+    }
+
+    /**
      * construct a provider. convert ScriptMethod to CompletionItem
      * @param funcs the collection of ScriptMethod that loaded from functions.json
      */
     public constructor(funcs: ScriptMethod[]) {
+        /* get commit characters setting from VSCode setting page. the section name must same as package.json/contributes/configuration */
+        const config = workspace.getConfiguration('urscript');
+        const methodCommitChars = this.parseCommitCharacters(config.get<string[]>('autocomplete.methodCommitCharacters', ['(', ')', ':', '\\t', '\\n', 'Space']));
+        const keywordCommitChars = this.parseCommitCharacters(config.get<string[]>('autocomplete.keywordCommitCharacters', ['\\t', '\\n', 'Space']));
+
         this.scriptCmpItems = funcs.map(
             mthd => {
                 /* create new CompletionItem with method name */
@@ -45,7 +101,7 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
                    so the snippet just the method name */
                 cmpItem.insertText = new SnippetString(mthd.Name);
                 /* add the chars to complete CompletionItem and auto fill (SnippetString) */
-                cmpItem.commitCharacters = ['(', ')', ':', '\t', '\n', ' '];
+                cmpItem.commitCharacters = methodCommitChars;
                 /* documentation = comments + (return/deprecated) */
                 cmpItem.documentation = mthd.Documentation;
                 /* set sort priority to lower ('m' means 'method').
@@ -58,13 +114,12 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
         /* [#20](https://github.com/ahernguo/urscript-extension/issues/20) Request for 'end' completion. */
         let endCompItem = new CompletionItem('end', CompletionItemKind.Keyword);
         endCompItem.insertText = new SnippetString('end');
-        endCompItem.commitCharacters = ['\t', '\n', ' '];
+        endCompItem.commitCharacters = keywordCommitChars;
         endCompItem.sortText = 'k';    //set first priority. 'k' means 'keyword'
         this.scriptCmpItems.push(endCompItem);
     }
 
     /**
-     * 取得自動完成項目集合
      * search current editor and URScript to provide CompletionItems for the keyword
      * @param document current editor of vscode
      * @param position the cursor position
@@ -90,6 +145,14 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
             if (isBlank(word)) {
                 return undefined;
             }
+
+            /* get commit characters setting from VSCode setting page.
+                the section name must same as package.json/contributes/configuration
+                this function is called when runtime. get config here can read latest setting without restart VSCode */
+            const config = workspace.getConfiguration('urscript');
+            const urdocCommitChars = this.parseCommitCharacters(config.get<string[]>('autocomplete.urdocCommitCharacters', ['\\n', '\\t']));
+            const urdocTagCommitChars = this.parseCommitCharacters(config.get<string[]>('autocomplete.urdocTagCommitCharacters', ['\\n', '\\t', 'Space']));
+
             /* According to next line, pop-up a UrDoc block when keyword is a '#'.
                ensure next is not empty  */
             if (word.startsWith('#') && (document.lineCount > (position.line + 1))) {
@@ -102,7 +165,7 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
                         new Position(position.line, position.character - word.length),
                         position
                     );
-                    cmpItem.commitCharacters = ['\n', '\t'];
+                    cmpItem.commitCharacters = urdocCommitChars;
                     cmpItem.documentation = '\n###\n# your comments\n###\n';
                     /* add snippet based on next line */
                     const text = nextLine.text.trim();
@@ -153,7 +216,7 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
                     new Position(position.line, position.character - word.length),
                     position
                 );
-                paramCmpItem.commitCharacters = ['\n', '\t', ' '];
+                paramCmpItem.commitCharacters = urdocTagCommitChars;
                 paramCmpItem.documentation = new MarkdownString(
                     '@param `name` `type` your comments'
                 );
@@ -166,7 +229,7 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
                     new Position(position.line, position.character - word.length),
                     position
                 );
-                returnCmpItem.commitCharacters = ['\n', '\t', ' '];
+                returnCmpItem.commitCharacters = urdocTagCommitChars;
                 returnCmpItem.documentation = new MarkdownString(
                     '@returns `type` your comments'
                 );
@@ -180,6 +243,15 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
                 const matchItems = this.scriptCmpItems.filter(
                     mthd => mthd.label.startsWith(word)
                 );
+
+                /* this function is called when runtime.
+                    get config here can read latest setting without restart VSCode */
+                const methodCommitChars = this.parseCommitCharacters(config.get<string[]>('autocomplete.methodCommitCharacters', ['(', ')', ':', '\\t', '\\n', 'Space']));
+                const keywordCommitChars = this.parseCommitCharacters(config.get<string[]>('autocomplete.keywordCommitCharacters', ['\\t', '\\n', 'Space']));
+                matchItems.forEach(item => {
+                    item.commitCharacters = item.kind === CompletionItemKind.Method ? methodCommitChars : keywordCommitChars;
+                });
+
                 /* search all relative keyword in current editor */
                 getCompletionItemsFromDocument(document, word, matchItems);
                 /* search workspace (except current file) for the keyword */

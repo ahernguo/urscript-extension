@@ -3,6 +3,10 @@ All notable changes to the "urscript" extension will be documented in this file.
 
 Goto [urscript-extension](https://github.com/ahernguo/urscript-extension) for more details.
 
+## `0.1.22` (18-Mar-2026)
+* FEATURE
+  * add commit characters confuguration for autocomplete
+
 ## `0.1.21` (07-Dec-2025) by _Ebbe Fuglsang_ and _xemjeff_
 * FEATURE
   * Update of builtins ([#35](https://github.com/ahernguo/urscript-extension/pull/35))

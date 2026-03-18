@@ -41,6 +41,22 @@
   - 提供前往符號(`CTRL + SHIFT + O`)與大綱資訊
     ![symbols](resources/figures/symbols.gif)
 
+## 設定
+
+### 自動完成
+
+若想修改 _自動完成_ 的按鍵對應，可由 `管理` > `設定` > `延伸模組` > `URScript` 來進行設定
+
+![settings](resources/figures/autocmpl_setting.png)
+
+> 請使用 _跳脫字元_ 或 _符號名稱(英文)_ 來指定特殊字元，例如：
+>   - `\t` `tab` 表示 **縮排空格(TAB)**
+>   - `\n` `enter` 表示 **換行(ENTER)**
+>   - `\'` `quote` 表示 **單引號(SINGLE QUOTE)**
+>   - `\"` `doublequote` 表示 **雙引號(DOUBLE QUOTE)**
+>   - `\\` `backslash` 表示 **反斜線(BACKSLASH)**
+>   - `Space` 表示 **空白鍵(SPACE)**
+
 ## 版本紀錄
 
 如欲觀看詳細的變更內容，請參考 [change logs](CHANGELOG.md)

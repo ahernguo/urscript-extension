@@ -41,6 +41,22 @@ This extension provides a simple coding environment with VSCode that more easily
   - Go to symbol (`CTRL + SHIFT + O`) and outline information
     ![symbols](resources/figures/symbols.gif)
 
+## Settings
+
+### Autocomplete
+
+If you want to change autocomplete hotkey, goto `Manage` > `Settings` > `Extensions` > `URScript` and modify settings.
+
+![settings](resources/figures/autocmpl_setting.png)
+
+> Use _escape symbol_ or _symbol name_ to indicate special characters. for example,
+>   - `\t` `tab` for **TAB**
+>   - `\n` `enter` for **ENTER**
+>   - `\'` `quote` for **SINGLE QUOTE**
+>   - `\"` `doublequote` for **DOUBLE QUOTE**
+>   - `\\` `backslash` for **BACKSLASH**
+>   - `Space` for **SPACE**
+
 ## Version
 
 Please refer to [change logs](CHANGELOG.md) for detail changes.
