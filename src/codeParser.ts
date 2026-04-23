@@ -14,6 +14,7 @@ import {
     SymbolKind,
     TextDocument,
     Uri,
+    workspace,
     WorkspaceFolder
 } from 'vscode';
 //reading file (FileStream)
@@ -47,6 +48,57 @@ const ignoreDir: string[] = [ ".git", ".vscode" ];
   * The file extension to search
  */
 const tarExt: string[] = [ ".variables", ".script", ".urscript" ];
+
+/**
+ * Parse human-readable commit characters from setting into actual characters
+ * @param chars the string array from setting
+ */
+export function parseCommitCharacters(chars: string[]): string[] {
+    return chars.map(char => {
+        switch (char.trim().toLowerCase()) {
+            case '\\t':
+            case 'tab':
+                return '\t';
+            case '\\n':
+            case 'enter':
+            case 'newline':
+                return '\n';
+            case '\\v':
+            case 'verticaltab':
+                return '\v';
+            case '\\b':
+            case 'backspace':
+                return '\b';
+            case '\\r':
+            case 'return':
+                return '\r';
+            case '\\f':
+            case 'formfeed':
+                return '\f';
+            case '\\a':
+            case 'alert':
+                return '\a';
+            case '\\\\':
+            case 'backslash':
+                return '\\';
+            case '\\?':
+            case 'question':
+                return '?';
+            case '\\\'':
+            case 'quote':
+            case 'singlequote':
+                return '\'';
+            case '\\\"':
+            case 'doublequote':
+                return '\"';
+            case 'space':
+            case 'blank':
+                return ' ';
+            default:
+                return char;
+        }
+    });
+}
 
 /**
  * Parsing &#64;param comments and convert to MethdParameter object
@@ -158,15 +210,18 @@ function findDoc(name: string, target: string, lines?: string[]): ScriptMethod |
 /**
  * Convert RegExpExecArray to CompletionItems
  * @param matchResult the regex match results
+ * @param keyword the user input keyword to double check
  * @param cmpItems the collection to store
  * @param oldLines temporary past lines
  */
-function parseCmpItem(matchResult: RegExpExecArray | null, cmpItems: CompletionItem[], oldLines?: string[]) {
+function parseCmpItem(matchResult: RegExpExecArray | null, keyword: string, cmpItems: CompletionItem[], oldLines?: string[]) {
     /* exit if nothing matched */
     if (!matchResult || matchResult.length <= 0) {
         return;
     }
     /* convert result string to CompletionItem */
+    const config = workspace.getConfiguration('urscript');
+    const methodCommitChars = parseCommitCharacters(config.get<string[]>('autocomplete.methodCommitCharacters', ['\\t', '\\n', 'Space']));
     matchResult.forEach(
         value => {
             if (value) {
@@ -176,11 +231,15 @@ function parseCmpItem(matchResult: RegExpExecArray | null, cmpItems: CompletionI
                 if (nameReg) {
                     /* remove spaces and invisible char */
                     const name = nameReg[0].trim();
+                    /* because regex may not fillter perfect, like input 'state' but got 'Step_Counter_Thread_1300104b_859e_44b9_80a2_8120e75a9f3e'
+                       so double check here with .startsWidth function */
+                    if (!name.startsWith(keyword)) return;
+                    console.log(`parseCmpItem: ${name}, keyword is ${keyword}`);
                     /* it may repeat... so just add at first time searched */
                     if (!cmpItems.some(cmp => cmp.label === name)) {
                         /* create CompletionItem and assign the keys which can let CompletionItem done(auto fill) */
                         const cmpItem = new CompletionItem(name);
-                        cmpItem.commitCharacters = ["\t", " ", "\n"];
+                        cmpItem.commitCharacters = methodCommitChars;
                         /*
                             search UrDoc in past lines. it should be like ...
 
@@ -443,7 +502,7 @@ export function getCompletionItemsFromDocument(document: TextDocument, keyword: 
         /* trying to get keyword parts */
         const match = mthdPat.exec(cur);
         /* parse regex result. add to 'cmpItems' if found */
-        parseCmpItem(match, cmpItems, oldLines);
+        parseCmpItem(match, keyword, cmpItems, oldLines);
         /* if past line more than maximum count, drop one */
         if (oldLines.length > maxOldLineCount) {
             oldLines.shift();
@@ -461,7 +520,8 @@ export function getCompletionItemsFromDocument(document: TextDocument, keyword: 
  */
 export function getCompletionItemsFromFile(fileName: fs.PathLike, keyword: string, cmpItems: CompletionItem[]) {
     /* create new regex to search keyword */
-    const mthdPat = new RegExp(`\\b(def|thread|global)\\s+${keyword}.*(\\(.*\\):)*`, "ig");
+    const kwTrimed = keyword.trim();
+    const mthdPat = new RegExp(`\\b(def|thread|global)\\s+(${kwTrimed}[a-zA-Z0-9_]*)(\\(.*\\):`, "ig");
     /* create a new instance to store past lines */
     const oldLines: string[] = [];
     /* create a new reader to read each line */
@@ -475,7 +535,7 @@ export function getCompletionItemsFromFile(fileName: fs.PathLike, keyword: strin
             /* trying to get keyword parts */
             const match = mthdPat.exec(cur);
             /* parse regex result. add to 'cmpItems' if found */
-            parseCmpItem(match, cmpItems, oldLines);
+            parseCmpItem(match, keyword, cmpItems, oldLines);
             /* if past line more than maximum count, drop one */
             if (oldLines.length > maxOldLineCount) {
                 oldLines.shift();
@@ -510,6 +570,9 @@ function getCompletionItemsFromVariables(filePath: fs.PathLike, fileName: fs.Pat
             const cur = pkg.line.toString().trim();
             /* search keyword parts with regex */
             while ((nameMatch = namePat.exec(cur))) {
+                /* because regex may not fillter perfect, like input 'state' but got 'Step_Counter_Thread_1300104b_859e_44b9_80a2_8120e75a9f3e'
+                   so double check here with .startsWidth function */
+                if (!nameMatch[0].startsWith(keyword)) continue;
                 /* get the interest block and convert it */
                 while ((valueMatch = valuePat.exec(cur))) {
                     /* create new item and assign values */

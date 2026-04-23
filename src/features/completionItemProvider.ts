@@ -15,7 +15,7 @@ import {
 //the package for URScript/API
 import { ScriptMethod } from '../scriptmethod';
 //parse keyword to create CompletionItem
-import { getCompletionItemsFromDocument, getCompletionItemsFromWorkspace } from '../codeParser';
+import { getCompletionItemsFromDocument, getCompletionItemsFromWorkspace, parseCommitCharacters } from '../codeParser';
 //check string is null or empty
 import { isBlank } from '../utilities/checkString';
 
@@ -28,65 +28,14 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
     private scriptCmpItems: CompletionItem[];
 
     /**
-     * Parse human-readable commit characters from setting into actual characters
-     * @param chars the string array from setting
-     */
-    private parseCommitCharacters(chars: string[]): string[] {
-        return chars.map(char => {
-            switch (char.trim().toLowerCase()) {
-                case '\\t':
-                case 'tab':
-                    return '\t';
-                case '\\n':
-                case 'enter':
-                case 'newline':
-                    return '\n';
-                case '\\v':
-                case 'verticaltab':
-                    return '\v';
-                case '\\b':
-                case 'backspace':
-                    return '\b';
-                case '\\r':
-                case 'return':
-                    return '\r';
-                case '\\f':
-                case 'formfeed':
-                    return '\f';
-                case '\\a':
-                case 'alert':
-                    return '\a';
-                case '\\\\':
-                case 'backslash':
-                    return '\\';
-                case '\\?':
-                case 'question':
-                    return '?';
-                case '\\\'':
-                case 'quote':
-                case 'singlequote':
-                    return '\'';
-                case '\\\"':
-                case 'doublequote':
-                    return '\"';
-                case 'space':
-                case 'blank':
-                    return ' ';
-                default:
-                    return char;
-            }
-        });
-    }
-
-    /**
      * construct a provider. convert ScriptMethod to CompletionItem
      * @param funcs the collection of ScriptMethod that loaded from functions.json
      */
     public constructor(funcs: ScriptMethod[]) {
         /* get commit characters setting from VSCode setting page. the section name must same as package.json/contributes/configuration */
         const config = workspace.getConfiguration('urscript');
-        const methodCommitChars = this.parseCommitCharacters(config.get<string[]>('autocomplete.methodCommitCharacters', ['(', ')', ':', '\\t', '\\n', 'Space']));
-        const keywordCommitChars = this.parseCommitCharacters(config.get<string[]>('autocomplete.keywordCommitCharacters', ['\\t', '\\n', 'Space']));
+        const methodCommitChars = parseCommitCharacters(config.get<string[]>('autocomplete.methodCommitCharacters', ['(', ')', ':', '\\t', '\\n', 'Space']));
+        const keywordCommitChars = parseCommitCharacters(config.get<string[]>('autocomplete.keywordCommitCharacters', ['\\t', '\\n', 'Space']));
 
         this.scriptCmpItems = funcs.map(
             mthd => {
@@ -128,6 +77,11 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
      */
     public async provideCompletionItems(document: TextDocument, position: Position, token: CancellationToken, context: CompletionContext): Promise<CompletionList | undefined> {
         try {
+            /* to prevent completion when snippet on, search current line and return undefined if starts with `def` `global` words */
+            const line = document.lineAt(position.line);
+            if (/^\s*(def|thread|global)/.test(line.text)) {
+                return undefined;
+            }
             /* get the range that current cursor pointed */
             let word = '';
             const wordRange = document.getWordRangeAtPosition(position);
@@ -138,7 +92,6 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
                 );
             } else {
                 /* get whole line if not a 'keyword'. this is to find '#' (start/stop sign of UrDoc) */
-                const line = document.lineAt(position.line);
                 word = line.text.trim();
             }
             /* return null when no 'keyword' or 'sign' found */
@@ -150,8 +103,8 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
                 the section name must same as package.json/contributes/configuration
                 this function is called when runtime. get config here can read latest setting without restart VSCode */
             const config = workspace.getConfiguration('urscript');
-            const urdocCommitChars = this.parseCommitCharacters(config.get<string[]>('autocomplete.urdocCommitCharacters', ['\\n', '\\t']));
-            const urdocTagCommitChars = this.parseCommitCharacters(config.get<string[]>('autocomplete.urdocTagCommitCharacters', ['\\n', '\\t', 'Space']));
+            const urdocCommitChars = parseCommitCharacters(config.get<string[]>('autocomplete.urdocCommitCharacters', ['\\n', '\\t']));
+            const urdocTagCommitChars = parseCommitCharacters(config.get<string[]>('autocomplete.urdocTagCommitCharacters', ['\\n', '\\t', 'Space']));
 
             /* According to next line, pop-up a UrDoc block when keyword is a '#'.
                ensure next is not empty  */
@@ -246,8 +199,8 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
 
                 /* this function is called when runtime.
                     get config here can read latest setting without restart VSCode */
-                const methodCommitChars = this.parseCommitCharacters(config.get<string[]>('autocomplete.methodCommitCharacters', ['(', ')', ':', '\\t', '\\n', 'Space']));
-                const keywordCommitChars = this.parseCommitCharacters(config.get<string[]>('autocomplete.keywordCommitCharacters', ['\\t', '\\n', 'Space']));
+                const methodCommitChars = parseCommitCharacters(config.get<string[]>('autocomplete.methodCommitCharacters', ['(', ')', ':', '\\t', '\\n', 'Space']));
+                const keywordCommitChars = parseCommitCharacters(config.get<string[]>('autocomplete.keywordCommitCharacters', ['\\t', '\\n', 'Space']));
                 matchItems.forEach(item => {
                     item.commitCharacters = item.kind === CompletionItemKind.Method ? methodCommitChars : keywordCommitChars;
                 });
@@ -268,7 +221,7 @@ export class URScriptCompletionItemProvider implements CompletionItemProvider {
                     );
                 }
                 /* return the relative completion item of the keyword */
-                return new CompletionList(matchItems, !(word.length > 1));
+                return new CompletionList(matchItems, true);
             }
         } catch (error) {
             console.log(error);

@@ -3,6 +3,13 @@ All notable changes to the "urscript" extension will be documented in this file.
 
 Goto [urscript-extension](https://github.com/ahernguo/urscript-extension) for more details.
 
+## `0.1.23` (23-Apr-2026)
+
+* BUGFIXES
+  * fix autocomplete shows something mismatch due to autocomplete cache
+  * modify method regex pattern when providing complete items to prevent space and signs
+  * disable autocomplete when line starts with `def` `thread` `global`
+
 ## `0.1.22` (18-Mar-2026)
 * FEATURE
   * add commit characters confuguration for autocomplete
